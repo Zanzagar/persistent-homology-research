@@ -49,7 +49,15 @@ For gridded image data—such as geological facies maps where each pixel has a b
 
 Homology translates the geometric question "how many holes does this shape have?" into linear algebra. The key insight is that "holes" can be detected by studying *cycles* (closed loops) that are not *boundaries* (edges of filled-in regions).
 
-**Chain groups.** For each dimension $k$, the $k$-simplices of a complex $K$ generate a vector space $C_k(K)$ called the $k$th *chain group*, with coefficients in $\mathbb{Z}_2 = \lbrace 0, 1 \rbrace$. An element of this group—a *$k$-chain*—is simply a formal sum of $k$-simplices: $\gamma = \sum_{\sigma} \gamma_{\sigma} \sigma$ where $\gamma_{\sigma} \in \lbrace 0, 1 \rbrace$. Working over $\mathbb{Z}_2$ means a simplex is either "included" (1) or "not included" (0), with the rule that $1 + 1 = 0$ (including a simplex twice cancels it out).
+**Chain groups.** For each dimension $k$, the $k$-simplices of a complex $K$ generate a vector space $C_k(K)$ called the $k$-th *chain group*, with coefficients in the two-element field:
+
+$$\mathbb{Z}_2 = \lbrace 0, 1 \rbrace$$
+
+An element of this group—a $k$-chain—is a formal sum of $k$-simplices:
+
+$$\gamma = \sum_{\sigma} \gamma_{\sigma} \, \sigma, \quad \gamma_{\sigma} \in \lbrace 0, 1 \rbrace$$
+
+Working over $\mathbb{Z}_2$ means a simplex is either "included" (1) or "not included" (0), with the rule that $1 + 1 = 0$ (including a simplex twice cancels it out).
 
 **Boundary maps.** The *boundary map* $\delta_k: C_k(K) \to C_{k-1}(K)$ sends each $k$-simplex to the formal sum of its $(k-1)$-dimensional faces. Over $\mathbb{Z}_2$, this simplifies to:
 
