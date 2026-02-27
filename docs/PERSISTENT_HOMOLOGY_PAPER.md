@@ -162,7 +162,7 @@ The property that makes persistent homology practically viable—and, as we shal
 
 In plain language: **small changes to the input produce small changes to the persistence diagram.** If two geological images differ by at most $\epsilon$ in pixel values (due to noise, measurement error, or different but similar generative processes), their persistence diagrams can differ by at most $\epsilon$ in bottleneck distance.
 
-This guarantee is *mathematical*, not empirical. It does not depend on which generators are used, which dataset is tested, or how many experiments are run. It is a theorem about the mathematical structure of persistent homology itself. As we shall argue in Sections 3 and 6, this makes the stability theorem epistemically stronger than any empirical invariance test.
+This guarantee is *mathematical*, not empirical. It does not depend on which generators are used, which dataset is tested, or how many experiments are run. It is a theorem about the mathematical structure of persistent homology itself. As we shall argue in Sections 3–4, this makes the stability theorem epistemically stronger than any empirical invariance test.
 
 **Practical significance.** The stability theorem is what distinguishes TDA from methods sensitive to coordinate perturbations. A variogram is also stable (in the sense that small input changes produce small output changes), but the stability of variograms is not *proven*—it is observed empirically. The stability of persistent homology is *proven* from first principles. This distinction matters when the goal is to make robust claims about "essence."
 
@@ -457,7 +457,7 @@ The experimental results feed into the multi-level evidence hierarchy (Section 4
 
 **Level 2 (Severe Testing).** After the main classification experiment, we inject adversarial noise at filtration-critical scales—perturbations targeted at the SEDT values where $H_1$ features are born or die. If classification survives adversarial perturbation at these vulnerable scales, the topological features are demonstrably robust, not fragile.
 
-**Level 4 (Cross-Domain Validation).** As a mathematical universality check, the identical pipeline (binarization → distance transform → cubical PH → vectorization) is applied to musical score data and neural connectivity matrices. If the same mathematical machinery distinguishes structurally different objects across domains, the argument that PH captures genuine structural invariants—not domain-specific artifacts—is strengthened.
+**Level 4 (Cross-Domain Validation).** As a mathematical universality check, the same mathematical machinery (cubical PH computation → vectorization) is applied to appropriately preprocessed musical score data and neural connectivity matrices. If this machinery distinguishes structurally different objects across domains, the argument that PH captures genuine structural invariants—not domain-specific artifacts—is strengthened.
 
 **Levels 5–7 (Empirical Validation).** Real-data validation with field analogs (Level 5), cross-generator protocols with multiple independent simulators (Level 6), and expert geological assessment of retrieval results (Level 7) provide necessary empirical grounding for the mathematical and adversarial evidence above.
 
