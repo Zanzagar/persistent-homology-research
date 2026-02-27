@@ -9,7 +9,7 @@ February 2026
 
 ## Abstract
 
-Persistent homology (PH) provides a mathematically rigorous framework for extracting multi-scale topological features from complex data, with provable stability guarantees that make it uniquely suited for problems requiring invariant structural characterization. This paper introduces the core mathematical machinery of persistent homology—simplicial complexes, filtrations, homology groups, Betti numbers, and persistence diagrams—and demonstrates *why* these concepts matter, not merely what they are. We examine persistent homology's role within the Qualia Convergence Framework (QCF), a multi-pathway architecture for depositional analog retrieval that seeks to operationalize the concept of geological "essence." We engage critically with the ellipse degradation thought experiment on the nature of essence, proposing that persistent homology's stability properties provide a *mathematical proof* of invariance that is epistemically stronger than any empirical invariance test. We develop this insight into a restructured evidence hierarchy for essence claims, arguing that the Leave-One-Generator-Out (LOGO) protocol—while a necessary check—faces fundamental limitations rooted in impossibility results from causal representation learning, the independence condition from robustness analysis in philosophy of science, and the problem of induction itself. We further explore how PH's domain-agnostic framework extends to music, auditory structure, and neuroscience, using cross-domain applicability as evidence for mathematical universality rather than domain-specific overfitting. We conclude with an honest assessment of what remains unsolved, centering the philosophical robustness of invariance testing as the central open question for the research program.
+Persistent homology (PH) provides a mathematically rigorous framework for extracting multi-scale topological features from complex data, with provable stability guarantees that make it uniquely suited for problems requiring invariant structural characterization. This paper introduces the core mathematical machinery of persistent homology—simplicial complexes, filtrations, homology groups, Betti numbers, and persistence diagrams—and demonstrates *why* these concepts matter, not merely what they are. We examine persistent homology's role within the Qualia Convergence Framework (QCF), a multi-pathway architecture for depositional analog retrieval that seeks to operationalize the concept of geological "essence." We engage critically with the ellipse degradation thought experiment on the nature of essence, proposing that persistent homology's stability properties provide a *mathematical proof* of invariance that is epistemically stronger than any empirical invariance test. We develop this insight into a structured evidence hierarchy for essence claims organized by epistemic strength, arguing that mathematical invariance theorems occupy the highest level—stronger than any empirical test—while severe adversarial testing, information-theoretic measures, cross-domain validation, and empirical checks including cross-generator protocols provide necessary complementary evidence. We further explore how PH's domain-agnostic framework extends to music, auditory structure, and neuroscience, using cross-domain applicability as evidence for mathematical universality rather than domain-specific overfitting. We conclude with an honest assessment of what remains unsolved, centering the philosophical robustness of invariance testing as the central open question for the research program.
 
 ---
 
@@ -162,7 +162,7 @@ The property that makes persistent homology practically viable—and, as we shal
 
 In plain language: **small changes to the input produce small changes to the persistence diagram.** If two geological images differ by at most $\epsilon$ in pixel values (due to noise, measurement error, or different but similar generative processes), their persistence diagrams can differ by at most $\epsilon$ in bottleneck distance.
 
-This guarantee is *mathematical*, not empirical. It does not depend on which generators are used, which dataset is tested, or how many experiments are run. It is a theorem about the mathematical structure of persistent homology itself. As we shall argue in Sections 3 and 6, this makes the stability theorem epistemically stronger than any empirical invariance test—including LOGO.
+This guarantee is *mathematical*, not empirical. It does not depend on which generators are used, which dataset is tested, or how many experiments are run. It is a theorem about the mathematical structure of persistent homology itself. As we shall argue in Sections 3 and 6, this makes the stability theorem epistemically stronger than any empirical invariance test.
 
 **Practical significance.** The stability theorem is what distinguishes TDA from methods sensitive to coordinate perturbations. A variogram is also stable (in the sense that small input changes produce small output changes), but the stability of variograms is not *proven*—it is observed empirically. The stability of persistent homology is *proven* from first principles. This distinction matters when the goal is to make robust claims about "essence."
 
@@ -277,33 +277,23 @@ Then:
 
 $$\text{Essence}(f) = \bigcap_G \lbrace \text{information about } \theta \text{ captured by } f \text{ when trained on } G \rbrace$$
 
-This is operationalized via the *Leave-One-Generator-Out* (LOGO) test: train on generators $\lbrace G_j : j \neq i \rbrace$, test on $G_i$. If retrieval performance degrades by less than 20% for all held-out generators, the features are deemed generator-invariant.
+Essence, on this definition, is what survives across *all* generators—the information that no generative process can remove. This definition is unique (no path dependence), respects physics (generators enforce the constrained manifold $M$), and is observer-independent (defined by agreement across generators rather than by any single measurement system).
 
-**Why generator invariance is better than degradation**: Invariance is unique (no path dependence), respects physics (generators enforce constraints), is observer-independent (defined by generator agreement), is task-relevant (directly measures retrieval capability), and is operationally testable (LOGO is well-defined).
+**Two modes of assessing invariance.** The critical question becomes: *how do we verify that a representation captures this invariant intersection?* There are two fundamentally different approaches, distinguished by epistemic strength:
 
-The stability theorem provides a strong theoretical prediction for LOGO: because persistent homology is provably stable under perturbations of the input function, topological features *should* transfer between generators better than learned features (which may overfit to generator-specific textures) or classical features (which depend on specific correlation-function shapes). This is a testable, pre-committed prediction: per-pathway LOGO degradation should be lowest for the topological pathway.
+1. **Empirical invariance testing**: Cross-validate across generators—train on some, test on others, measure degradation. This approach is intuitive and directly measures retrieval capability. However, as we argue in Section 4, any finite set of empirical tests faces structural limitations rooted in the problem of induction: passing $N$ tests does not guarantee passing $N+1$.
+
+2. **Mathematical invariance theorems**: Prove from first principles that a representation is stable under bounded perturbations. The stability theorem (§1.6) provides exactly this for persistent homology—and uniquely for persistent homology among the QCF's three pathways. Mathematical proof is not defeasible by additional evidence; it does not depend on which generators are tested, how many are used, or how "diverse" the test pool is.
+
+The stability theorem thus makes a strong prediction: because persistent homology is provably stable under perturbations of the input function, topological features *should* transfer between generators better than learned features (which may overfit to generator-specific textures) or classical features (which depend on specific correlation-function shapes). This is a testable prediction, pre-committed before data analysis: the topological pathway should show the least degradation under generator shift.
 
 ---
 
 ## 4. The Evidence Hierarchy: Mathematical Invariance Over Empirical Testing
 
-### 4.1 The Fundamental Limitation of LOGO
+### 4.1 A Multi-Level Evidence Structure
 
-While generator invariance is conceptually superior to degradation thresholds, the LOGO test itself faces a fundamental philosophical challenge: **the invariance claim is only as strong as the diversity and independence of the generator pool.**
-
-This is not a minor caveat. It is a structural limitation supported by three independent theoretical results:
-
-**The Impossibility Result.** Ahuja et al. (2023) proved that invariance alone is insufficient to identify latent causal variables. Even with multiple environments (generators), without additional structural constraints, invariant features may correspond to shared assumptions of the generator family rather than to the causal structure of the data-generating process. Translation: passing LOGO across N generators does not prove that the invariant features capture geological causes.
-
-**The Environment Diversity Problem.** Invariant Risk Minimization (IRM; Arjovsky et al., 2019)—the most studied invariant learning framework—has been shown to fail catastrophically in nonlinear settings and to require an impractically large number of environments for formal guarantees (Rosenfeld et al., 2021). Adding more generators from the same family (all process-based, all rule-based) does not address this; what matters is the genuine *independence* of their assumptions.
-
-**The Independence Condition.** Wimsatt's robustness analysis (1981) establishes that convergent results from multiple models provide evidence only if the models are genuinely independent. If generators share physical assumptions (Leopold-Wolman relationships, process-based sediment transport equations), then "invariance across generators" may reflect invariance to that shared assumption space—producing what Wimsatt calls "illusory robustness." Orzack and Sober (1993) sharpened this critique: robustness analysis is "nonempirical confirmation, effective only under unusual circumstances."
-
-**The degrees-of-freedom concern.** With sufficient control over the generator space, one can engineer a generator pool where LOGO trivially succeeds—not because essence has been captured, but because the definition of invariance has been overfit to the generator family. This is analogous to the well-known problem in generative modeling: systems with sufficient capacity (transformers, diffusion models) can memorize training distributions while appearing to generalize. The analogy is precise: if you control the generators and the invariance test, you control what "essence" means.
-
-### 4.2 The Restructured Evidence Hierarchy
-
-Given these limitations, the QCF restructures its evidence for essence claims into a multi-level hierarchy, ordered by epistemic strength:
+What evidence warrants calling a representation "essence"? No single test is sufficient. We propose a hierarchy organized by epistemic strength—from mathematical proof at the top to empirical agreement at the bottom—where the convergence of multiple levels provides warranted confidence:
 
 **Level 1 — Mathematical Invariance Theorems (Strongest).** The stability theorem provides a *formal proof* that persistent homology features are invariant under bounded perturbations. This is a mathematical guarantee—it does not depend on which generators are tested, which dataset is used, or how many experiments are run. It cannot be "overengineered" because it is a theorem, not a test. For the topological pathway, this is the primary evidence for invariance.
 
@@ -317,15 +307,15 @@ Given these limitations, the QCF restructures its evidence for essence claims in
 
 **Level 5 — Real-Data Validation.** Testing against real geological data that no generator was designed to reproduce. This is the ultimate generator-independent benchmark, but requires data that may not be available in early research phases.
 
-**Level 6 — LOGO (Necessary but Not Sufficient).** LOGO remains a useful check: failure indicates generator-specificity. But passing LOGO alone is insufficient for a strong essence claim. It must be corroborated by evidence from higher levels.
+**Level 6 — Cross-Generator Validation (Necessary but Not Sufficient).** Testing invariance across generators—training on some, testing on others—provides a practical check: failure indicates generator-specificity. However, passing such tests alone is insufficient for a strong essence claim. Three independent theoretical results constrain what cross-generator validation can establish. Ahuja et al. (2023) proved that invariance alone is insufficient to identify latent causal variables—passing cross-validation across $N$ generators does not prove that invariant features capture geological causes rather than shared assumptions of the generator family. Invariant Risk Minimization (Arjovsky et al., 2019; Rosenfeld et al., 2021) has been shown to fail in nonlinear settings and require impractically many environments for formal guarantees—adding more generators from the same family does not help if they share physical assumptions. And Wimsatt's robustness analysis (1981) requires genuinely independent models for convergent results to be evidential; Orzack and Sober (1993) sharpened this to "nonempirical confirmation, effective only under unusual circumstances." These limitations are structural, not merely practical—they constrain what any finite empirical invariance test can demonstrate. Cross-generator protocols remain a valuable diagnostic (failure is informative), but their positive results must be corroborated by higher levels of evidence.
 
 **Level 7 — Expert Agreement.** Human expert judgment (Cohen's κ) provides truly generator-independent assessment, as experts judge geological similarity from experience, not from any computational pipeline.
 
-### 4.3 The Revised Essence Claim
+### 4.2 The Revised Essence Claim
 
 > We claim that a representation captures "essence" when evidence *converges across multiple levels* of this hierarchy. No single level is sufficient. The convergence of mathematical proof (Level 1), survival of severe testing (Level 2), information-theoretic confirmation (Level 3), and empirical validation (Levels 5–7) provides the warranted basis for the essence designation.
 
-This position is both more epistemically honest and more powerful than relying on LOGO alone. It acknowledges the limitations that impossibility results and the independence condition impose, while building a stronger multi-layered argument. Crucially, the topological pathway has a unique advantage: it is the *only* pathway with a Level 1 mathematical guarantee, making it the natural backbone of the framework's essence argument.
+This multi-level structure is both more epistemically honest and more powerful than any single empirical test. It acknowledges the structural limitations of empirical invariance testing while building a stronger, multi-layered argument for the essence designation. Crucially, the topological pathway has a unique advantage: it is the *only* pathway with a Level 1 mathematical guarantee, making it the natural backbone of the framework's essence argument.
 
 ---
 
@@ -379,7 +369,7 @@ If the same mathematical framework captures invariant structure in geology, musi
 
 The restructured evidence hierarchy (Section 4) does not eliminate the fundamental tension between operational invariance and genuine essence. It acknowledges and addresses the tension more honestly. But several questions remain:
 
-**How do we verify generator independence?** The independence condition (Wimsatt, 1981) is necessary for robust inference, but verifying that generators are genuinely independent—rather than merely superficially different—is itself a non-trivial problem. What constitutes "sufficient diversity" for LOGO to be informative? This question connects to the broader epistemological problem of induction: how can any finite set of tests provide evidence for a universal claim?
+**How do we verify generator independence?** The independence condition (Wimsatt, 1981) is necessary for robust inference, but verifying that generators are genuinely independent—rather than merely superficially different—is itself a non-trivial problem. What constitutes "sufficient diversity" for cross-generator validation to be informative? This question connects to the broader epistemological problem of induction: how can any finite set of tests provide evidence for a universal claim?
 
 **Can causal structure replace empirical invariance?** Instead of testing invariance across generators, one could attempt to identify the *causal structure* that generates geological patterns. If a representation can be shown to capture features that are *causes* of (not merely correlated with) the geological outcome, then invariance follows from the causal graph rather than from empirical testing. This would be the strongest possible evidence—but it requires knowing the causal graph, which is itself a major research challenge.
 
@@ -405,7 +395,7 @@ The most philosophically compelling line of future work may be systematic cross-
 
 ## 7. Conclusion
 
-Persistent homology provides a unique combination of mathematical rigor, computational tractability, and domain agnosticism that makes it the natural backbone of the Qualia Convergence Framework's essence claim. The stability theorem provides what no empirical test can: a mathematical *proof* of invariance under bounded perturbations. The H₁ hypothesis provides a specific, falsifiable prediction about the discriminative power of topological features for geological classification. The LOGO protocol provides a necessary (though not sufficient) empirical check on generator-invariance.
+Persistent homology provides a unique combination of mathematical rigor, computational tractability, and domain agnosticism that makes it the natural backbone of the Qualia Convergence Framework's essence claim. The stability theorem provides what no empirical test can: a mathematical *proof* of invariance under bounded perturbations. The H₁ hypothesis provides a specific, falsifiable prediction about the discriminative power of topological features for geological classification. Cross-generator validation provides a necessary (though not sufficient) empirical check on invariance, with its limitations honestly acknowledged.
 
 The epistemological contribution of this paper is the recognition that mathematical invariance is epistemically *stronger* than empirical invariance, and the consequent restructuring of the evidence hierarchy for essence claims. This restructuring is not merely a philosophical exercise—it changes what experiments are prioritized, how results are interpreted, and what claims are warranted.
 
