@@ -30,12 +30,12 @@ Consider a concrete geological example. A variogram computed from a braided chan
 The bridge from raw data to topological analysis is the *simplicial complex*, a combinatorial structure that systematically builds higher-dimensional shapes from discrete points.
 
 **Definition** (Abstract Simplicial Complex). An abstract simplicial complex $K$ over a vertex set $V$ is a collection of non-empty subsets of $V$ satisfying:
-1. Every single vertex $\{v\}$ with $v \in V$ is in $K$.
+1. Every single vertex $\lbrace v \rbrace$ with $v \in V$ is in $K$.
 2. If a set of vertices $\sigma$ belongs to $K$, then all subsets of $\sigma$ also belong to $K$ (closure property).
 
 The building blocks are $k$-simplices: a 0-simplex is a point, a 1-simplex is an edge connecting two points, a 2-simplex is a filled triangle, and a 3-simplex is a solid tetrahedron. More generally, a $d$-dimensional simplex is the convex hull of its $d+1$ vertices:
 
-$$\sigma = \left\{ \sum_{i=0}^{d} t_i v_i \;\middle|\; t_i \geq 0, \;\sum_{i=0}^{d} t_i = 1 \right\}$$
+$$\sigma = \left\lbrace \sum_{i=0}^{d} t_i v_i \;\mid\; t_i \geq 0, \;\sum_{i=0}^{d} t_i = 1 \right\rbrace$$
 
 The closure property is intuitively necessary: if we claim a triangle exists (3 points mutually connected), then its edges and vertices must also exist.
 
@@ -49,7 +49,7 @@ For gridded image data—such as geological facies maps where each pixel has a b
 
 Homology translates the geometric question "how many holes does this shape have?" into linear algebra. The key insight is that "holes" can be detected by studying *cycles* (closed loops) that are not *boundaries* (edges of filled-in regions).
 
-**Chain groups.** For each dimension $k$, the $k$-simplices of a complex $K$ generate a vector space $C_k(K)$ called the $k$th *chain group*, with coefficients in $\mathbb{Z}_2 = \{0, 1\}$. An element of this group—a *$k$-chain*—is simply a formal sum of $k$-simplices: $\gamma = \sum_\sigma \gamma_\sigma \sigma$ where $\gamma_\sigma \in \{0, 1\}$. Working over $\mathbb{Z}_2$ means a simplex is either "included" (1) or "not included" (0), with the rule that $1 + 1 = 0$ (including a simplex twice cancels it out).
+**Chain groups.** For each dimension $k$, the $k$-simplices of a complex $K$ generate a vector space $C_k(K)$ called the $k$th *chain group*, with coefficients in $\mathbb{Z}_2 = \lbrace 0, 1 \rbrace$. An element of this group—a *$k$-chain*—is simply a formal sum of $k$-simplices: $\gamma = \sum_{\sigma} \gamma_{\sigma} \sigma$ where $\gamma_{\sigma} \in \lbrace 0, 1 \rbrace$. Working over $\mathbb{Z}_2$ means a simplex is either "included" (1) or "not included" (0), with the rule that $1 + 1 = 0$ (including a simplex twice cancels it out).
 
 **Boundary maps.** The *boundary map* $\delta_k: C_k(K) \to C_{k-1}(K)$ sends each $k$-simplex to the formal sum of its $(k-1)$-dimensional faces. Over $\mathbb{Z}_2$, this simplifies to:
 
@@ -65,9 +65,9 @@ $$0 \to C_k(K) \xrightarrow{\delta_k} C_{k-1}(K) \to \cdots \xrightarrow{\delta_
 
 **Homology groups and Betti numbers.** The $k$th *homology group* is defined as:
 
-$$H_k(K) = \ker(\delta_k) / \operatorname{im}(\delta_{k+1})$$
+$$H_k(K) = \ker(\delta_k) \,/\, \textrm{im}(\delta_{k+1})$$
 
-This quotient captures precisely the $k$-dimensional cycles (elements of $\ker(\delta_k)$) that are *not* boundaries of $(k+1)$-dimensional simplices (not in $\operatorname{im}(\delta_{k+1})$)—these are the genuine topological "holes" in dimension $k$.
+This quotient captures precisely the $k$-dimensional cycles (elements of $\ker(\delta_k)$) that are *not* boundaries of $(k+1)$-dimensional simplices (not in $\textrm{im}(\delta_{k+1})$)—these are the genuine topological "holes" in dimension $k$.
 
 The dimension of $H_k$, the $k$th *Betti number* $\beta_k$, provides an interpretable summary:
 
@@ -115,8 +115,8 @@ These vectorizations are what allow PH features to be combined with classical an
 The property that makes persistent homology practically viable—and, as we shall argue, theoretically central to the entire research program—is the *stability theorem* of Cohen-Steiner, Edelsbrunner, and Harer (2007):
 
 > **Stability Theorem.** For tame functions $f$ and $g$ on a triangulable space,
-> $$d_B\big(\text{Dgm}(f),\, \text{Dgm}(g)\big) \leq \|f - g\|_\infty$$
-> where $d_B$ denotes the bottleneck distance between persistence diagrams and $\|\cdot\|_\infty$ the supremum norm.
+> $$d_B\big(\text{Dgm}(f),\, \text{Dgm}(g)\big) \leq \lVert f - g \rVert_\infty$$
+> where $d_B$ denotes the bottleneck distance between persistence diagrams and $\lVert \cdot \rVert_\infty$ the supremum norm.
 
 In plain language: **small changes to the input produce small changes to the persistence diagram.** If two geological images differ by at most $\epsilon$ in pixel values (due to noise, measurement error, or different but similar generative processes), their persistence diagrams can differ by at most $\epsilon$ in bottleneck distance.
 
@@ -163,7 +163,7 @@ The QCF employs three independent feature-extraction pathways, each representing
 
 The three pathways are fused through a convergence regularization loss:
 
-$$L_{\text{conv}} = \sum_{i<j} \|f_i(x) - f_j(x)\|^2$$
+$$L_{\text{conv}} = \sum_{i \lt j} \lVert f_i(x) - f_j(x) \rVert^2$$
 
 This loss enforces agreement between pathway representations, encoding a structural analogy to the boundary operator's coherence property $\delta_{k-1} \circ \delta_k = 0$: information extracted at one "dimension" of analysis must be compatible with information at adjacent dimensions. The fused vector is projected into a hyperbolic embedding space (Poincaré ball model) where hierarchical organization of depositional environments is naturally encoded—general categories near the origin, specific sub-types near the boundary.
 
@@ -233,9 +233,9 @@ The thought experiment's conclusion was that essence is better defined through *
 
 Then:
 
-$$\text{Essence}(f) = \bigcap_G \{\text{information about } \theta \text{ captured by } f \text{ when trained on } G\}$$
+$$\text{Essence}(f) = \bigcap_G \lbrace \text{information about } \theta \text{ captured by } f \text{ when trained on } G \rbrace$$
 
-This is operationalized via the *Leave-One-Generator-Out* (LOGO) test: train on generators $\{G_j : j \neq i\}$, test on $G_i$. If retrieval performance degrades by less than 20% for all held-out generators, the features are deemed generator-invariant.
+This is operationalized via the *Leave-One-Generator-Out* (LOGO) test: train on generators $\lbrace G_j : j \neq i \rbrace$, test on $G_i$. If retrieval performance degrades by less than 20% for all held-out generators, the features are deemed generator-invariant.
 
 **Why generator invariance is better than degradation**: Invariance is unique (no path dependence), respects physics (generators enforce constraints), is observer-independent (defined by generator agreement), is task-relevant (directly measures retrieval capability), and is operationally testable (LOGO is well-defined).
 
