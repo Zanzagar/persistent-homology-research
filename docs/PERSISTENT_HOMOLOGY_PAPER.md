@@ -75,9 +75,9 @@ $$0 \to C_k(K) \xrightarrow{\delta_k} C_{k-1}(K) \to \cdots \xrightarrow{\delta_
 
 $$H_k(K) = \ker(\delta_k) \,/\, \textrm{im}(\delta_{k+1})$$
 
-This quotient captures precisely the $k$-dimensional cycles (elements of $\ker(\delta_k)$) that are *not* boundaries of $(k+1)$-dimensional simplices (not in $\textrm{im}(\delta_{k+1})$)—these are the genuine topological "holes" in dimension $k$.
+This quotient captures precisely the *k*-dimensional cycles — elements of the kernel of the boundary map — that are **not** boundaries of higher-dimensional simplices. These non-boundary cycles are the genuine topological "holes" in dimension *k*.
 
-The dimension of $H_k$, the $k$-th *Betti number* $\beta_k$, provides an interpretable summary:
+The rank of this group is the *k*-th **Betti number** (denoted $\beta_k$), which provides an interpretable summary:
 
 | Betti Number | What It Counts | Geological Interpretation |
 |---|---|---|
