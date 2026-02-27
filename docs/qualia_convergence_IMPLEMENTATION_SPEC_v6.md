@@ -689,10 +689,99 @@ def logo_validation(generators, embedding_model):
 | **Calibration (ECE)** | < 0.15 |
 | **Graceful degradation** | Monotonic σ decrease with n_obs |
 
-**Decision Point 3.3**: Phase 3 outcome:
-- If LOGO < 20%: Strong invariance claim
-- If LOGO 20-30%: Moderate invariance claim
+**Decision Point 3.3** (Revised February 2026): Phase 3 outcome:
+- If LOGO < 20%: Necessary condition met — proceed to corroborating evidence (see 4.5)
+- If LOGO 20-30%: Moderate evidence — corroborating evidence critical
 - If LOGO > 30%: Need more generators / pivot strategy
+
+**Important**: LOGO alone is necessary but not sufficient for a strong essence claim (see ADR-008 revision, February 2026). Phase 3 now includes corroborating validation steps (Section 4.5).
+
+## 4.5 Corroborating Validation (Evidence Hierarchy)
+
+*Added February 2026 — see Complete Vision Section 4.7 and ADR-008 limitations for rationale.*
+
+The evidence hierarchy requires corroboration beyond LOGO. The following steps are performed in Phase 3 alongside LOGO:
+
+### 4.5.1 Mathematical Invariance Check (Topological Pathway Only)
+
+For the topological pathway, verify that the stability theorem's bounds are meaningful for the data at hand:
+
+```python
+def stability_bound_check(images_gen1, images_gen2, ph_pipeline):
+    """Verify stability theorem bounds are empirically tight."""
+
+    # Compute PH for both generator outputs
+    dgms1 = [ph_pipeline(img) for img in images_gen1]
+    dgms2 = [ph_pipeline(img) for img in images_gen2]
+
+    # Compute bottleneck distances between matched pairs
+    bottleneck_dists = [bottleneck(d1, d2) for d1, d2 in zip(dgms1, dgms2)]
+
+    # Compute input function distances (sup norm)
+    input_dists = [np.max(np.abs(i1 - i2)) for i1, i2 in zip(images_gen1, images_gen2)]
+
+    # Verify: bottleneck ≤ sup norm (stability theorem)
+    # Report: how tight is the bound?
+    ratios = [b / i for b, i in zip(bottleneck_dists, input_dists) if i > 0]
+
+    return {
+        'stability_holds': all(b <= i for b, i in zip(bottleneck_dists, input_dists)),
+        'mean_tightness': np.mean(ratios),  # closer to 1 = tighter bound
+        'max_tightness': np.max(ratios)
+    }
+```
+
+**Interpretation**: If the stability bound is empirically tight (ratio > 0.5), topological features are strongly constrained by the mathematics. If loose (ratio < 0.1), the theorem holds but may not be the driving factor in practice.
+
+### 4.5.2 Severe Adversarial Testing
+
+Run the adversarial tests from Chapter 23 of the Complete Vision, assessed for severity:
+
+| Test | Severity Target | Pass Criterion |
+|---|---|---|
+| Variogram-matched topology swap | High | System distinguishes classes with > 80% accuracy |
+| Style transfer attack | High | Classification maintains > 70% accuracy |
+| Channel skeleton permutation | Maximum | System detects connectivity change in > 90% of cases |
+| Adversarial generator (NEW) | Maximum | H₁ features distinguish images designed to fool them |
+
+### 4.5.3 Information-Theoretic Assessment (Phase 3+)
+
+If MINE or similar estimators are available:
+
+```python
+def info_theoretic_assessment(representations, params, generator_ids):
+    """Estimate mutual information quantities for essence assessment."""
+
+    # I(f(X); θ | G) — geological info, conditioned on generator
+    mi_geology = conditional_mi(representations, params, generator_ids)
+
+    # I(f(X); G | θ) — generator artifacts, conditioned on geology
+    mi_artifacts = conditional_mi(representations, generator_ids, params)
+
+    return {
+        'geological_info': mi_geology,    # Want: HIGH
+        'artifact_contamination': mi_artifacts,  # Want: LOW
+        'info_ratio': mi_geology / (mi_geology + mi_artifacts)  # Want: > 0.8
+    }
+```
+
+**Status**: Proposed for Phase 3+. May require dedicated implementation effort.
+
+### 4.5.4 Revised Phase 3 Completion Criteria
+
+| Evidence Level | Metric | Target | Required? |
+|---|---|---|---|
+| **Mathematical (L1)** | Stability bounds verified | Theorem holds empirically | Yes (topological pathway) |
+| **Severe Testing (L2)** | Adversarial test pass rate | > 70% of severe tests pass | Yes |
+| **LOGO (L6)** | LOGO degradation | < 20% average | Yes (necessary condition) |
+| **Info-Theoretic (L3)** | Info ratio | > 0.7 | If available |
+| **Expert (L7)** | Cohen's κ | > 0.6 | If available |
+
+**Decision Point 3.3** (Revised): Phase 3 outcome now requires multi-level evidence:
+- **Strong claim**: L1 + L2 + L6 pass → "topological features have mathematical + empirical invariance evidence"
+- **Moderate claim**: L6 passes but L2 marginal → "generator-invariant within pool; severity evidence needed"
+- **Weak claim**: L6 passes alone → "necessary condition met; insufficient for essence claim"
+- **No claim**: L6 fails → "representation is generator-specific"
 
 ---
 

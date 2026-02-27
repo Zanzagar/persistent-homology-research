@@ -414,10 +414,10 @@ Implement **10-test Sākṣī validation framework** with **pre-committed claim 
 
 ---
 
-## ADR-008: LOGO as Primary Invariance Test
+## ADR-008: LOGO as Necessary (Not Sufficient) Invariance Test
 
-**Status**: Accepted  
-**Date**: January 2026
+**Status**: Revised — February 2026 (originally "Accepted" January 2026)
+**Date**: January 2026 (revised February 2026)
 
 ### Context
 
@@ -425,7 +425,7 @@ The central claim is that representations capture geological essence, not genera
 
 ### Decision
 
-Use **Leave-One-Generator-Out (LOGO)** as the primary test for generator invariance.
+Use **Leave-One-Generator-Out (LOGO)** as a **necessary but not sufficient** test for generator invariance. LOGO must be corroborated by evidence from higher levels of the evidence hierarchy (see Complete Vision, Section 4.7).
 
 ### Alternatives Considered
 
@@ -435,33 +435,161 @@ Use **Leave-One-Generator-Out (LOGO)** as the primary test for generator invaria
 | **Cross-validation** | Standard CV | Doesn't test generator shift |
 | **Real-data validation only** | Test on real data | Real data limited; doesn't isolate generator effect |
 | **Synthetic noise injection** | Add noise to test robustness | Tests robustness, not invariance |
+| **LOGO as sole evidence** | Rely on LOGO alone for essence claim | **Insufficient** — see Limitations section |
 
 ### Rationale
 
 1. **Complete exclusion**: LOGO completely excludes one generator type, not just partial domain shift.
 
-2. **Stringent test**: If representations transfer to a generator type never seen in training, strong evidence for invariance.
+2. **Necessary condition**: If LOGO fails, the representation is generator-specific — this is strong negative evidence.
 
 3. **Interpretable failure**: If LOGO fails, we know exactly which generator caused the problem.
 
-4. **Multiple generators**: Testing across process-based (Flumy), principle-based (ours), MPS, and GAN provides comprehensive coverage.
+4. **Multiple generators**: Testing across process-based (Flumy), principle-based (ours), MPS, and GAN provides coverage.
+
+### Limitations (Added February 2026)
+
+LOGO has fundamental epistemic limitations that constrain the strength of claims derived from it:
+
+1. **Generator-Family Boundedness**: LOGO tests invariance *within the generator pool*, not invariance to geology in general. Generators sharing physical assumptions (Leopold-Wolman, process-based sediment transport) may produce illusory invariance.
+
+2. **Impossibility Results**: Ahuja et al. (2023, arXiv:2312.03580) proved that invariance alone is insufficient to identify latent causal variables. Passing LOGO does not guarantee that invariant features correspond to geological causes.
+
+3. **Independence Condition**: Wimsatt's robustness analysis (1981) requires genuine model independence. If generators are not genuinely independent in their assumptions, convergence provides weak evidence — "illusory robustness."
+
+4. **IRM Failures**: Invariant Risk Minimization (Arjovsky et al., 2019; Rosenfeld et al., 2021) fails catastrophically in nonlinear settings and requires impractically large environment counts for formal guarantees.
+
+5. **Degrees-of-Freedom Risk**: With sufficient control over the generator space, LOGO can be made to trivially succeed without capturing essence.
+
+### Epistemic Status of LOGO Results
+
+| LOGO Outcome | Interpretation |
+|---|---|
+| **Fails** (Δ > 0.3) | Strong evidence against essence claim |
+| **Passes with diverse generators** | Necessary evidence; requires corroboration from mathematical invariance (ADR-012) and severe testing (ADR-013) |
+| **Passes with homogeneous generators** | Weak evidence; may be illusory |
 
 ### Consequences
 
-- **Positive**: Stringent; interpretable; addresses core concern
-- **Negative**: Requires multiple generators; computationally expensive
-- **Mitigation**: Start with available generators; add more as accessible
+- **Positive**: Stringent negative test; interpretable; addresses core concern
+- **Negative**: Insufficient alone for positive essence claims; requires multiple generators; computationally expensive
+- **Mitigation**: Combine with evidence hierarchy (ADR-012, ADR-013, ADR-014)
 
 ### Literature Evidence
 
 - Query 8: Standard domain adaptation less stringent than LOGO
-- Original insight from reviewer feedback during framework development
+- Ahuja et al. (2023): Invariance alone insufficient for causal identification
+- Rosenfeld et al. (2021): IRM fails in nonlinear settings
+- Wimsatt (1981): Independence condition for robustness
 
 ### Revision Triggers
 
 - If all generators produce similar results (no diversity) → LOGO uninformative, need more diverse generators
 - If LOGO consistently fails → pivot to "what causes generator artifacts?" research
 - If real data becomes available → add real-data LOGO test
+- If mathematical invariance (ADR-012) provides stronger evidence → LOGO may be further demoted
+
+---
+
+## ADR-012: Mathematical Invariance as Primary Evidence (Topological Pathway)
+
+**Status**: Accepted
+**Date**: February 2026
+
+### Context
+
+The topological pathway (persistent homology) has a unique property among the three pathways: the stability theorem provides a **mathematical proof** of invariance, independent of any empirical test.
+
+### Decision
+
+Foreground the PH stability theorem as the **primary evidence** for the topological pathway's invariance claims. Position LOGO as corroborative, not primary.
+
+### Rationale
+
+The stability theorem (Cohen-Steiner, Edelsbrunner, & Harer, 2007): $d_B(\text{Dgm}(f), \text{Dgm}(g)) \leq \|f - g\|_\infty$.
+
+Properties:
+1. **Generator-independent**: A property of the mathematics, not of any particular test
+2. **Quantitative**: Provides explicit bounds on invariance, not just pass/fail
+3. **Universal**: Applies to any input domain (geological, musical, neural)
+4. **Cannot be "overengineered"**: It is a theorem, not an empirical finding
+
+**Limitation**: Stability guarantees that topological features are *invariant*, but does not guarantee they are *relevant*. The H₁ hypothesis (ADR-S04) addresses relevance; stability addresses invariance. Together, they provide both relevance and invariance — stronger than either alone.
+
+### Consequences
+
+- **Positive**: Strongest possible invariance evidence; unfalsifiable by generator manipulation
+- **Negative**: Applies only to topological pathway; classical and learned pathways lack equivalent mathematical guarantees
+- **Implication**: The topological pathway has a unique epistemological status in the framework — the only pathway with formal invariance proof
+
+---
+
+## ADR-013: Severe Testing Protocol
+
+**Status**: Accepted
+**Date**: February 2026
+
+### Context
+
+Standard adversarial tests (Chapter 23) challenge the representation but are not designed with maximum *severity* — they test robustness, not the system's ability to detect its own failure.
+
+### Decision
+
+Design adversarial tests following Mayo's severe testing framework (2018): tests are severe when they are **highly capable of detecting failure** had the claim been false.
+
+### Severe Testing Criteria
+
+For each adversarial test, document:
+1. **The claim being tested** (what would it mean if this fails?)
+2. **The severity assessment** (how likely is failure if the claim is false?)
+3. **The severity score** (0-1, where 1 = maximally capable of detecting failure)
+
+### Proposed Severe Tests (Beyond Chapter 23)
+
+| Test | Target Claim | Severity Mechanism |
+|---|---|---|
+| **Adversarial generator design** | H₁ captures geological essence | Construct a generator producing matched H₁ but different geological process |
+| **Feature disentanglement attack** | H₁ features are not independently manipulable | Try to change H₁ without changing geological meaning |
+| **Noise at critical scales** | PH features are robust at meaningful scales | Add noise specifically at filtration-critical scales |
+| **Cross-domain transfer** | PH invariance is mathematical, not domain-specific | Apply same PH pipeline to music/neural data; if it fails to capture structure, mathematical universality claim is weakened |
+
+### Literature Evidence
+
+- Mayo, D. G. (2018). *Statistical Inference as Severe Testing*.
+- Popper, K. (1963). *Conjectures and Refutations*: A theory is corroborated by passing tests that were genuinely risky.
+
+---
+
+## ADR-014: Information-Theoretic Validation
+
+**Status**: Proposed
+**Date**: February 2026
+
+### Context
+
+Neither LOGO (pass/fail) nor the stability theorem (mathematical) tells us *what information* the representation captures. Information-theoretic measures provide a continuous, quantitative assessment.
+
+### Decision
+
+Add mutual information-based assessment to the validation protocol:
+
+- $I(f(X); \theta \mid G)$ — geological information captured, independent of generator
+- $I(f(X); G \mid \theta)$ — generator-artifact contamination
+
+### Implementation
+
+Use Mutual Information Neural Estimation (MINE; Belghazi et al., 2018) or similar variational bounds to estimate these quantities from finite samples.
+
+### Interpretation
+
+| Measure | High | Low |
+|---|---|---|
+| $I(f(X); \theta \mid G)$ | ✅ Captures geological information | ❌ Representation uninformative |
+| $I(f(X); G \mid \theta)$ | ❌ Contaminated by generator artifacts | ✅ Generator-independent |
+
+### Status
+
+Proposed — requires implementation in Phase 3. See Implementation Spec for details.
 
 ---
 
@@ -627,14 +755,14 @@ Start with **deterministic SetEncoder**, Neural Process as Phase 3 addition.
 
 ---
 
-## ADR-S04: TDA as Ablation Study
+## ADR-S04: TDA as Ablation Study (with Mathematical Invariance Note)
 
-**Status**: Accepted  
-**Date**: January 2026
+**Status**: Accepted (with February 2026 addendum)
+**Date**: January 2026 (addendum February 2026)
 
 ### Decision
 
-Treat TDA pathway as **ablation study component**, not core claim, until hypothesis validated.
+Treat TDA pathway as **ablation study component**, not core claim, until H₁ hypothesis validated.
 
 ### Rationale
 
@@ -646,6 +774,16 @@ Treat TDA pathway as **ablation study component**, not core claim, until hypothe
 
 - If H₁ hypothesis validated → TDA becomes core pathway
 - If H₁ hypothesis fails → document as negative result
+
+### Addendum (February 2026): Unique Epistemic Status of TDA
+
+Regardless of the H₁ hypothesis outcome, the topological pathway has a **unique epistemic property** among the three pathways: the stability theorem (ADR-012) provides a mathematical proof of invariance that the classical and learned pathways lack. This means:
+
+1. **Even if H₁ fails as a discriminator**, the topological pathway still provides the strongest invariance guarantee in the framework
+2. **The ablation question is about relevance (does H₁ discriminate?), not invariance (are PH features stable?)** — relevance is empirical, invariance is proven
+3. **If H₁ fails**, the pathway may still be valuable for other reasons: invariance under LOGO, robustness characterization, or as a regularizer that encourages the learned pathway toward topologically stable features
+
+The TDA pathway is the only pathway where the invariance claim rests on mathematical proof rather than empirical testing. This makes it the natural "backbone" for the framework's essence argument, independent of the H₁ classification result.
 
 ---
 
@@ -707,6 +845,11 @@ ADR-007 (Sākṣī)
 | 2026-01 | ADR-005 | Added Query 20 | Deep generative models solve different problem (surrogate simulation) |
 | 2026-01 | ADR-009 | Added | Address terminology concerns from critical review |
 | 2026-01 | ADR-010 | Added | Engage with alternative frameworks (semiotic, TKR) |
+| 2026-02 | ADR-008 | Revised | Demoted LOGO from primary to necessary-but-insufficient; added limitations citing impossibility results |
+| 2026-02 | ADR-012 | Added | Mathematical invariance as primary evidence for topological pathway |
+| 2026-02 | ADR-013 | Added | Severe testing protocol following Mayo's framework |
+| 2026-02 | ADR-014 | Added | Information-theoretic validation (MI-based) |
+| 2026-02 | ADR-S04 | Addendum | Unique epistemic status of TDA pathway via stability theorem |
 
 ---
 
@@ -717,6 +860,14 @@ ADR-007 (Sākṣī)
 2. **Multi-scale TDA**: Should we use multi-scale persistent homology?
 
 3. **Real data integration**: How much real data is needed for validation?
+
+4. **Generator independence verification**: How do we formally verify that generators in the LOGO pool are genuinely independent in their assumptions? What constitutes "sufficient diversity" for LOGO to be informative? (See ADR-008 limitations)
+
+5. **Information-theoretic thresholds**: What values of $I(f(X); \theta \mid G)$ and $I(f(X); G \mid \theta)$ distinguish essence-capturing from artifact-contaminated representations? (See ADR-014)
+
+6. **Causal structure of geological features**: Can we construct a causal graph relating geological parameters to observable features, such that invariance follows from causal structure rather than empirical testing? This would transcend both LOGO and the stability theorem.
+
+7. **Cross-domain universality**: If PH features capture invariant structure in geology AND music/neuroscience, what does this tell us about the nature of "essence"? Is mathematical universality evidence for domain-specific relevance?
 
 4. **Computational scaling**: How does the system scale to 1M+ analogs?
 

@@ -151,6 +151,44 @@ This is not philosophical timidity but scientific rigor. We can test whether LOG
 
 The contribution is methodological: providing a rigorous, testable operationalization of "geological similarity" that serves practical analog retrieval while remaining epistemically honest about its scope.
 
+### 4.6 Epistemic Limitations of Empirical Invariance Testing
+
+Intellectual honesty requires acknowledging a fundamental limitation of any empirical invariance test, including LOGO: **invariance across a finite set of generators does not guarantee invariance to the underlying geology.**
+
+This limitation is supported by three independent theoretical results:
+
+**The Impossibility Result**: Ahuja et al. (2023) proved that invariance alone is insufficient to identify latent causal variables. Even with multiple environments (generators), without additional structural constraints, invariant features may correspond to shared assumptions of the generator family rather than to the causal structure of the data-generating process. Passing LOGO across N generators proves invariance *within that generator family*, not geological invariance in general.
+
+**The Environment Diversity Problem**: Invariant Risk Minimization (Arjovsky et al., 2019) — the most studied invariant learning framework — has been shown to fail catastrophically in nonlinear settings and to require an impractically large number of environments for formal guarantees (Rosenfeld et al., 2021). Adding more generators from the same family does not address this; what matters is the genuine independence of their assumptions.
+
+**The Independence Condition**: Wimsatt's robustness analysis (1981) establishes that convergent results from multiple models provide evidence only if the models are genuinely independent. If generators share physical assumptions (e.g., Leopold-Wolman relationships, process-based sediment transport equations), then "invariance across generators" may reflect invariance to that shared assumption space — producing what Wimsatt calls "illusory robustness."
+
+**The Degrees-of-Freedom Concern**: With sufficient control over the generator space, one can engineer a generator pool where LOGO trivially succeeds — not because essence has been captured, but because the definition of invariance has been overfit to the generator family. This is analogous to the well-known problem that generative models with sufficient capacity (transformers, diffusion models) can memorize training distributions while appearing to generalize.
+
+These limitations do not invalidate the LOGO approach, but they constrain its epistemic reach. LOGO provides evidence for a *necessary* condition of essence capture (invariance to generation method), not a *sufficient* one. The framework must therefore ground its essence claims in a richer evidence hierarchy.
+
+### 4.7 The Evidence Hierarchy for Essence Claims
+
+Given the limitations of empirical invariance testing, we restructure the evidence for essence claims into a multi-level hierarchy, ordered by epistemic strength:
+
+**Level 1 — Mathematical Invariance Theorems** (Strongest): The stability theorem for persistent homology (Cohen-Steiner, Edelsbrunner, & Harer, 2007) provides a formal *proof* that topological features are invariant under bounded perturbations: $d_B(\text{Dgm}(f), \text{Dgm}(g)) \leq \|f - g\|_\infty$. This is a mathematical guarantee, not an empirical finding — it does not depend on which generators are tested. For the topological pathway, this is the primary evidence for invariance.
+
+**Level 2 — Severe Adversarial Testing**: Following Mayo's severe testing framework (2018), a claim passes a severe test if the test was *highly capable of detecting failure* had the claim been false. The adversarial tests in Chapter 23 are strengthened by explicitly designing them for maximum severity — not merely challenging the representation, but constructing scenarios specifically optimized to break the invariance claim.
+
+**Level 3 — Information-Theoretic Measures**: Quantifying what representations capture using mutual information: $I(f(X); \theta \mid G)$ measures geological information independent of generator, while $I(f(X); G \mid \theta)$ measures generator-artifact contamination. These provide continuous, quantitative assessment rather than binary pass/fail.
+
+**Level 4 — Cross-Domain Validation**: If the same topological features that distinguish geological environments also distinguish structurally analogous patterns in music (Bergomi et al., 2016), neuroscience (Giusti, Ghrist, & Bassett, 2016), or other domains, the invariance transcends the generator concept entirely — it is a property of the mathematics, not of any particular application.
+
+**Level 5 — Real-Data Validation**: Testing against real geological data that no generator was designed to reproduce. This is the ultimate generator-independent benchmark.
+
+**Level 6 — LOGO (Necessary but Not Sufficient)**: LOGO remains a useful check — failure indicates generator-specificity — but passing LOGO alone is insufficient for a strong essence claim. It must be corroborated by evidence from higher levels.
+
+**Level 7 — Expert Agreement**: Human expert judgment provides truly generator-independent assessment, though subject to training biases and inter-observer variability.
+
+> **The Revised Essence Claim**: We claim that a representation captures "essence" when evidence converges across multiple levels of this hierarchy. No single level is sufficient. The convergence of mathematical proof (Level 1), survival of severe testing (Level 2), information-theoretic confirmation (Level 3), and empirical validation (Levels 5-7) provides the warranted basis for the essence designation.
+
+This revised position is both more epistemically honest and more powerful than relying on LOGO alone. It acknowledges limitations while providing a stronger multi-layered argument.
+
 ---
 
 ## Chapter 5: The Three Guṇas of Representation
@@ -1273,6 +1311,25 @@ LOGO assumes:
 - No adaptation—pure generalization
 - Tests fundamental invariance
 
+### 22.4 Limitations and Epistemic Scope
+
+LOGO is a necessary but not sufficient condition for essence capture. The following limitations must be explicitly acknowledged:
+
+**1. Generator-Family Boundedness**: LOGO tests invariance *within the generator pool*, not invariance to geology in general. If all generators share physical assumptions (Leopold-Wolman relationships, process-based sediment transport), then passing LOGO may reflect invariance to that shared assumption space rather than to the underlying geological process. This is a structural limitation, not a sample-size problem — adding more generators from the same family does not resolve it.
+
+**2. Impossibility Results**: Ahuja et al. (2023) proved that invariance alone is insufficient to identify latent causal variables. Applied to LOGO: passing the test does not prove that invariant features correspond to geological causes rather than to spurious correlations that happen to be shared across generators.
+
+**3. Environment Diversity**: The epistemic strength of LOGO depends on the genuine independence of the generators in the pool. Verifying this independence is itself a non-trivial problem. Wimsatt's robustness analysis (1981) establishes that failure of independence produces "illusory robustness."
+
+**4. Degrees-of-Freedom Risk**: With sufficient control over the generator space, LOGO can be made to trivially succeed — not because essence has been captured, but because the generator pool has been (perhaps inadvertently) designed to agree on non-essential features. This is analogous to the capacity-memorization problem in generative modeling.
+
+**Epistemic Status of LOGO Results**:
+- **LOGO fails** → strong evidence that representation is generator-specific → not essence
+- **LOGO passes with diverse, independent generators** → *necessary* evidence for essence, requiring corroboration from mathematical invariance (Section 4.7, Level 1) and severe testing (Chapter 23)
+- **LOGO passes with homogeneous generators** → weak evidence; invariance may be illusory
+
+See Section 4.7 for the full evidence hierarchy that contextualizes LOGO within the broader epistemic framework.
+
 ---
 
 ## Chapter 23: Adversarial Tests (Geology-Specific)
@@ -1334,18 +1391,36 @@ Failure mode: System relies only on intensity distribution
 
 ## Chapter 24: The Claim Survival Matrix
 
-Pre-committed interpretations ensure intellectual honesty:
+Pre-committed interpretations ensure intellectual honesty. The matrix is structured around the evidence hierarchy (Section 4.7), recognizing that no single test is sufficient:
 
-| Test Configuration | "Essence" Claim | "Invariance" Claim | "Retrieval Utility" |
-|-------------------|-----------------|--------------------|--------------------|
-| Pass all 10 tests | ✅ **Strong** | ✅ **Supported** | ✅ **Supported** |
-| Pass LOGO + transfer + retrieval | ✅ **Strong** | ✅ **Supported** | ✅ **Supported** |
-| Pass LOGO + retrieval, fail transfer | ⚠️ **Partial** | ✅ **Supported** | ⚠️ **Opaque** |
-| Pass retrieval, fail LOGO | ❌ **Not supported** | ❌ **Generator-specific** | ⚠️ **Limited** |
-| High uncertainty on genuinely ambiguous | ✅ **Correct behavior** | ✅ **Epistemic** | N/A |
-| Low uncertainty on genuinely ambiguous | ❌ **Calibration failure** | ❌ **Overconfident** | ❌ **Misleading** |
+### 24.1 Multi-Level Evidence Matrix
+
+| Evidence Level | Test | Outcome | Interpretation |
+|---|---|---|---|
+| **L1: Mathematical** | Stability theorem applies to topological pathway | ✅ Proven | Topological features have formal invariance guarantee |
+| **L2: Severe Testing** | Adversarial tests (Ch. 23) | Pass → ✅ Survived | Strong evidence; test was designed to break claim |
+| **L2: Severe Testing** | Adversarial tests (Ch. 23) | Fail → ❌ Broken | Specific vulnerability identified; revise or scope claim |
+| **L3: Info-Theoretic** | $I(f(X); \theta \mid G)$ high | ✅ Captures geology | Representation encodes geological information |
+| **L3: Info-Theoretic** | $I(f(X); G \mid \theta)$ high | ❌ Captures artifacts | Representation contaminated by generator artifacts |
+| **L6: LOGO** | Δ < 0.2 all generators | ✅ Necessary check passed | Generator-invariant within pool (necessary, not sufficient) |
+| **L6: LOGO** | Δ > 0.3 any generator | ❌ Generator-specific | Representation depends on generation method |
+| **L7: Expert** | Cohen's κ > 0.6 | ✅ Expert-aligned | Representation matches human geological judgment |
+
+### 24.2 Composite Claim Interpretations
+
+| Configuration | "Essence" Claim | Epistemic Status |
+|---|---|---|
+| L1 + L2 pass + L3 confirmed + L6 pass + L7 pass | ✅ **Strong** | Multi-level convergence with mathematical + empirical + human evidence |
+| L1 + L2 pass + L6 pass, L7 marginal | ⚠️ **Moderate** | Mathematical + empirical support, but human experts don't fully agree |
+| L6 pass only (no L1, L2 marginal) | ⚠️ **Weak** | LOGO alone is necessary but not sufficient (see Section 22.4) |
+| L6 pass + L5 (real data) pass | ✅ **Strong** | Generator-independence confirmed empirically against real data |
+| L6 fail, all others pass | ❌ **Not supported** | Generator-specific despite other evidence — fundamental problem |
+| L1 applies + L2 pass + L6 fail | ⚠️ **Pathway-specific** | Topological pathway has mathematical warrant; learned/classical do not |
+| Calibration failure (any level) | ❌ **Misleading** | Overconfident predictions worse than no predictions |
 
 **Key Commitment**: These interpretations are fixed **before** running experiments. We cannot cherry-pick interpretations after seeing results.
+
+**Critical Revision Note** (February 2026): The original matrix relied primarily on LOGO outcomes to determine essence claims. This revision reflects the recognition (see Sections 4.6–4.7) that LOGO provides necessary but not sufficient evidence, grounded in impossibility results from causal representation learning (Ahuja et al., 2023) and the independence condition from robustness analysis (Wimsatt, 1981). The multi-level structure ensures that essence claims are grounded in convergent evidence from mathematical proof, severe testing, information-theoretic quantification, and empirical validation — not any single test.
 
 ---
 
@@ -1772,10 +1847,25 @@ The answers to these questions await empirical test.
 ### Philosophy of Mind (Qualia)
 [86] Tye, M. (2021). Qualia. Stanford Encyclopedia of Philosophy. https://plato.stanford.edu/entries/qualia/
 
+### Epistemology of Invariance and Robustness (Added February 2026)
+[87] Ahuja, K., Hartford, J., & Bengio, Y. (2023). Invariance & Causal Representation Learning: Prospects and Limitations. arXiv:2312.03580.
+[88] Arjovsky, M., Bottou, L., Gulrajani, I., & Lopez-Paz, D. (2019). Invariant Risk Minimization. arXiv:1907.02893.
+[89] Rosenfeld, E., Ravikumar, P., & Risteski, A. (2021). The Risks of Invariant Risk Minimization. ICLR.
+[90] Wimsatt, W. C. (1981). Robustness, Reliability, and Overdetermination. In *Scientific Inquiry and the Social Sciences*, ed. Brewer & Collins.
+[91] Weisberg, M. (2006). Robustness Analysis. *Philosophy of Science*, 73(5), 730–742.
+[92] Mayo, D. G. (2018). *Statistical Inference as Severe Testing: How to Get Beyond the Statistics Wars*. Cambridge University Press.
+[93] Orzack, S. H., & Sober, E. (1993). A Critical Assessment of Levins's "The Strategy of Model Building in Population Biology." *Quarterly Review of Biology*, 68(4), 533–546.
+[94] Cohen-Steiner, D., Edelsbrunner, H., & Harer, J. (2007). Stability of Persistence Diagrams. *Discrete & Computational Geometry*, 37(1), 103–120.
+
+### Cross-Domain TDA Applications (Added February 2026)
+[95] Giusti, C., Ghrist, R., & Bassett, D. S. (2016). Two's Company, Three (or More) Is a Simplex. *Journal of Computational Neuroscience*, 41(1), 1–14.
+[96] Bergomi, M. G., Baratè, A., & Di Fabio, B. (2016). Towards a Topological Fingerprint of Music. In *Computational Topology in Image Context*, LNCS 9667. Springer.
+[97] Alcalá-Alvarez, A., & Padilla-Longoria, P. (2022). A Framework for Topological Music Analysis (TMA). arXiv:2204.09744.
+
 ---
 
-*Complete Research Vision — Version 5.4*
-*January 2026*
+*Complete Research Vision — Version 5.5*
+*February 2026 — Epistemological overhaul: evidence hierarchy restructured, LOGO limitations acknowledged*
 
 **Document Purpose**: The "north star" — the complete intellectual vision without compromise.
 **Companion Documents**: Implementation Specification (how to build), Architecture Decision Record (why these choices)
