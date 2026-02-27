@@ -25,7 +25,28 @@ Topological Data Analysis (TDA) emerged from the recognition that real-world dat
 
 Consider a concrete geological example. A variogram computed from a braided channel system and a variogram computed from a meandering channel system can be nearly identical if the spatial correlation lengths are similar. Yet the two systems have fundamentally different *connectivity*: the braided system contains multiple interconnected channels forming closed loops, while the meandering system has a single sinuous channel. No amount of two-point statistical analysis will distinguish these configurations—the difference is topological, not statistical. Persistent homology is designed precisely to detect such differences.
 
-### 1.2 Simplicial Complexes: Building Shapes from Data
+### 1.2 Topological Foundations: Spaces, Continuity, and Distance
+
+Before constructing simplicial complexes and computing homology, three foundational concepts establish the mathematical ground we stand on. These are not mere technicalities—each one answers a specific question that arises when we try to move from intuitive shape recognition to rigorous computation.
+
+**What is a topological space?** Informally, topology studies what stays the same when you stretch and bend a shape but don't tear it. A *topological space* $(X, \tau)$ consists of a set $X$ and a collection $\tau$ of subsets called "open sets" satisfying three axioms: (1) the empty set $\emptyset$ and $X$ itself are in $\tau$; (2) $\tau$ is closed under finite intersections; and (3) $\tau$ is closed under arbitrary unions (Kemmea & Agyingi, 2025, Definition 1). These axioms formalize the notion of "nearness" without requiring any concept of distance—they define which points are "close together" in a purely structural sense.
+
+The power of this abstraction is visible in the classification of surfaces by *genus* (the number of holes). Imagine holding everyday objects: a marble has genus 0 (no holes); a doughnut has genus 1 (one hole through the center); a pair of scissors has genus 2 (two finger-holes); a cheese grater, with its many perforations, has genus 3 or more. Objects within each genus class are *homeomorphic*—continuously deformable into one another—regardless of their geometric appearance. This is the same kind of invariance we seek in geological pattern recognition: two reservoir images may look different at the pixel level but share the same topological "type."
+
+**When are two spaces "the same shape"?** Homeomorphism (§1.1) tells us when two spaces are topologically identical, but a softer notion—*homotopy*—tells us when two spaces are equivalent in a way that preserves precisely the features homology detects. A *homotopy* between continuous maps $f, g: X \to Y$ is a continuous function $H: X \times [0,1] \to Y$ satisfying $H(x,0) = f(x)$ and $H(x,1) = g(x)$ (Kemmea & Agyingi, 2025, Definition 3). Intuitively, $H$ is a continuous deformation that smoothly morphs one map into another over a "time" parameter $t \in [0,1]$.
+
+This concept motivates homology directly. Imagine a solid disk: you can continuously contract it to a single point by shrinking it inward—it is *contractible*, with no holes to obstruct the contraction. Now imagine a circle (just the boundary, no interior): any attempt to shrink it to a point must at some moment "jump" across the hole in the middle. No continuous deformation can make the circle contractible. Spaces that are *homotopy equivalent* (continuously deformable into each other) have isomorphic homology groups. This is why homology reliably detects holes—they are homotopy invariants, persisting under any stretching, bending, or reshaping short of filling them in.
+
+**How do we measure closeness in data?** Our geological data begins as discrete measurements—pixels in images, depth readings in well logs, scattered outcrop observations—with no inherent topological structure. To build the combinatorial structures on which homology computation depends, we need a principled notion of distance. A *metric space* $(M, d)$ is a set $M$ equipped with a distance function $d: M \times M \to [0, \infty)$ satisfying four properties:
+
+1. *Identity*: $d(x,y) = 0$ if and only if $x = y$
+2. *Positivity*: $d(x,y) > 0$ when $x \neq y$
+3. *Symmetry*: $d(x,y) = d(y,x)$
+4. *Triangle inequality*: $d(x,z) \leq d(x,y) + d(y,z)$
+
+These properties ensure distance behaves as spatial intuition expects: you cannot take a shortcut that beats the direct path. Metric spaces connect topology to data because they provide the threshold-based construction of simplicial complexes discussed in §1.3: two points are connected by an edge when $d(x,y) \leq \epsilon$. Without a metric, there is no principled way to decide which points should be "neighbors"—and thus no way to build the shape-from-data machinery that follows.
+
+### 1.3 Simplicial Complexes: Building Shapes from Data
 
 The bridge from raw data to topological analysis is the *simplicial complex*, a combinatorial structure that systematically builds higher-dimensional shapes from discrete points.
 
@@ -45,7 +66,7 @@ The closure property is intuitively necessary: if we claim a triangle exists (3 
 
 For gridded image data—such as geological facies maps where each pixel has a binary value (channel vs. floodplain)—*cubical complexes* provide a computationally more natural and efficient alternative. Instead of constructing simplices from point-pairs, the cubical approach treats each pixel as an elementary square (2-cube) and builds the filtration by thresholding on pixel values (Kaczynski, Mischaikow, & Mrozek, 2004; Wagner, Chen, & Vuçini, 2012). This distinction—Vietoris–Rips for point clouds, cubical for images—is practically important for the QCF, which works primarily with geological images.
 
-### 1.3 Homology: Detecting Holes Algebraically
+### 1.4 Homology: Detecting Holes Algebraically
 
 Homology translates the geometric question "how many holes does this shape have?" into linear algebra. The key insight is that "holes" can be detected by studying *cycles* (closed loops) that are not *boundaries* (edges of filled-in regions).
 
@@ -59,6 +80,8 @@ $$\gamma = \sum_{\sigma} \gamma_{\sigma} \, \sigma, \quad \gamma_{\sigma} \in \l
 
 Working over $\mathbb{Z}_2$ means a simplex is either "included" (1) or "not included" (0), with the rule that $1 + 1 = 0$ (including a simplex twice cancels it out).
 
+**Faces of simplices.** Before defining boundary maps, we need the concept of a *face*. The faces of a $k$-simplex are the $(k{-}1)$-simplices obtained by dropping one vertex at a time. For example, the triangle $[v_0, v_1, v_2]$ has three faces (edges): $[v_1, v_2]$, $[v_0, v_2]$, and $[v_0, v_1]$—each formed by removing one of the three vertices. Similarly, each edge $[v_i, v_j]$ has two faces (its endpoints): the vertices $v_i$ and $v_j$. Faces are what boundary maps "sum over."
+
 **Boundary maps.** The *boundary map* $\delta_k: C_k(K) \to C_{k-1}(K)$ sends each $k$-simplex to the formal sum of its $(k-1)$-dimensional faces. Over $\mathbb{Z}_2$, this simplifies to:
 
 $$\delta_k(\sigma) = \sum_{i=0}^{k} \sigma_{-i}$$
@@ -66,6 +89,17 @@ $$\delta_k(\sigma) = \sum_{i=0}^{k} \sigma_{-i}$$
 where $\sigma_{-i}$ denotes the face obtained by removing vertex $i$ (Kemmea & Agyingi, 2025, Definition 9).
 
 **The fundamental property**: $\delta_{k-1} \circ \delta_k = 0$—the boundary of a boundary is always empty. This is not merely a technical convenience; it expresses a deep geometric truth. The boundary of a filled triangle is a closed loop; a closed loop has no boundary (no endpoints). This property is what allows us to *define* holes: they are the cycles that aren't boundaries of anything.
+
+**Worked example: detecting a hole.** Imagine you are looking at three wells arranged in a triangle—call them $v_0$, $v_1$, $v_2$—with edges connecting each pair. The 1-chain $\gamma = [v_0, v_1] + [v_1, v_2] + [v_0, v_2]$ traces a closed loop through all three edges. Applying the boundary map:
+
+$$\delta_1(\gamma) = (v_0 + v_1) + (v_1 + v_2) + (v_0 + v_2) = 0$$
+
+Each vertex appears exactly twice, and $1 + 1 = 0$ in $\mathbb{Z}_2$, so every vertex cancels. The loop has no boundary—it is a *cycle*. Now the critical question: is this cycle a *boundary* of some filled-in region?
+
+- **If the triangle is filled** (the 2-simplex $[v_0, v_1, v_2]$ exists): then $\gamma = \delta_2([v_0, v_1, v_2])$, and the cycle is a boundary. It represents no hole—the interior fills the loop. This cycle contributes nothing to $H_1$.
+- **If the triangle is unfilled** (only edges, no face): then $\gamma$ is a cycle that is *not* a boundary of anything. It detects a genuine 1-dimensional hole—an element of $H_1 \neq 0$.
+
+This is exactly how homology works in practice: cycles that bound filled regions are trivial; cycles that enclose genuine holes survive in the homology group.
 
 This property yields the *chain complex*:
 
@@ -89,7 +123,7 @@ For reference, standard shapes have characteristic Betti numbers: a circle has $
 
 **Why this matters for our research**: For geological images, the critical insight is that $\beta_1$ (loop count) directly corresponds to channel network connectivity. A braided system has many loops ($\beta_1$ large); a meandering system has few ($\beta_1$ small). This topological difference is invisible to variograms and other two-point statistics, but homology detects it directly.
 
-### 1.4 Persistent Homology: Tracking Features Across Scales
+### 1.5 Persistent Homology: Tracking Features Across Scales
 
 A single simplicial complex computed at a fixed threshold captures topology at only one scale. But what threshold should we choose? Too small, and the data is a disconnected scatter of points with no interesting topology. Too large, and everything is connected into a single blob. The answer: *don't choose*. Instead, compute topology at *every* scale and track how features evolve.
 
@@ -118,7 +152,7 @@ The *structure theorem* for persistence modules guarantees that the persistent h
 
 These vectorizations are what allow PH features to be combined with classical and learned features in the QCF's fusion architecture.
 
-### 1.5 Stability: The Theoretical Guarantee
+### 1.6 Stability: The Theoretical Guarantee
 
 The property that makes persistent homology practically viable—and, as we shall argue, theoretically central to the entire research program—is the *stability theorem* of Cohen-Steiner, Edelsbrunner, and Harer (2007):
 
