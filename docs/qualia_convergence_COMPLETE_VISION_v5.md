@@ -1862,6 +1862,11 @@ The answers to these questions await empirical test.
 [96] Bergomi, M. G., Baratè, A., & Di Fabio, B. (2016). Towards a Topological Fingerprint of Music. In *Computational Topology in Image Context*, LNCS 9667. Springer.
 [97] Alcalá-Alvarez, A., & Padilla-Longoria, P. (2022). A Framework for Topological Music Analysis (TMA). arXiv:2204.09744.
 
+### Additional References (Added February 2026)
+[98] Popper, K. (1963). *Conjectures and Refutations: The Growth of Scientific Knowledge*. Routledge.
+[99] Chazal, F., de Silva, V., Glisse, M., & Oudot, S. (2016). *The Structure and Stability of Persistence Modules*. SpringerBriefs in Mathematics.
+[100] Belghazi, M. I., Barber, A., Balin, O., Dresdner, R., et al. (2018). Mutual Information Neural Estimation. *ICML*.
+
 ---
 
 *Complete Research Vision — Version 5.5*

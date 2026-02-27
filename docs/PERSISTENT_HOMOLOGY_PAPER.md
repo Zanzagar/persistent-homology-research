@@ -311,9 +311,9 @@ The application of persistent homology to neural data provides another line of c
 
 **Brain Network Connectivity.** Giusti, Ghrist, and Bassett (2016) applied algebraic-topological tools, including persistent homology, to understand higher-order structure in neural data. They demonstrated that the topology of brain networks—patterns of connectivity between neural populations—contains information about cognitive function that pairwise correlation analysis misses, paralleling the geological case where variograms miss topological structure.
 
-**Brain Dynamics and Individuality.** Recent work (Frontiers in Human Neuroscience, 2025) used persistent homology of fMRI time series to reveal individual differences in brain dynamics. Topological features matched or exceeded the predictive performance of traditional features for higher-order cognitive domains, suggesting that PH captures aspects of brain organization invisible to standard methods.
+**Brain Dynamics and Individuality.** Wang, Xian, Chen, and Yan (2025) used persistent homology of fMRI time series from approximately 1,000 Human Connectome Project subjects to reveal individual differences in brain dynamics. Topological features exhibited high test-retest reliability and matched or exceeded the predictive performance of traditional features for higher-order cognitive domains, suggesting that PH captures aspects of brain organization invisible to standard methods.
 
-**Gestalt Pattern Recognition.** Persistent homology applied to EEG data during pattern recognition tasks (PMC, 2021) showed that the persistence entropy of brain signals evoked by ordered Gestalt images differs significantly from that evoked by random patterns—suggesting that human cognition itself has a topological signature.
+**Gestalt Pattern Recognition.** Liu et al. (2021) applied persistent homology to EEG data during pattern recognition tasks and showed that the persistence entropy of brain signals evoked by ordered Gestalt images differs significantly from that evoked by random patterns—suggesting that human cognition itself has a topological signature.
 
 ### 5.4 The Cross-Domain Argument
 
@@ -411,6 +411,8 @@ Kaczynski, T., Mischaikow, K., & Mrozek, M. (2004). *Computational Homology*. Ap
 
 Kemmea, A. J., & Agyingi, C. A. (2025). Persistent homology: A pedagogical introduction with biological applications. *arXiv:2505.06583*.
 
+Liu, J., Wang, J., Liu, B., & Ma, Z. (2021). Persistent homology-based topological analysis on the Gestalt patterns during human brain cognition process. *Journal of Healthcare Engineering*, 2021, 2334332.
+
 Mayo, D. G. (2018). *Statistical Inference as Severe Testing: How to Get Beyond the Statistics Wars*. Cambridge University Press.
 
 Orzack, S. H., & Sober, E. (1993). A critical assessment of Levins's "The strategy of model building in population biology." *Quarterly Review of Biology*, 68(4), 533–546.
@@ -428,6 +430,8 @@ Tauzin, G., Lupo, U., Tunstall, L., et al. (2021). giotto-tda: A topological dat
 Tye, M. (2021). Qualia. *Stanford Encyclopedia of Philosophy*. https://plato.stanford.edu/entries/qualia/
 
 Wagner, H., Chen, C., & Vuçini, E. (2012). Efficient computation of persistent homology for cubical data. In *Topological Methods in Data Analysis and Visualization II*. Springer.
+
+Wang, Y., Xian, Y., Chen, X., & Yan, C. (2025). Topological signatures of brain dynamics: Persistent homology reveals individuality and brain–behavior links. *Frontiers in Human Neuroscience*, 19, 1607941.
 
 Weisberg, M. (2006). Robustness analysis. *Philosophy of Science*, 73(5), 730–742.
 

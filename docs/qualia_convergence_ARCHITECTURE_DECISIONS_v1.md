@@ -869,11 +869,11 @@ ADR-007 (Sākṣī)
 
 7. **Cross-domain universality**: If PH features capture invariant structure in geology AND music/neuroscience, what does this tell us about the nature of "essence"? Is mathematical universality evidence for domain-specific relevance?
 
-4. **Computational scaling**: How does the system scale to 1M+ analogs?
+8. **Computational scaling**: How does the system scale to 1M+ analogs?
 
-5. **3D extension**: What changes for volumetric geological patterns?
+9. **3D extension**: What changes for volumetric geological patterns?
 
-6. **Graph-based pathway**: Should TKR-style graph features be integrated as a fourth pathway?
+10. **Graph-based pathway**: Should TKR-style graph features be integrated as a fourth pathway?
 
 ---
 
