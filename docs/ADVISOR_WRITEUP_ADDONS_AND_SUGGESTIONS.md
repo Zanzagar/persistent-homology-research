@@ -140,7 +140,90 @@ Key ideas:
 
 ---
 
-## 5. Structural Notes on Your Current Draft
+## 5. How PH Integrates with the Other Modalities (Implementation-Level)
+
+Your writeup covers the *what* of the three-pathway architecture and the compatibility problem well. What's missing — and what the dissertation chapter now develops in §10.6–10.8 — is the *how*: the specific mechanisms by which PH features interact with geostatistical and learned features to solve the retrieval problem.
+
+### 5a. The Integration Problem
+
+You have three feature vectors of different dimensionality and different epistemic status:
+- PH: 20–50 dimensions (from vectorized persistence diagrams)
+- Geostatistical: ~50 dimensions (variogram parameters, MPS template frequencies, etc.)
+- DINOv2: 768 dimensions (learned visual semantics via ViT-B/14)
+
+The naive approach is to concatenate them into a single ~868-dimensional vector and let a model learn the weighting. But this treats all features as epistemically equal — which wastes PH's unique mathematical guarantee.
+
+### 5b. Measuring Cross-Pathway Agreement
+
+Before fusing, you need to know *how much* the pathways agree and *where* they agree:
+
+- **CKA (Centered Kernel Alignment)**: Measures global alignment between any two pathway pairs. Handles the dimensionality mismatch (20d vs. 768d) naturally. Williams et al. (2024) proved CKA, RSA, and CCA are mathematically equivalent, so the choice doesn't matter.
+- **SLIDE decomposition**: Decomposes the three feature spaces into:
+  - **Joint component**: features all three pathways encode — highest-confidence descriptors
+  - **Partially shared**: features two pathways agree on (e.g., PH + geostat but not DINOv2)
+  - **Individual**: features unique to one pathway — either genuine unique information or artifacts
+
+This decomposition directly tells you which feature dimensions belong to which confidence tier.
+
+### 5c. Directed Probing: What Does DINOv2 "Know" About Topology?
+
+DINOv2's 768 dimensions are far richer than PH's 20–50. A natural question: which DINOv2 features encode topological information?
+
+- **Linear probes** (Alain & Bengio, 2016): Train a linear classifier to predict PH features from DINOv2 embeddings. If it succeeds, DINOv2 has linearly decodable topological information. Oquab et al. (2023) showed DINOv2 features are generally linearly separable, so this is a strong test.
+- **T-CAV** (Kim et al., 2018): Identifies *directions* in DINOv2 space corresponding to topological concepts (e.g., "high $H_1$ persistence"). This decomposes DINOv2 into topologically meaningful and topologically opaque components.
+
+### 5d. Confidence-Weighted Fusion via Dempster-Shafer Theory
+
+Standard multi-modal fusion (early, late, attention-based) treats all sources symmetrically. But when PH has *provable* guarantees and others don't, symmetric fusion is epistemically inappropriate.
+
+Dempster-Shafer Theory provides the alternative:
+- Each pathway contributes a **belief function** (lower bound on probability) and a **plausibility function** (upper bound)
+- The gap between belief and plausibility = **ignorance**
+- PH features → narrow gap (high confidence, theorem-backed)
+- Single-pathway unique features → wide gap (high ignorance)
+- Dempster's rule combines these into a unified belief structure
+
+**The complete fusion pipeline** (this is what you'd describe to your professor):
+
+1. **Compute features**: PH (20–50d), geostat (~50d), DINOv2 (768d)
+2. **Measure alignment**: CKA pairwise between all three pairs
+3. **Decompose**: SLIDE → joint / partially-shared / individual components
+4. **Probe**: Linear probes + T-CAV from DINOv2 → PH concepts
+5. **Assign tiers**: Each feature dimension → Tier 1 (proven) through Tier 4 (uncertain)
+6. **Fuse**: DST with tier-dependent reliability weights for retrieval scoring
+
+### 5e. What This Means for the Pipelines Concretely
+
+**Pipeline A (Cataloguing)** — each analog gets a *tiered* index entry:
+- **Core index** (Tiers 1–2): PH features + cross-pathway corroborated features. Primary retrieval keys.
+- **Extended index** (Tier 3): Empirically invariant features. Refinement within equivalence classes.
+- **Uncertainty envelope** (Tier 4 + aleatoric): Single-pathway features + intra-class variability. Inform uncertainty, not primary retrieval.
+
+**Pipeline B (Retrieval)** — the Neural Process encoder produces a posterior $(\mu, \sigma)$ with *structured priors*:
+- Tier 1 dimensions → tight priors (PH constrains them mathematically)
+- Tier 4 dimensions → diffuse priors (little a priori constraint)
+- The query's uncertainty naturally reflects which features the sparse data can constrain
+
+**Coupling layer** — retrieval returns:
+- Not just a ranked list of analogs
+- A *posterior distribution* over candidate analogs with calibrated confidence intervals
+- Response essence validation: retrieved analogs should behave similarly under simulation, not just look similar
+
+### 5f. The Uncertainty Pipeline (from residuals to calibrated retrieval)
+
+The SLIDE decomposition's "individual" component for DINOv2 = PH-residual features. Don't discard these:
+
+1. **DeCUR** (Wang et al., 2024): Proves unique components carry meaningful information (texture, boundary sharpness, spatial frequency — real but non-topological)
+2. **Kotelevskii et al. (2025)**: Decomposes residual uncertainty into aleatoric (genuine intra-class variability) vs. epistemic (model ignorance), *per feature dimension*, without ensembles
+3. **Hedged instance embeddings** (Oh et al., 2019): Represent each analog as $\mathcal{N}(\mu, \Sigma)$ — a distribution, not a point
+4. **Uncertainty-weighted similarity**: Downweight high-uncertainty dimensions in retrieval
+5. **Neural Process integration**: Steps 1–4 provide structured priors for the encoder's $(\mu, \sigma)$ output
+
+This connects to Scheidt, Li & Caers (2018) — distance-based subsurface uncertainty methods that use feature-space distances for scenario probabilities. The contribution is grounding those distances in features with *known* epistemic status.
+
+---
+
+## 6. Structural Notes on Your Current Draft
 
 ### 5a. Duplicate pipeline section
 
@@ -169,7 +252,7 @@ This is a strength of your writeup — keep it. It gives the whole document a na
 
 ---
 
-## 6. Suggested References to Add
+## 7. Suggested References to Add
 
 These are papers cited in the dissertation chapter that your writeup should reference where relevant:
 
