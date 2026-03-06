@@ -2,7 +2,7 @@
 
 **Author**: Corey James Hoydic
 **Date**: February 2026
-**Status**: Draft — Blueprint for updating QCF core documents (updated March 2026 with confidence hierarchy, response essence, and uncertainty quantification extensions)
+**Status**: ARCHIVED — Core ideas implemented in `DISSERTATION_CHAPTER_PH.md` §5 (evidence hierarchy) and §10 (confidence hierarchy, response essence, uncertainty quantification). This document is retained for historical reference only. The dissertation chapter is now the authoritative source.
 
 ---
 
