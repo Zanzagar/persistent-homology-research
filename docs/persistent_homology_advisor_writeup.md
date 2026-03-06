@@ -29,6 +29,81 @@ The question then becomes: what mathematical framework can *explicitly detect an
 
 The goal of this section is to construct persistent homology from the ground up—not as a list of definitions, but as a sequential narrative where each concept motivates the next. We begin with the most basic question: what is a topological space? And we build, step by step, to persistence diagrams.
 
+### Visual Roadmap: The Full Pipeline
+
+The following diagram traces the complete conceptual pipeline from raw geological data to stable topological features. Every term defined in the sections below appears here — use it as a map to see where each concept fits before reading the details.
+
+**Layer 1 — From Data to Shapes:**
+
+```mermaid
+flowchart LR
+    A["<b>Geological Image</b><br/><i>pixel grid with values</i>"] --> B["<b>Topological Space</b><br/><i>(X, τ): open sets,<br/>continuity without distance</i>"]
+    B --> C["<b>Metric Space</b><br/><i>(X, d): topological space<br/>+ distance function</i>"]
+    C --> D{"What kind<br/>of data?"}
+    D -->|"Point cloud<br/>(e.g., well locations)"| E["<b>Simplicial Complex</b><br/><i>Vietoris-Rips: connect<br/>points within radius ε</i>"]
+    D -->|"Regular grid<br/>(e.g., image pixels)"| F["<b>Cubical Complex</b><br/><i>SEDT: threshold signed<br/>distance to facies boundary</i>"]
+
+    style A fill:#e8d5b7,stroke:#8b7355
+    style E fill:#d4e8d4,stroke:#5a8a5a
+    style F fill:#d4e8d4,stroke:#5a8a5a
+```
+
+**Layer 2 — The Algebraic Engine (how we detect holes):**
+
+```mermaid
+flowchart TD
+    K["<b>Complex K</b><br/><i>vertices, edges, triangles, ...</i>"] --> CG["<b>Chain Groups C_k(K)</b><br/><i>vector spaces over Z₂</i><br/>k-chain = selection of k-simplices<br/>(each simplex: in or out, 1+1=0)"]
+    CG --> BM["<b>Boundary Maps ∂_k</b><br/><i>C_k → C_{k-1}</i><br/>sends each simplex to<br/>the sum of its faces"]
+    BM --> PROP["<b>∂ ∘ ∂ = 0</b><br/><i>boundary of a boundary<br/>is always empty</i><br/>guarantees: boundaries ⊆ cycles"]
+    PROP --> KER["<b>ker(∂_k) = k-cycles</b><br/><i>chains with zero boundary</i><br/>closed loops, candidates for holes"]
+    PROP --> IM["<b>im(∂_{k+1}) = k-boundaries</b><br/><i>chains that bound a filled region</i><br/>false positives: 'holes' already filled"]
+    KER --> HOM["<b>Homology Group</b><br/><i>H_k = ker(∂_k) / im(∂_{k+1})</i><br/>cycles that are NOT boundaries<br/>= genuine holes"]
+    IM --> HOM
+    HOM --> BETTI["<b>Betti Numbers</b><br/><i>β_k = rank(H_k)</i><br/>β₀ = components<br/>β₁ = loops ← <b>key for us</b><br/>β₂ = enclosed voids"]
+
+    style K fill:#d4e8d4,stroke:#5a8a5a
+    style HOM fill:#c9d4f0,stroke:#4a5a8a
+    style BETTI fill:#c9d4f0,stroke:#4a5a8a
+```
+
+**Layer 3 — From Homology to Persistent Homology:**
+
+```mermaid
+flowchart LR
+    SINGLE["<b>Single Complex K</b><br/><i>homology at one scale</i><br/>but which scale?<br/>arbitrary choice"] --> FILT["<b>Filtration</b><br/><i>K₀ ⊆ K₁ ⊆ ... ⊆ Kₙ</i><br/>sweep through all scales<br/>(increase ε or threshold)"]
+    FILT --> TRACK["<b>Track Features</b><br/><i>birth b: cycle appears</i><br/><i>death d: cycle filled in</i><br/>persistence = [b, d]"]
+    TRACK --> VIZ["<b>Persistence Diagram</b><br/><i>points (b, d) in the plane</i><br/>far from diagonal = signal<br/>near diagonal = noise"]
+    VIZ --> STAB["<b>Stability Theorem</b><br/><i>d_B(Dgm(f), Dgm(g))</i><br/><i>≤ ||f - g||_∞</i><br/>PROVEN, not empirical"]
+    STAB --> VEC["<b>Vectorization</b><br/><i>landscapes, images, entropy</i><br/>→ 20-50 dim feature vector<br/>→ enters ML pipeline"]
+
+    style SINGLE fill:#f0e0e0,stroke:#8a5a5a
+    style STAB fill:#fff3cd,stroke:#8a7a3a
+    style VEC fill:#c9d4f0,stroke:#4a5a8a
+```
+
+**Layer 4 — What each concept means geologically:**
+
+| Concept | Mathematical Meaning | Geological Meaning |
+|---|---|---|
+| **Topological space** | Shape without distance | Structure that survives deformation |
+| **Homotopy equivalence** | Same holes (looser than homeomorphism) | Same connectivity pattern regardless of channel width |
+| **Simplicial complex** | Vertices + edges + triangles from point cloud | Connectivity network built from well locations |
+| **Cubical complex** | Pixels + squares from image grid | Channel network structure from SEDT of facies map |
+| **Chain group $C_k$** | All possible selections of $k$-simplices | All possible subnetworks of a given dimension |
+| **Boundary map $\partial_k$** | "Take the boundary" as linear algebra | Extract the perimeter of a channel region |
+| **$k$-cycle** | Closed chain (no boundary) | A closed loop in the channel network |
+| **$k$-boundary** | Chain that bounds a filled region | A loop around an already-filled area (false positive) |
+| **$H_k$ (homology group)** | Cycles mod boundaries = genuine holes | Genuine unfilled loops in the network |
+| **$\beta_0$** | Count of connected components | Number of isolated channel bodies |
+| **$\beta_1$** | Count of independent loops | Braiding complexity — **the key discriminator** |
+| **$\beta_2$** | Count of enclosed voids | 3D enclosed cavities (pore space) |
+| **Filtration** | Nested complexes across scales | Channel network at every SEDT threshold |
+| **Persistence $[b,d]$** | Lifespan of a topological feature | How robust a channel loop is across thresholds |
+| **Persistence diagram** | Complete topological summary | Fingerprint of the channel architecture |
+| **Stability theorem** | Bounded output change for bounded input change | **Mathematical guarantee** that similar geology → similar diagrams |
+
+**Reading the diagram:** Start at the top-left (your geological image). Follow the arrows right and down. By the time you reach the bottom-right (vectorized features entering ML), every concept you encounter in the math sections below has a place in this pipeline. The color coding: brown = input data, green = geometric construction, blue = algebraic output, yellow = the stability guarantee, red = the problem that persistence solves (scale dependence).
+
 ### The Space We Work In
 
 **Topological spaces.** Topology studies what stays the same when you stretch, bend, and deform a shape—but do not tear or glue it. A *topological space* $(X, \tau)$ consists of a set $X$ and a collection $\tau$ of subsets called "open sets" satisfying three axioms: (1) the empty set $\emptyset$ and $X$ itself are in $\tau$; (2) $\tau$ is closed under finite intersections; and (3) $\tau$ is closed under arbitrary unions (Kemmea & Agyingi, 2025).
