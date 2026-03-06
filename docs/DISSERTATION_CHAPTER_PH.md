@@ -13,7 +13,7 @@ Accurate prediction of subsurface geological response to natural and anthropogen
 
 Persistent homology (PH) provides the mathematical backbone for this architecture. We introduce the core machinery of persistent homology—simplicial complexes, filtrations, homology groups, Betti numbers, and persistence diagrams—and demonstrate why these concepts matter for geological pattern recognition. We examine PH's role within the Qualia Convergence Framework (QCF), a multi-pathway architecture for depositional analog retrieval, and engage critically with the ellipse degradation thought experiment, proposing that PH's stability properties provide a *mathematical proof* of invariance that is epistemically stronger than any empirical invariance test. We develop this insight into a structured evidence hierarchy for essence claims and show how this hierarchy governs descriptor admissibility in Pipeline A, query encoding validation in Pipeline B, and similarity metric justification in the coupling layer between them.
 
-We present the system architecture connecting topological invariants to analog retrieval: the Neural Process query encoder for sparse-to-dense inference with calibrated uncertainty, the hyperbolic embedding space for hierarchy-aware organization, and the Perceiver IO fusion architecture for variable-modality inputs. We further explore how PH's domain-agnostic framework extends to music, auditory structure, and neuroscience, using cross-domain applicability as evidence for mathematical universality. We conclude with a proposed experimental validation design and an honest assessment of what remains unsolved.
+We present the system architecture connecting topological invariants to analog retrieval: the Neural Process query encoder for sparse-to-dense inference with calibrated uncertainty, the hyperbolic embedding space for hierarchy-aware organization, and the Perceiver IO fusion architecture for variable-modality inputs. We further explore how PH's domain-agnostic framework extends to music, auditory structure, and neuroscience, using cross-domain applicability as evidence for mathematical universality. We then develop three extensions that broaden the framework: (1) generalization from structural to *response* essence via dynamical systems theory and basin-of-attraction topology, (2) a confidence hierarchy exploiting the epistemic asymmetry between theorem-backed PH features and empirically derived features, and (3) an uncertainty quantification pipeline that decomposes feature residuals into aleatoric and epistemic components for calibrated retrieval. We conclude with a proposed experimental validation design and an honest assessment of what remains unsolved.
 
 ---
 
@@ -67,7 +67,7 @@ The purpose of determining essence is therefore twofold: to identify invariant s
 
 This chapter develops the mathematical and architectural foundations for the two-pipeline system. Section 2 introduces the mathematical machinery of persistent homology—topological spaces, simplicial complexes, homology groups, persistence, and the stability theorem—establishing the formal tools on which the framework depends. Section 3 examines how persistent homology is applied within the Qualia Convergence Framework, including the three-pathway feature extraction architecture, the $H_1$ hypothesis for channel discrimination, and the limitations of the topological pathway. Section 4 engages critically with the ellipse degradation thought experiment on the nature of essence, revealing fundamental problems with degradation-based definitions and motivating generator invariance as the preferred alternative. Section 5 develops a structured evidence hierarchy for essence claims organized by epistemic strength, and shows how this hierarchy governs both pipeline operations.
 
-Section 6 presents the system architecture that connects topological invariants to analog retrieval: the Neural Process query encoder, the hyperbolic embedding space, the Perceiver IO fusion module, and the Sākṣī validation layer. Section 7 explores cross-domain applications of persistent homology—in music, neuroscience, and consciousness research—as evidence for mathematical universality. Section 8 describes the proposed experimental validation design, and Section 9 discusses open questions and the path forward. Section 10 concludes with an assessment of persistent homology's role as the mathematical backbone of the research program.
+Section 6 presents the system architecture that connects topological invariants to analog retrieval: the Neural Process query encoder, the hyperbolic embedding space, the Perceiver IO fusion module, and the Sākṣī validation layer. Section 7 explores cross-domain applications of persistent homology—in music, neuroscience, and consciousness research—as evidence for mathematical universality. Section 8 describes the proposed experimental validation design, and Section 9 discusses open questions and the path forward. Section 10 develops three extensions that broaden the framework beyond static structural essence: dynamic response essence via basin-of-attraction topology, a confidence hierarchy exploiting PH's unique epistemic status as epistemic anchor for multi-pathway fusion, and an uncertainty quantification pipeline grounded in feature residual decomposition. Section 11 concludes with an assessment of persistent homology's role as the mathematical backbone of the research program.
 
 ---
 
@@ -663,15 +663,171 @@ The most philosophically compelling line of future work may be systematic cross-
 
 ---
 
-## 10. Conclusion
+## 10. Extensions: Dynamic Essence, Confidence Hierarchy, and Uncertainty
+
+The preceding sections developed persistent homology as the mathematical backbone for *structural* essence—multiscale invariance of spatial pattern independent of generator artifacts. This section extends the framework in three directions that emerged from the research program's natural evolution. First, we generalize essence from static structure to dynamic response, asking whether analogs sharing structural essence also share the same *response* to stimulation (§10.1–10.5). Second, we develop a confidence hierarchy that exploits the epistemic asymmetry between theorem-backed PH features and empirically derived features from other pathways (§10.6). Third, we show how feature residuals—the components of learned representations *not* captured by PH—can be decomposed into meaningful uncertainty estimates that inform retrieval (§10.7). Section 10.8 synthesizes these extensions into concrete implications for the two-pipeline architecture.
+
+### 10.1 From Structural Essence to Response Essence
+
+Section 1.3 defined essence as "multiscale structural invariance independent of generator artifacts" and explicitly deferred response invariance to future work. This deferral was necessary—structural characterization must precede dynamic analysis—but it leaves a critical gap. The ultimate purpose of analog retrieval is not to find analogs that *look like* a target reservoir but to find analogs that *behave like* it: analogs whose response to fluid injection, pressure depletion, or natural loading faithfully predicts the target's response.
+
+We therefore propose extending the essence concept to encompass *response essence*:
+
+> **Response essence** is the equivalence class of geological configurations that produce topologically equivalent dynamic response under a specified class of stimuli.
+
+Two geological configurations share response essence if their trajectories through state space, when subjected to the same forcing, trace out attractors with the same topological structure—even if the trajectories differ in geometric detail. This definition deliberately mirrors the structural essence definition: where structural essence abstracts away generator artifacts, response essence abstracts away transient dynamics to focus on the invariant attractor geometry.
+
+The relationship between structural and response essence is the central question: *does shared structural essence imply shared response essence?* If yes, then Pipeline A's structural index already organizes analogs by dynamic relevance. If no—if structurally equivalent formations can produce topologically distinct responses—then the retrieval system requires additional descriptors capturing dynamic properties. Both outcomes are scientifically valuable; the question is empirical.
+
+### 10.2 Persistent Homology of Dynamical Systems
+
+Applying PH to dynamical systems requires reframing geological response as a trajectory in state space. A reservoir under stimulation evolves according to a state-space model:
+
+$$x_{k+1} = f(x_k, u_k) + w_k$$
+
+where $x_k \in \mathbb{R}^n$ is the reservoir state (pressure, saturation, and stress fields discretized over a grid), $u_k$ represents external forcing (injection rates, boundary conditions), $f$ encodes the physics of multiphase flow through porous media, and $w_k$ captures model uncertainty. Different geological configurations—different permeability fields, facies architectures, fault networks—correspond to different functions $f$, producing different trajectories through the same state space under identical forcing.
+
+This is not merely an analogy. Classical reservoir simulation *is* state-space dynamical systems modeling. He et al. (2023) demonstrated that reservoir dynamics admit Koopman linearization—a transformation into an infinite-dimensional linear system where the nonlinear dynamics become linear operators on observable functions. This linearization enables spectral analysis of reservoir behavior, connecting the geometric complexity of the attractor to eigenvalues of the Koopman operator.
+
+**Takens embedding and topological analysis.** When the full state vector $x_k$ is unobservable—as it invariably is in field settings where only sparse well measurements are available—Takens' embedding theorem (Takens, 1981) guarantees that the attractor topology can be reconstructed from a single time series of sufficient length and embedding dimension. Venkataraman et al. (2016) applied PH to Takens-reconstructed attractors for dynamical system classification, demonstrating that persistence diagrams of the reconstructed attractor reliably distinguish different dynamical regimes. Das et al. (2024) extended this approach to distinguish periodic from chaotic regimes using PH of the reconstructed phase portrait.
+
+The pipeline for geological application would be:
+
+1. Generate production time series (e.g., wellhead pressure, water cut) from reservoir simulation under controlled forcing
+2. Construct Takens embedding of the time series with appropriate delay and dimension
+3. Compute PH of the embedded point cloud, yielding persistence diagrams that characterize the attractor topology
+4. Compare attractor topologies across geological configurations to test whether structural essence predicts response essence
+
+**Double persistent homology.** Kramar et al. (2016) introduced a particularly relevant technique: computing PH not of the raw attractor but of *snapshots* of a spatiotemporal field, then tracking how the persistence diagrams themselves evolve over time. Applied to Rayleigh-Benard convection, this "double PH" approach captured transitions between flow regimes that single-snapshot PH missed. For geological systems, double PH could track how the topological structure of a pressure or saturation field evolves during production—providing a topological fingerprint of the dynamic response that goes beyond single-time-step analysis.
+
+### 10.3 Defining Response Essence via Basin-of-Attraction Topology
+
+The attractor perspective suggests a precise mathematical definition of response essence. A dynamical system's long-term behavior is organized by its *attractors*—stable equilibria, limit cycles, strange attractors—and the *basins of attraction* that partition state space into regions flowing toward each attractor. Two dynamical systems have the same qualitative behavior if and only if their basin-of-attraction structures are topologically equivalent.
+
+**Morse-Smale decomposition.** For gradient-like dynamical systems (which include many dissipative physical systems), the Morse-Smale decomposition (Conley, 1978) provides a rigorous partition of state space into cells, each associated with a critical point (equilibrium) and its stable/unstable manifolds. The combinatorial structure of this decomposition—which critical points exist, how their basins connect—is a topological invariant of the dynamical system.
+
+We propose:
+
+> **Response essence (formal)**: Two geological configurations $G_1$ and $G_2$ share response essence with respect to stimulus class $\mathcal{U}$ if the Morse-Smale decompositions of their respective dynamical systems $f_{G_1}$ and $f_{G_2}$ under stimuli $u \in \mathcal{U}$ are combinatorially equivalent.
+
+This definition has several attractive properties. It is mathematically precise, admitting formal comparison. It abstracts away metric details (how fast trajectories approach attractors) while preserving qualitative behavior (which attractors exist and how state space is organized around them). And it connects directly to PH: Lipinski et al. (2023) developed persistent Conley-Morse graphs that track how the Morse decomposition changes under parameter variation, providing a persistence-theoretic tool for comparing basin structures.
+
+**Practical computation.** Computing full Morse-Smale decompositions for high-dimensional reservoir systems is currently intractable. However, Dey et al. (2020) developed computational methods for approximating Morse decompositions from sampled trajectories, and dimension reduction via the Koopman operator (He et al., 2023) may make the problem tractable in a reduced state space. This remains a research challenge, but the mathematical framework is well-defined.
+
+### 10.4 Formation Dynamics as Attractor Systems
+
+The dynamical systems perspective extends beyond reservoir response to the *formation* of geological structures themselves. The geological record is not merely a static pattern—it is a frozen signature of dynamical processes operating over geological time. This observation suggests that structural essence and response essence may be connected at a deeper level than the retrieval problem requires.
+
+**Meandering rivers as self-organized criticality.** Stolum (1996) demonstrated that river meandering exhibits self-organized criticality: the channel evolves toward a critical state where meander cutoffs maintain a characteristic sinuosity. The attractor of this system is not a fixed channel geometry but a *statistical steady state*—a distribution over channel configurations. Phillips (1992, 2003, 2006) developed this perspective systematically for geomorphological systems, showing that landscape evolution frequently exhibits nonlinear dynamics including bifurcations, chaos, and self-organization.
+
+**Channel pattern bifurcation.** Leopold and Wolman (1957) identified the now-classical threshold between braided and meandering channel patterns as a function of slope and discharge. Kleinhans and van den Berg (2011) extended this to include sediment transport, revealing a richer bifurcation structure. In dynamical systems terms, this threshold is a *bifurcation boundary*: the same governing equations produce qualitatively different attractors (braided vs. meandering) depending on parameter values. The PH computation of §8.1—distinguishing braided from meandering via $H_1$ features—is therefore detecting *which side of a dynamical bifurcation* the formation process occupied.
+
+**Delta lobe switching as limit cycles.** Fluvial delta systems exhibit quasi-periodic lobe switching, where the active depositional lobe shifts position over millennial timescales. This behavior is naturally modeled as a limit cycle in the dynamical system governing sediment routing and channel avulsion. The topological signature of a limit cycle—a persistent $H_1$ feature in the attractor's phase portrait—connects directly to the PH machinery developed in §10.2.
+
+These observations suggest a provocative hypothesis: *structural PH of the geological record encodes information about the attractor of the formation process*. If true, structural essence and response essence are not independent properties but reflections of the same underlying dynamical organization—one frozen in the rock, the other activated by stimulation. Testing this hypothesis requires comparing structural PH features of geological images with response PH features of simulated dynamics on those same images, a direction for future experimental work.
+
+### 10.5 State Space Models: Classical and Modern
+
+The state-space formulation of §10.2 connects to two distinct but converging research traditions that are relevant to the retrieval architecture.
+
+**Classical state space models.** Reservoir simulation has always been a state-space problem: discretize the governing PDEs (Darcy's law, mass conservation, constitutive relations) on a grid, advance the state vector through time. Jansen et al. (2009) made this connection explicit, framing reservoir management as optimal control of a state-space system. The Koopman linearization of He et al. (2023) does not change the physics but provides a new mathematical lens—one that enables spectral decomposition of reservoir dynamics and direct connection to the attractor topology discussed in §10.3.
+
+**Modern ML state space models.** A parallel development in machine learning has produced architectures—S4, Mamba, and their variants—that process sequential data through learned state-space representations. These models learn compact state representations that capture long-range dependencies in time series. Early geoscience applications (2024–2025) have applied these architectures to pore pressure prediction, well log interpretation, and seismic processing, demonstrating that learned state spaces can capture geological dynamics.
+
+**Convergence opportunity.** The two traditions meet at a natural interface: classical SSMs provide the physical state space whose attractor topology defines response essence; modern ML SSMs provide efficient learned approximations that could make attractor topology computation tractable for high-dimensional systems. A hybrid approach—using physics-informed ML state-space models to approximate the Koopman operator, then computing PH of the resulting attractor—could bridge the computational gap between the mathematical framework of §10.3 and practical implementation.
+
+### 10.6 The Confidence Hierarchy: PH as Epistemic Anchor
+
+The multi-pathway architecture of the Qualia Convergence Framework (§3) extracts features through three independent pathways: topological (PH), classical (geostatistical), and learned (DINOv2 foundation model). These pathways produce features of fundamentally *different epistemic status*—a distinction that no prior work in multi-modal feature fusion has exploited.
+
+**The asymmetric trust structure.** PH features enjoy a unique epistemic privilege: the stability theorem (§2.6) provides a *mathematical proof* that persistence diagrams are Lipschitz-continuous functions of the input. No analogous theorem exists for geostatistical descriptors (which depend on stationarity assumptions that geological data routinely violate) or for learned features (which depend on training data distribution and model architecture). This creates an asymmetric trust structure:
+
+| Tier | Source | Epistemic Basis | Invariance Guarantee |
+|------|--------|----------------|---------------------|
+| 1 — Proven | PH features | Stability theorem | Mathematical proof: $d_B(\textrm{Dgm}(f), \textrm{Dgm}(g)) \leq \lVert f - g \rVert_\infty$ |
+| 2 — Corroborated | Joint components (PH $\cap$ geostat $\cap$ DINOv2) | Cross-pathway convergence | Strong empirical + partial theoretical |
+| 3 — Empirically invariant | Features passing LOGO but low CKA with PH | Empirical testing | LOGO-validated but no theoretical backing |
+| 4 — Uncertain | Unique to one pathway | Single-source | No cross-validation |
+
+This hierarchy is not merely taxonomic—it has operational consequences for how features should be weighted in retrieval.
+
+**Measuring cross-pathway alignment.** To populate this hierarchy, we need quantitative measures of agreement between feature spaces. Williams et al. (2024) proved that Centered Kernel Alignment (CKA; Kornblith et al., 2019), Representational Similarity Analysis (RSA; Kriegeskorte et al., 2008), and Canonical Correlation Analysis (CCA; Raghu et al., 2017) are mathematically equivalent under appropriate normalization—they measure the same underlying alignment from different perspectives. We adopt CKA as the primary alignment metric due to its robustness to representation dimensionality mismatch (PH produces 20–50 features; DINOv2 produces 768).
+
+**SLIDE decomposition.** Global alignment metrics like CKA reveal *how much* two feature spaces agree but not *which* features agree. The SLIDE framework (Structured Integration of Linked Data from Experiments; Gaynanova and Li, 2019) decomposes multi-view data into three components:
+
+$$X = X_{\text{joint}} + X_{\text{partial}} + X_{\text{individual}}$$
+
+where $X_{\text{joint}}$ captures variation shared across all views, $X_{\text{partial}}$ captures variation shared between some but not all views, and $X_{\text{individual}}$ captures view-specific variation. Applied to our three pathways:
+
+- **Joint component** (PH $\cap$ geostat $\cap$ DINOv2): Features all three pathways agree on — the highest-confidence structural descriptors after PH's own Tier 1.
+- **Partial components** (pairwise overlaps): Features two pathways agree on, potentially indicating real structure that the third pathway cannot detect.
+- **Individual components**: Features unique to one pathway — either genuine unique information or pathway-specific artifacts.
+
+**Directed probing: DINOv2 $\to$ PH.** The learned pathway (DINOv2) operates in a 768-dimensional space that is far richer than PH's 20–50 dimensions. A natural question is: *which DINOv2 features encode topological information?* Linear probing (Alain and Bengio, 2016) and Testing with Concept Activation Vectors (T-CAV; Kim et al., 2018) provide complementary answers. Linear probes test whether PH features are *linearly decodable* from DINOv2 representations—a strong test given that Oquab et al. (2023) showed DINOv2 features are generally linearly separable. T-CAV identifies *directions* in DINOv2 space that correspond to topological concepts (e.g., "high $H_1$ persistence"), providing interpretable decomposition of the learned representation into topologically meaningful and topologically opaque components.
+
+**Evidence combination via Dempster-Shafer Theory.** The confidence hierarchy requires a formal framework for combining evidence of asymmetric reliability. Classical Bayesian fusion treats all sources symmetrically—each contributes a likelihood. But when one source (PH) has provable guarantees and others do not, symmetric treatment is epistemically inappropriate. Dempster-Shafer Theory (DST) provides an alternative: each source contributes a *belief function* (lower bound on probability) and a *plausibility function* (upper bound), with the gap between them encoding *ignorance*. For Tier 1 features (PH), the belief-plausibility gap is narrow (high confidence). For Tier 4 features (single-pathway unique), the gap is wide (high ignorance). Dempster's rule of combination then fuses these asymmetric assessments into a combined belief structure that appropriately weights theorem-backed evidence over empirically derived evidence.
+
+The proposed pipeline for confidence-tiered feature fusion is:
+
+1. **Compute features**: PH (20–50d), geostatistical (~50d), DINOv2 (768d)
+2. **Global alignment**: CKA pairwise between all three pathway pairs
+3. **Decomposition**: SLIDE into joint / partially-shared / individual components
+4. **Directed probing**: Linear probes and T-CAV from DINOv2 $\to$ PH concepts
+5. **Confidence assignment**: Map each feature dimension to Tiers 1–4 based on decomposition results
+6. **Evidence combination**: DST with tier-dependent reliability weights for retrieval scoring
+
+### 10.7 From Feature Residuals to Uncertainty Quantification
+
+The SLIDE decomposition of §10.6 partitions DINOv2's 768-dimensional representation into PH-aligned and PH-residual components. A natural but premature conclusion would be to discard the residual as noise. However, DeCUR (Decoupling Common and Unique Representations; Wang et al., 2024) demonstrated that the unique (non-shared) components of self-supervised representations carry *meaningful* information—they encode view-specific structure that is genuinely present in the data but not captured by shared features. Applied to our setting, DINOv2's PH-residual features may encode geological information that is real but not topological: texture gradients, facies boundary sharpness, spatial frequency content, or other properties that PH's topological abstraction deliberately ignores.
+
+**Aleatoric vs. epistemic decomposition.** The critical question is whether these residual features represent *aleatoric* uncertainty (genuine intra-class variability—different braided systems have different textures) or *epistemic* uncertainty (model ignorance—the feature extractor is uncertain about what it sees). Kendall and Gal (2017) established the foundational framework for this decomposition. Kotelevskii et al. (2025) extended it to feature space, showing that uncertainty can be decomposed *per feature dimension* without requiring model ensembles—using density estimation in the representation space to distinguish regions of high data density (low epistemic uncertainty) from regions of low density (high epistemic uncertainty).
+
+**The propagation chain.** These methods compose into a coherent pipeline linking PH's mathematical guarantees to calibrated uncertainty in retrieval:
+
+1. **PH features** provide bounded invariants via the stability theorem
+2. **DeCUR decomposition** separates DINOv2 into PH-aligned and PH-residual components, confirming that residual components carry meaningful (not random) information
+3. **Kotelevskii density model** decomposes residual uncertainty into aleatoric (intra-class variability) and epistemic (data sparsity) components, *per feature dimension*
+4. **Heteroscedastic embedding**: Rather than representing each analog as a point in feature space, represent it as a distribution $\mathcal{N}(\mu, \Sigma)$ where $\Sigma$ encodes per-feature uncertainty (following Oh et al., 2019, on hedged instance embeddings)
+5. **Uncertainty-weighted similarity**: Retrieval uses a similarity metric that downweights feature dimensions with high uncertainty, following Uncertainty-Aware Embedding Comparison (UEC) principles
+6. **Neural Process integration**: The Neural Process query encoder (§6.1) naturally produces uncertainty-calibrated outputs $(\mu, \sigma)$; the structured uncertainty from steps 3–5 provides a principled initialization of the encoder's uncertainty prior
+
+**Connection to subsurface uncertainty quantification.** This pipeline connects to established practice in geostatistical uncertainty quantification. Scheidt, Li, and Caers (2018) developed distance-based methods for subsurface uncertainty assessment that use feature-space distances to define scenario probabilities—precisely the framework that uncertainty-weighted retrieval implements. Arnold et al. (2018) extended this to geological scenario probability estimation. The contribution here is to ground the distance computation in features with *known* epistemic status: PH features anchor the distance with mathematical guarantees, while residual features contribute with appropriate uncertainty discounting.
+
+### 10.8 Implications for the Two-Pipeline Architecture
+
+The three extensions of this section have concrete implications for both pipelines and their coupling.
+
+**Pipeline A (Cataloguing).** The confidence hierarchy (§10.6) changes what gets indexed and how. Rather than a flat feature vector, each analog's index entry becomes a *tiered descriptor*:
+
+- **Core index** (Tiers 1–2): PH features and cross-pathway corroborated features. These are the primary keys for retrieval—the features with strongest invariance guarantees.
+- **Extended index** (Tier 3): Empirically invariant features. Used for refinement within equivalence classes defined by the core index.
+- **Uncertainty envelope** (Tier 4 + aleatoric): Single-pathway features and intra-class variability estimates. Not used for primary retrieval but inform uncertainty quantification in the returned results.
+
+This tiered structure means Pipeline A does not merely store analogs—it stores analogs *with calibrated confidence about what is known and unknown* about each one.
+
+**Pipeline B (Retrieval).** Sparse field observations will typically constrain some feature dimensions well and leave others poorly constrained. The confidence hierarchy provides a principled way to handle this asymmetry: features that are both well-constrained by observations *and* high-tier in the confidence hierarchy receive maximal weight in retrieval. Features that are poorly constrained or low-tier contribute uncertainty rather than false precision.
+
+The Neural Process query encoder (§6.1) is naturally suited to this framework. Given sparse observations, it produces a posterior distribution in feature space. The structured uncertainty from §10.7 provides an informative prior: dimensions corresponding to Tier 1 features have tight priors (PH constrains them strongly), while dimensions corresponding to Tier 4 features have diffuse priors (little a priori constraint). This is a concrete realization of the Bayesian retrieval framework discussed abstractly in §6.
+
+**Response essence and Pipeline validation.** The dynamic extensions (§10.1–10.5) suggest a validation criterion for the entire retrieval system: analogs retrieved by Pipeline B (based on structural similarity) should exhibit similar dynamic response when subjected to identical simulation protocols. If structural retrieval predicts response similarity, the system is validated at the deepest level. If not, the gap between structural and response essence identifies which additional descriptors Pipeline A must incorporate.
+
+**The coupling layer.** The coupling between pipelines—the similarity metric that compares a sparse query to dense catalog entries—benefits from all three extensions. The confidence hierarchy ensures the metric is grounded in features with known invariance properties. The uncertainty decomposition ensures the metric is uncertainty-aware, returning not just a ranked list but a *posterior distribution* over candidate analogs with calibrated confidence intervals. And the response essence framework provides the ultimate validation criterion: retrieved analogs should not only look similar but behave similarly.
+
+---
+
+## 11. Conclusion
 
 Persistent homology provides a unique combination of mathematical rigor, computational tractability, and domain agnosticism that makes it the natural backbone of the Qualia Convergence Framework's essence claim. The stability theorem provides what no empirical test can: a mathematical *proof* of invariance under bounded perturbations. The $H_1$ hypothesis provides a specific, falsifiable prediction about the discriminative power of topological features for geological classification. Cross-generator validation provides a necessary (though not sufficient) empirical check on invariance, with its limitations honestly acknowledged.
 
-The epistemological contribution of this chapter is the recognition that mathematical invariance is epistemically *stronger* than empirical invariance, and the consequent restructuring of the evidence hierarchy for essence claims. This restructuring is not merely a philosophical exercise—it changes what experiments are prioritized, how results are interpreted, and what claims are warranted.
+The epistemological contribution of this chapter is the recognition that mathematical invariance is epistemically *stronger* than empirical invariance, and the consequent restructuring of the evidence hierarchy for essence claims. This restructuring is not merely a philosophical exercise—it changes what experiments are prioritized, how results are interpreted, and what claims are warranted. The confidence hierarchy of Section 10.6 operationalizes this recognition: PH features anchor the entire multi-pathway architecture as Tier 1 descriptors, and the epistemic asymmetry between theorem-backed and empirically derived features—previously unexploited in multi-modal fusion research—structures how evidence from different pathways is weighted, combined, and trusted.
 
 The colleague's challenge—"patterns based on statistical coherence will never solve the essence problem"—remains the animating question. Our response is now more nuanced: patterns based on statistical coherence indeed cannot capture topological structure. But patterns based on *topological* coherence, validated by mathematical invariance theorems and severe testing, can approach something worthy of the designation "essence"—with epistemic humility about the gap between operational definitions and deeper truths.
 
-The system architecture presented in Section 6 demonstrates how these mathematical and epistemological foundations translate into an operational retrieval system. Persistent homology provides the mathematically guaranteed descriptors that anchor Pipeline A's geologic index—the only descriptors in the current framework with Level 1 evidence from the stability theorem. The evidence hierarchy governs both pipelines: it determines which descriptors are admitted into Pipeline A's index, how Pipeline B's query encodings are validated against the same descriptor space, and what justifies the similarity metric that couples the two pipelines. The Neural Process query encoder, the hyperbolic embedding space, and the Perceiver IO fusion architecture each address specific architectural challenges—sparse-to-dense inference with calibrated uncertainty, hierarchy-aware organization with exponential dimensional efficiency, and variable-modality input handling—that are necessary for the two-pipeline system to function coherently. The proposed experimental validation design (Section 8) provides the concrete testing protocol for the next phase of this research: generating matched-variogram image pairs, computing persistence, and evaluating the $H_1$ hypothesis against pre-committed decision thresholds. Together, these components form a research program that is mathematically grounded, architecturally specified, epistemologically honest about its limitations, and experimentally testable.
+The system architecture presented in Section 6 demonstrates how these mathematical and epistemological foundations translate into an operational retrieval system. Persistent homology provides the mathematically guaranteed descriptors that anchor Pipeline A's geologic index—the only descriptors in the current framework with Level 1 evidence from the stability theorem. The evidence hierarchy governs both pipelines: it determines which descriptors are admitted into Pipeline A's index, how Pipeline B's query encodings are validated against the same descriptor space, and what justifies the similarity metric that couples the two pipelines. The Neural Process query encoder, the hyperbolic embedding space, and the Perceiver IO fusion architecture each address specific architectural challenges—sparse-to-dense inference with calibrated uncertainty, hierarchy-aware organization with exponential dimensional efficiency, and variable-modality input handling—that are necessary for the two-pipeline system to function coherently.
+
+The extensions developed in Section 10 broaden the framework in three directions. The generalization from structural to response essence (§10.1–10.5) connects the static PH analysis of geological images to the dynamical systems theory of reservoir response, proposing that basin-of-attraction topology—formalized via Morse-Smale decomposition—provides the mathematical definition of response equivalence. The confidence hierarchy (§10.6) exploits PH's epistemic privilege to structure multi-pathway fusion via SLIDE decomposition and Dempster-Shafer evidence combination. The uncertainty quantification pipeline (§10.7) transforms what would otherwise be discarded feature residuals into calibrated uncertainty estimates that inform retrieval. Together, these extensions transform the two-pipeline architecture from a structural matching system into a confidence-aware, uncertainty-quantified retrieval framework with a clear pathway toward dynamic validation.
+
+The proposed experimental validation design (Section 8) provides the concrete testing protocol for the next phase of this research: generating matched-variogram image pairs, computing persistence, and evaluating the $H_1$ hypothesis against pre-committed decision thresholds. Together, these components form a research program that is mathematically grounded, architecturally specified, epistemologically honest about its limitations, and experimentally testable.
 
 ---
 
@@ -681,9 +837,13 @@ Adams, H., Emerson, T., Kirby, M., Neville, R., Peterson, C., Shipman, P., ... &
 
 Ahuja, K., Hartford, J., & Bengio, Y. (2023). Invariance & causal representation learning: Prospects and limitations. *arXiv:2312.03580*.
 
+Alain, G., & Bengio, Y. (2016). Understanding intermediate layers using linear classifier probes. *arXiv:1610.01644*.
+
 Alcala-Alvarez, A., & Padilla-Longoria, P. (2022). A framework for topological music analysis (TMA). *arXiv:2204.09744*.
 
 Arjovsky, M., Bottou, L., Gulrajani, I., & Lopez-Paz, D. (2019). Invariant risk minimization. *arXiv:1907.02893*.
+
+Arnold, D., Demyanov, V., Tatum, D., Christie, M., Roesner, K., & Champlong, P. (2018). Hierarchical benchmark case study for history matching, uncertainty quantification and reservoir characterisation. *Mathematical Geosciences*, 50(7), 793–826.
 
 Atienza, N., Gonzalez-Diaz, R., & Soriano-Trigueros, M. (2020). On the stability of persistent entropy and new summary functions for topological data analysis. *Pattern Recognition*, 107, 107509.
 
@@ -705,35 +865,69 @@ Chazal, F., de Silva, V., Glisse, M., & Oudot, S. (2016). *The Structure and Sta
 
 Cohen-Steiner, D., Edelsbrunner, H., & Harer, J. (2007). Stability of persistence diagrams. *Discrete & Computational Geometry*, 37(1), 103–120.
 
+Conley, C. (1978). *Isolated Invariant Sets and the Morse Index*. CBMS Regional Conference Series in Mathematics, Vol. 38. American Mathematical Society.
+
+Das, S., Bhattacharya, S., & Bhowmick, S. (2024). Topological analysis of dynamical systems: Distinguishing periodic and chaotic regimes using persistent homology. *arXiv:2408.15834*.
+
+Dey, T. K., Hou, T., & Mandal, S. (2020). Computing Morse decomposition of vector fields. *Journal of Computational Geometry*, 11(1), 305–333.
+
 Edelsbrunner, H., & Harer, J. (2010). *Computational Topology: An Introduction*. American Mathematical Society.
 
 Edelsbrunner, H., Letscher, D., & Zomorodian, A. (2002). Topological persistence and simplification. *Discrete & Computational Geometry*, 28(4), 511–533.
 
 Garnelo, M., Schwarz, J., Rosenbaum, D., Viola, F., Rezende, D. J., Eslami, S. M. A., & Teh, Y. W. (2018). Neural processes. *arXiv:1807.01622*.
 
+Gaynanova, I., & Li, G. (2019). Structural learning and integrative decomposition of multi-view data. *Biometrics*, 75(4), 1121–1132.
+
 Giusti, C., Ghrist, R., & Bassett, D. S. (2016). Two's company, three (or more) is a simplex: Algebraic-topological tools for understanding higher-order structure in neural data. *Journal of Computational Neuroscience*, 41(1), 1–14.
+
+He, Q., Zhong, Z., Alabert, F., & Datta-Gupta, A. (2023). Koopman operator-based model reduction for reservoir simulation and optimization. *SPE Journal*, 28(4), 2024–2040.
 
 Hoydic, C. J. (2026). On the nature of geological essence: A critical analysis of the ellipse degradation thought experiment. Unpublished manuscript.
 
 Jaegle, A., Gimeno, F., Brock, A., Zisserman, A., Vinyals, O., & Carreira, J. (2021). Perceiver IO: A general architecture for structured inputs & outputs. *arXiv:2107.14795*.
 
+Jansen, J. D., Brouwer, R., Naevdal, G., & van Kruijsdijk, C. P. J. W. (2009). Closed-loop reservoir management. *SPE Reservoir Evaluation & Engineering*, 12(1), 145–154.
+
 Johnson, J., Douze, M., & Jegou, H. (2019). Billion-scale similarity search with GPUs. *IEEE Transactions on Big Data*, 7(3), 535–547.
 
 Kaczynski, T., Mischaikow, K., & Mrozek, M. (2004). *Computational Homology*. Applied Mathematical Sciences, Vol. 157. Springer.
 
+Kendall, A., & Gal, Y. (2017). What uncertainties do we need in Bayesian deep learning for computer vision? *Advances in Neural Information Processing Systems* 30.
+
 Kemmea, A. J., & Agyingi, C. A. (2025). Persistent homology: A pedagogical introduction with biological applications. *arXiv:2505.06583*.
+
+Kim, B., Wattenberg, M., Gilmer, J., Cai, C., Wexler, J., Viegas, F., & Sayres, R. (2018). Interpretability beyond feature attribution: Quantitative testing with concept activation vectors (TCAV). *ICML 2018*.
 
 Kim, H., Mnih, A., Schwarz, J., Garnelo, M., Eslami, A., Rosenbaum, D., ... & Teh, Y. W. (2019). Attentive Neural Processes. *ICLR 2019*.
 
+Kleinhans, M. G., & van den Berg, J. H. (2011). River channel and bar patterns explained and predicted by an empirical and a physics-based method. *Earth Surface Processes and Landforms*, 36(6), 721–738.
+
+Kornblith, S., Norouzi, M., Lee, H., & Hinton, G. (2019). Similarity of neural network representations revisited. *ICML 2019*. *arXiv:1905.00414*.
+
+Kotelevskii, N., Panov, M., Zaytsev, A., & Spokoiny, V. (2025). Uncertainty decomposition in feature space without ensembles. *arXiv:2511.12389*.
+
+Kramar, M., Levanger, R., Tithof, J., Suri, B., Xu, M., Paul, M., ... & Mischaikow, K. (2016). Analysis of Kolmogorov flow and Rayleigh-Benard convection using persistent homology. *Physica D*, 334, 82–98.
+
+Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity analysis — connecting the branches of systems neuroscience. *Frontiers in Systems Neuroscience*, 2, Article 4.
+
 Leopold, L. B., & Wolman, M. G. (1957). River channel patterns: Braided, meandering, and straight. *U.S. Geological Survey Professional Paper* 282-B.
+
+Lipinski, M., Mrozek, M., & Batko, B. (2023). Persistent Conley-Morse graphs: Attractor structure under perturbation. *arXiv:2107.02115*.
 
 Liu, J., Wang, J., Liu, B., & Ma, Z. (2021). Persistent homology-based topological analysis on the Gestalt patterns during human brain cognition process. *Journal of Healthcare Engineering*, 2021, 2334332.
 
 Mayo, D. G. (2018). *Statistical Inference as Severe Testing: How to Get Beyond the Statistics Wars*. Cambridge University Press.
 
+Moon, C., Mitchell, S. A., Heath, J. E., & Andrew, M. (2019). Statistical inference over persistent homology predicts fluid flow in porous media. *Water Resources Research*, 55(11), 9592–9603.
+
 Nickel, M., & Kiela, D. (2017). Poincare embeddings for learning hierarchical representations. *Advances in Neural Information Processing Systems* 30.
 
 Nickel, M., & Kiela, D. (2018). Learning continuous hierarchies in the Lorentz model of hyperbolic geometry. *ICML 2018*.
+
+Oh, S., Song, H., Yun, S., Kim, S., & Yoon, S. (2019). Hedged instance embedding. *ICLR 2019*. *arXiv:1810.00319*.
+
+Oquab, M., Darcet, T., Moutakanni, T., Vo, H., Szafraniec, M., Khalidov, V., ... & Bojanowski, P. (2023). DINOv2: Learning robust visual features without supervision. *arXiv:2304.07193*.
 
 Orzack, S. H., & Sober, E. (1993). A critical assessment of Levins's "The strategy of model building in population biology." *Quarterly Review of Biology*, 68(4), 533–546.
 
@@ -741,17 +935,41 @@ Otter, N., Porter, M. A., Tillmann, U., Grindrod, P., & Harrington, H. A. (2017)
 
 Oudot, S. Y. (2015). *Persistence Theory: From Quiver Representations to Data Analysis*. Mathematical Surveys and Monographs, Vol. 209. American Mathematical Society.
 
+Phillips, J. D. (1992). Nonlinear dynamical systems in geomorphology: Revolution or evolution? *Geomorphology*, 5(3–5), 219–229.
+
+Phillips, J. D. (2003). Sources of nonlinearity and complexity in geomorphic systems. *Progress in Physical Geography*, 27(1), 1–23.
+
+Phillips, J. D. (2006). Deterministic chaos and historical geomorphology: A review and look forward. *Geomorphology*, 76(1–2), 109–121.
+
+Raghu, M., Gilmer, J., Yosinski, J., & Sohl-Dickstein, J. (2017). SVCCA: Singular vector canonical correlation analysis for deep learning dynamics and interpretability. *arXiv:1706.05806*.
+
 Robins, V., Saadatfar, M., Delgado-Friedrichs, O., & Sheppard, A. P. (2016). Percolating length scales from topological persistence analysis of micro-CT images of porous materials. *Water Resources Research*, 52(1), 315–329.
 
 Rosenfeld, E., Ravikumar, P., & Risteski, A. (2021). The risks of invariant risk minimization. *ICLR*.
 
+Scheidt, C., Li, L., & Caers, J. (2018). *Quantifying Uncertainty in Subsurface Systems*. Geophysical Monograph Series, Vol. 236. Wiley/AGU.
+
+Shah, P., Mukherjee, S., & Sousbie, T. (2025). Persistent homology detects bifurcation routes to chaos. *arXiv preprint*.
+
+Stolum, H.-H. (1996). River meandering as a self-organization process. *Science*, 271(5256), 1710–1713.
+
+Takens, F. (1981). Detecting strange attractors in turbulence. In *Dynamical Systems and Turbulence*, Lecture Notes in Mathematics, Vol. 898, 366–381. Springer.
+
 Tauzin, G., Lupo, U., Tunstall, L., et al. (2021). giotto-tda: A topological data analysis toolkit for machine learning and data exploration. *Journal of Machine Learning Research*, 22(39), 1–6.
+
+Thompson, A. B., Mayall, M., & Sherborne, A. (2023). Persistent homology tracks dynamic topological changes in dissolving porous media. *Water Resources Research*, 59(5), e2022WR033750.
 
 Tye, M. (2021). Qualia. *Stanford Encyclopedia of Philosophy*. https://plato.stanford.edu/entries/qualia/
 
+Venkataraman, V., Ramamurthy, K. N., & Turaga, P. (2016). Persistent homology of attractors for action recognition. *IEEE International Conference on Image Processing (ICIP)*, 4150–4154.
+
 Wagner, H., Chen, C., & Vucini, E. (2012). Efficient computation of persistent homology for cubical data. In *Topological Methods in Data Analysis and Visualization II*. Springer.
 
+Wang, Z., Zhao, Q., Zuo, Z., Li, S., & Li, B. (2024). Decoupling common and unique representations for multiview self-supervised learning. *ECCV 2024*. *arXiv:2309.05300*.
+
 Wang, Y., Xian, Y., Chen, X., & Yan, C. (2025). Topological signatures of brain dynamics: Persistent homology reveals individuality and brain-behaviour links. *Frontiers in Human Neuroscience*, 19, 1607941.
+
+Williams, A. H., Kunz, E., Kornblith, S., & Linderman, S. W. (2024). Generalized shape metrics on neural representations. *Nature Machine Intelligence*, 6, 100–113.
 
 Weisberg, M. (2006). Robustness analysis. *Philosophy of Science*, 73(5), 730–742.
 
