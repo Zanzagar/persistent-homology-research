@@ -81,7 +81,7 @@ The defining property of a chain complex is:
 
 $$\partial_{k-1} \circ \partial_k = 0$$
 
-The boundary of a boundary is always empty. This is not a technicality; it expresses a deep geometric truth. The boundary of a filled triangle is a closed loop of edges; a closed loop has no boundary (no endpoints). This property is what makes the entire algebraic machinery work: because $\partial_{k-1} \circ \partial_k = 0$, every boundary is automatically a cycle. This guarantees that boundaries are always a subset of cycles, which is what allows us to ask the defining question of homology: which cycles are *not* boundaries?
+The boundary of a boundary is always empty. This is not a technicality; it expresses a deep geometric truth. The boundary of a filled triangle is a closed loop of edges; that closed loop has no endpoints — its own boundary is zero. This property is what makes the entire algebraic machinery work, as we will see once we define the key terms below.
 
 ### From Chains to Homology
 
