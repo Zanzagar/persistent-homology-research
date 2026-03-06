@@ -4,6 +4,63 @@
 
 ---
 
+## Proposed Next Steps (for advisor meeting discussion)
+
+### The Argument
+
+The theoretical framework for persistent homology — its mathematical foundations, its role as epistemic anchor, and its integration into the two-pipeline architecture — is now well-developed in writing. What we lack is empirical ground truth. Every claim in the writeup ultimately depends on having a well-curated set of geological analog images on which we can compute and validate. Before we can test the $H_1$ hypothesis, before we can measure cross-pathway alignment, before we can build the retrieval system — we need the images.
+
+### Proposed Sequence
+
+**Phase 1: Fluvial Image Generator Development**
+
+The immediate priority is building a configurable fluvial image generator capable of producing controlled analog datasets. This generator must:
+
+- Produce both braided and meandering channel architectures with tunable parameters (sinuosity, channel width, aggradation rate, avulsion frequency)
+- Generate variogram-matched pairs: images from different architectural classes (braided vs. meandering) that are calibrated to produce identical two-point geostatistical signatures (same range, sill, anisotropy ratio). These pairs are essential for the $H_1$ hypothesis test.
+- Output binary or categorical facies maps on regular grids (e.g., $256 \times 256$) suitable for cubical complex construction via SEDT
+- Be reproducible: fixed random seeds, documented parameter sets, version-controlled generation scripts
+
+Candidate tools: Flumy (meandering, process-based), BRAHMS (braided, process-based), or a custom object-based generator if process-based tools prove too constrained for variogram matching.
+
+**Phase 2: Compute Geostatistical and Topological Descriptors**
+
+With a curated image set, we compute descriptors from both the geostatistical and topological pathways:
+
+- Geostatistical: experimental variograms (range, sill, anisotropy), fractal dimension, MPS template frequencies, connectivity functions
+- Topological: SEDT filtration on each image, cubical persistent homology in $H_0$ and $H_1$, persistence diagrams, vectorized features (persistence images, landscapes, entropy)
+
+This phase produces the raw feature data needed for all downstream experiments.
+
+**Phase 3: Validate Mathematical Invariance Against Geological Meaning**
+
+With both descriptor sets computed, we can run the core experiments:
+
+1. The $H_1$ hypothesis test: Can vectorized $H_1$ persistence diagrams classify braided vs. meandering on variogram-matched pairs? If accuracy exceeds 70%, PH captures geological structure that variograms provably cannot.
+2. Stability validation: Perturb images (add noise, resample, shift pixel values) and verify that persistence diagrams change within the bounds predicted by the stability theorem.
+3. Cross-pathway alignment: Compute CKA between PH features and geostatistical features to measure how much the pathways agree — and where they diverge.
+
+**Phase 4: Begin Implementation of the Research Framework**
+
+With validated descriptors and a curated image set, we can begin programming the architectural components: the DINOv2 fine-tuning pipeline (learned feature pathway), the confidence hierarchy (CKA + SLIDE decomposition), and eventually the Neural Process query encoder for Pipeline B.
+
+### What This Sequence Buys Us
+
+- Phase 1 is the foundation — without controlled images, every experiment is blocked
+- Phase 2 gives us the raw material to test our core theoretical claims
+- Phase 3 is the first empirical contact between the theory and data — it either validates or refutes the $H_1$ hypothesis and confirms the stability theorem's practical relevance
+- Phase 4 is where the full framework comes together, but only after we have empirical confidence in the building blocks
+
+### Discussion Points for Dr. Srinivasan
+
+1. Which image generator(s) should we prioritize? Process-based (Flumy/BRAHMS) vs. object-based vs. hybrid?
+2. How many images do we need for statistical power in the $H_1$ hypothesis test? (Rough estimate: 100+ per class for the variogram-matched pairs)
+3. Should we include 3D analogs in Phase 1, or focus on 2D first and extend later?
+4. The variogram-matching procedure itself needs design — should we match by optimization (tune generator parameters until variograms converge) or by post-hoc selection (generate many images, filter for variogram-similar cross-class pairs)?
+5. Timeline: Phase 1 is likely the longest — how much time do we allocate before moving to Phase 2?
+
+---
+
 ## Section Headers (paste into Word as Heading styles)
 
 1. Introduction: The Essence Problem
