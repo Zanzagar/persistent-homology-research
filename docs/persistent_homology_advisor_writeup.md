@@ -181,7 +181,9 @@ Each vertex appears exactly twice, and $1 + 1 = 0$ in $\mathbb{Z}_2$, so every v
 - If the triangle is filled (the 2-simplex $[v_0, v_1, v_2]$ exists): then $\gamma = \partial_2([v_0, v_1, v_2])$, and the cycle is a boundary. It encloses no hole—the interior fills the loop. This cycle is trivial in $H_1$.
 - If the triangle is unfilled (only edges, no face): then $\gamma$ is a cycle that is not a boundary of anything. It detects a genuine 1-dimensional hole—a nontrivial element of $H_1$.
 
-This is exactly how homology works: cycles that bound filled regions are trivial; cycles that enclose genuine holes survive in the homology group.
+This is exactly how homology works: cycles that bound filled regions are trivial; cycles that enclose genuine holes survive in the homology group. The quotient $H_k = \ker / \textrm{im}$ is doing precisely this classification — it takes every cycle and asks "is this the boundary of something filled?" If yes, it collapses to zero (false positive). If no, it survives as a genuine topological feature. The same geometric loop gets a different algebraic answer depending on what fills its interior, and this is exactly the discriminating power we need.
+
+Consider the geological analogy: in a braided channel system, channels form loops around unfilled floodplain islands — these are genuine $H_1$ features because nothing fills the interior. In a meandering system, an oxbow lake might close a loop, but the interior is typically filled with deposited sediment — that loop dies in homology. The same geometric shape (a closed path of channels) carries different homological meaning depending on what occupies its interior. This is why $\beta_1$ — the count of surviving loops — discriminates braided from meandering architectures in a way that variograms, which see only pairwise correlation, fundamentally cannot.
 
 **Betti numbers.** The homology groups capture the essential topological features of the space. These features are quantified by *Betti numbers*—the rank (dimension) of each homology group, denoted $\beta_k$:
 
