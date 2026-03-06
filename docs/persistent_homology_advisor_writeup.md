@@ -52,14 +52,14 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    K["<b>Complex K</b><br/><i>vertices, edges, triangles, ...</i>"] --> CG["<b>Chain Groups C_k(K)</b><br/><i>vector spaces over Z₂</i><br/>k-chain = selection of k-simplices<br/>(each simplex: in or out, 1+1=0)"]
-    CG --> BM["<b>Boundary Maps ∂_k</b><br/><i>C_k → C_{k-1}</i><br/>sends each simplex to<br/>the sum of its faces"]
+    K["<b>Complex K</b><br/><i>vertices, edges, triangles, ...</i>"] --> CG["<b>Chain Groups Cₖ(K)</b><br/><i>vector spaces over ℤ₂</i><br/>k-chain = selection of k-simplices<br/>(each simplex: in or out, 1+1=0)"]
+    CG --> BM["<b>Boundary Maps ∂ₖ</b><br/><i>Cₖ → Cₖ₋₁</i><br/>sends each simplex to<br/>the sum of its faces"]
     BM --> PROP["<b>∂ ∘ ∂ = 0</b><br/><i>boundary of a boundary<br/>is always empty</i><br/>guarantees: boundaries ⊆ cycles"]
-    PROP --> KER["<b>ker(∂_k) = k-cycles</b><br/><i>chains with zero boundary</i><br/>closed loops, candidates for holes"]
-    PROP --> IM["<b>im(∂_{k+1}) = k-boundaries</b><br/><i>chains that bound a filled region</i><br/>false positives: 'holes' already filled"]
-    KER --> HOM["<b>Homology Group</b><br/><i>H_k = ker(∂_k) / im(∂_{k+1})</i><br/>cycles that are NOT boundaries<br/>= genuine holes"]
+    PROP --> KER["<b>ker(∂ₖ) = k-cycles</b><br/><i>chains with zero boundary</i><br/>closed loops, candidates for holes"]
+    PROP --> IM["<b>im(∂ₖ₊₁) = k-boundaries</b><br/><i>chains that bound a filled region</i><br/>false positives: holes already filled"]
+    KER --> HOM["<b>Homology Group</b><br/><i>Hₖ = ker(∂ₖ) / im(∂ₖ₊₁)</i><br/>cycles that are NOT boundaries<br/>= genuine holes"]
     IM --> HOM
-    HOM --> BETTI["<b>Betti Numbers</b><br/><i>β_k = rank(H_k)</i><br/>β₀ = components<br/>β₁ = loops ← <b>key for us</b><br/>β₂ = enclosed voids"]
+    HOM --> BETTI["<b>Betti Numbers</b><br/><i>βₖ = rank(Hₖ)</i><br/>β₀ = components<br/>β₁ = loops ← <b>key for us</b><br/>β₂ = enclosed voids"]
 
     style K fill:#d4e8d4,stroke:#5a8a5a
     style HOM fill:#c9d4f0,stroke:#4a5a8a
@@ -70,11 +70,11 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    SINGLE["<b>Single Complex K</b><br/><i>homology at one scale</i><br/>but which scale?<br/>arbitrary choice"] --> FILT["<b>Filtration</b><br/><i>K₀ ⊆ K₁ ⊆ ... ⊆ Kₙ</i><br/>sweep through all scales<br/>(increase ε or threshold)"]
+    SINGLE["<b>Single Complex K</b><br/><i>homology at one scale</i><br/>but which scale?<br/>arbitrary choice"] --> FILT["<b>Filtration</b><br/><i>K₀ ⊆ K₁ ⊆ ⋯ ⊆ Kₙ</i><br/>sweep through all scales<br/>(increase ε or threshold)"]
     FILT --> TRACK["<b>Track Features</b><br/><i>birth b: cycle appears</i><br/><i>death d: cycle filled in</i><br/>persistence = [b, d]"]
     TRACK --> VIZ["<b>Persistence Diagram</b><br/><i>points (b, d) in the plane</i><br/>far from diagonal = signal<br/>near diagonal = noise"]
-    VIZ --> STAB["<b>Stability Theorem</b><br/><i>d_B(Dgm(f), Dgm(g))</i><br/><i>≤ ||f - g||_∞</i><br/>PROVEN, not empirical"]
-    STAB --> VEC["<b>Vectorization</b><br/><i>landscapes, images, entropy</i><br/>→ 20-50 dim feature vector<br/>→ enters ML pipeline"]
+    VIZ --> STAB["<b>Stability Theorem</b><br/><i>d_B(Dgm(f), Dgm(g))</i><br/><i>≤ ‖f − g‖∞</i><br/>PROVEN, not empirical"]
+    STAB --> VEC["<b>Vectorization</b><br/><i>landscapes, images, entropy</i><br/>→ 20–50 dim feature vector<br/>→ enters ML pipeline"]
 
     style SINGLE fill:#f0e0e0,stroke:#8a5a5a
     style STAB fill:#fff3cd,stroke:#8a7a3a
