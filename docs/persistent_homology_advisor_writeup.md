@@ -89,13 +89,13 @@ We now define two subsets of the chain group that are central to everything that
 
 Elements of the kernel are called **$k$-cycles** — chains with no boundary. A 1-cycle, for example, is a collection of edges that forms one or more closed loops: every vertex appears an even number of times, so the boundary (the sum of endpoints) cancels to zero. Elements of the image are called **$k$-boundaries** — chains that bound a filled region of one dimension higher.
 
-Because $\partial_{k} \circ \partial_{k+1} = 0$, every boundary is automatically a cycle (if $\gamma = \partial_{k+1}(\alpha)$, then $\partial_k(\gamma) = \partial_k \circ \partial_{k+1}(\alpha) = 0$). But not every cycle is a boundary — some cycles surround genuine unfilled holes. Distinguishing the genuine holes from the false positives is exactly what homology computes.
+Because $\partial_{k} \circ \partial_{k+1} = 0$, every boundary is automatically a cycle (if $\gamma = \partial_{k+1}(\alpha)$, then $\partial_k(\gamma) = \partial_k \circ \partial_{k+1}(\alpha) = 0$). But not every cycle is a boundary — some cycles surround genuine unfilled holes. A closed loop of edges around an unfilled region has no boundary (it is a cycle) and is not the boundary of any filled surface (nothing fills the hole) — this is a genuine topological feature. The same loop around a filled triangle *is* a boundary, and thus a false positive: the "hole" was already filled in. Distinguishing the genuine holes from the false positives is exactly what homology computes.
 
-**Homology groups.** The $k$-th *homology group* is the quotient:
+The algebraic tool for this distinction is the quotient group: we take all cycles and collapse those that differ only by a boundary into the same equivalence class. What remains are the genuine holes. The $k$-th *homology group* formalizes this:
 
 $$H_k(K) = \ker(\partial_k) \,/\, \textrm{im}(\partial_{k+1})$$
 
-This quotient captures precisely the $k$-dimensional cycles that are *not* boundaries of $(k{+}1)$-dimensional simplices. These non-boundary cycles are the genuine topological "holes" in dimension $k$. Two cycles that differ by a boundary are considered equivalent—they "enclose the same hole."
+This quotient captures precisely the $k$-dimensional cycles that are *not* boundaries of $(k{+}1)$-dimensional chains. Two cycles that differ by a boundary are considered equivalent — they enclose the same hole. The non-boundary cycles that survive this collapsing are the genuine topological "holes" in dimension $k$.
 
 A worked example makes this concrete. Consider three wells arranged in a triangle—call them $v_0$, $v_1$, $v_2$—with edges connecting each pair. The 1-chain $\gamma = [v_0, v_1] + [v_1, v_2] + [v_0, v_2]$ traces a closed loop through all three edges. Applying the boundary map:
 
