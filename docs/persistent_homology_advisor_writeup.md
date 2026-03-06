@@ -81,15 +81,15 @@ The defining property of a chain complex is:
 
 $$\partial_{k-1} \circ \partial_k = 0$$
 
-The boundary of a boundary is always empty. This is not a technicality; it expresses a deep geometric truth. The boundary of a filled triangle is a closed loop of edges; a closed loop has no boundary (no endpoints). This property is what makes the entire algebraic machinery work.
-
-**Cycles.** A $k$-*cycle* is a $k$-chain whose boundary is zero: an element of $\ker(\partial_k)$. A 1-cycle, for example, is a collection of edges that forms one or more closed loops—every vertex appears an even number of times, so the boundary (the sum of endpoints) cancels to zero. Cycles are the candidates for "detecting holes."
+The boundary of a boundary is always empty. This is not a technicality; it expresses a deep geometric truth. The boundary of a filled triangle is a closed loop of edges; a closed loop has no boundary (no endpoints). This property is what makes the entire algebraic machinery work: because $\partial_{k-1} \circ \partial_k = 0$, every boundary is automatically a cycle. This guarantees that boundaries are always a subset of cycles, which is what allows us to ask the defining question of homology: which cycles are *not* boundaries?
 
 ### From Chains to Homology
 
-Not all cycles indicate genuine holes. Some cycles are merely the boundaries of filled-in regions. The distinction between these two types of cycles is exactly what homology captures.
+We now define two subsets of the chain group that are central to everything that follows. The *kernel* of $\partial_k$, written $\ker(\partial_k)$, is the set of all $k$-chains whose boundary is zero. The *image* of $\partial_{k+1}$, written $\textrm{im}(\partial_{k+1})$, is the set of all $k$-chains that are the boundary of some $(k{+}1)$-chain.
 
-**Kernel and image of boundary maps.** The *kernel* of $\partial_k$, written $\ker(\partial_k)$, is the set of all $k$-chains with zero boundary—i.e., all $k$-cycles. The *image* of $\partial_{k+1}$, written $\textrm{im}(\partial_{k+1})$, is the set of all $k$-chains that are the boundary of some $(k{+}1)$-chain—i.e., all $k$-boundaries. Because $\partial_{k} \circ \partial_{k+1} = 0$, every boundary is automatically a cycle (if $\gamma = \partial_{k+1}(\alpha)$, then $\partial_k(\gamma) = \partial_k \circ \partial_{k+1}(\alpha) = 0$). But not every cycle is a boundary—and this is where topology lives.
+Elements of the kernel are called **$k$-cycles** — chains with no boundary. A 1-cycle, for example, is a collection of edges that forms one or more closed loops: every vertex appears an even number of times, so the boundary (the sum of endpoints) cancels to zero. Elements of the image are called **$k$-boundaries** — chains that bound a filled region of one dimension higher.
+
+Because $\partial_{k} \circ \partial_{k+1} = 0$, every boundary is automatically a cycle (if $\gamma = \partial_{k+1}(\alpha)$, then $\partial_k(\gamma) = \partial_k \circ \partial_{k+1}(\alpha) = 0$). But not every cycle is a boundary — some cycles surround genuine unfilled holes. Distinguishing the genuine holes from the false positives is exactly what homology computes.
 
 **Homology groups.** The $k$-th *homology group* is the quotient:
 
