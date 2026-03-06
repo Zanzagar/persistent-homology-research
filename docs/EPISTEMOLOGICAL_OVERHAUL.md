@@ -2,7 +2,7 @@
 
 **Author**: Corey James Hoydic
 **Date**: February 2026
-**Status**: Draft — Blueprint for updating QCF core documents
+**Status**: Draft — Blueprint for updating QCF core documents (updated March 2026 with confidence hierarchy, response essence, and uncertainty quantification extensions)
 
 ---
 
@@ -156,9 +156,65 @@ Human expert judgment (Cohen's κ) remains valuable as the only **truly generato
 
 ---
 
-## 3. Specific Changes to Each Document
+## 3. Operationalizing the Hierarchy: From Evidence Levels to Feature-Level Confidence
 
-### 3.1 Changes to COMPLETE_VISION_v5.md
+### 3.1 The Gap: Evidence Levels Are Abstract; Features Are Concrete
+
+The 7-level evidence hierarchy (§2) tells us *which kinds of evidence are epistemically stronger*. But when the three-pathway architecture produces a concrete feature vector for an analog image — 20–50 PH dimensions, ~50 geostatistical dimensions, 768 DINOv2 dimensions — the evidence hierarchy alone does not tell us *which feature dimensions to trust* or *how much weight each should receive* in retrieval. We need a mechanism that maps the abstract evidence hierarchy onto concrete, per-feature confidence assignments.
+
+### 3.2 The Confidence Hierarchy (Tiers 1–4)
+
+The dissertation chapter (§10.6) develops a four-tier confidence hierarchy that operationalizes the evidence levels at the feature level:
+
+| Tier | Source | Epistemic Basis | Invariance Guarantee |
+|------|--------|----------------|---------------------|
+| **1 — Proven** | PH features | Stability theorem (Level 1 evidence) | Mathematical proof |
+| **2 — Corroborated** | Joint components across all three pathways | Cross-pathway convergence (Levels 1 + 6) | Strong empirical + partial theoretical |
+| **3 — Empirically invariant** | Features passing LOGO but low alignment with PH | Empirical testing (Level 6) | LOGO-validated but no theoretical backing |
+| **4 — Uncertain** | Unique to one pathway, no cross-pathway support | Single-source | No cross-validation |
+
+**How the tiers map to evidence levels:**
+- Tier 1 derives from **Level 1** (mathematical invariance) — only PH features qualify
+- Tier 2 derives from **Level 6** (LOGO/cross-generator) corroborated by **Level 1** — features where empirical and mathematical evidence converge
+- Tier 3 derives from **Level 6** alone — LOGO passes but no mathematical backing
+- Tier 4 has no evidence level support — these are hypothesis-generating, not hypothesis-confirming
+
+### 3.3 The Asymmetric Trust Structure: A Novel Contribution
+
+No prior work in multi-modal feature fusion exploits the epistemic asymmetry between theorem-backed and empirically derived features. Standard fusion approaches — early fusion, late fusion, attention-based fusion — treat all feature sources as epistemically equivalent: each contributes information, and the model learns to weight them. But when one source (PH) has *provable* invariance guarantees and others do not, symmetric treatment is epistemically inappropriate.
+
+This asymmetric trust structure is operationalized through three mechanisms:
+
+1. **Cross-pathway alignment measurement** via Centered Kernel Alignment (CKA; Kornblith et al., 2019). Williams et al. (2024) proved CKA, RSA, and CCA are mathematically equivalent — they measure the same underlying alignment. CKA is preferred for its robustness to dimensionality mismatch (PH: 20–50d vs. DINOv2: 768d).
+
+2. **SLIDE decomposition** (Gaynanova & Li, 2019) partitions multi-view features into joint (shared by all pathways), partially shared (pairwise), and individual (unique to one pathway) components. This directly assigns each feature dimension to a tier.
+
+3. **Dempster-Shafer Theory (DST)** for evidence combination with asymmetric reliability. Unlike Bayesian fusion (which treats sources symmetrically via likelihoods), DST encodes *ignorance* via the gap between belief and plausibility functions. Tier 1 features have narrow gaps (high confidence); Tier 4 features have wide gaps (high ignorance). Dempster's rule combines these into a unified belief structure that appropriately weights mathematical evidence over empirical evidence.
+
+### 3.4 Extension to Response Essence
+
+The original evidence hierarchy applies to *structural* essence — the invariant spatial pattern. The dissertation chapter (§10.1–10.5) extends the essence concept to *response essence*: the equivalence class of geological configurations producing topologically equivalent dynamic response under stimulation.
+
+**Response essence** is defined formally via Morse-Smale decomposition of the basin-of-attraction structure. Two geological configurations share response essence if their dynamical systems have combinatorially equivalent Morse-Smale decompositions.
+
+This extension has a critical implication for the evidence hierarchy: it introduces a **new validation criterion** for the entire retrieval system. Analogs retrieved by Pipeline B (on the basis of structural similarity) should produce similar dynamic responses when simulated. If structural retrieval predicts response similarity, the evidence hierarchy is validated at the deepest possible level — the structural invariants that organize the repository are *causally connected* to the dynamic behavior that the repository exists to predict.
+
+### 3.5 Uncertainty Quantification from Feature Residuals
+
+The SLIDE decomposition produces not only confidence-tiered features but also *residual* features — components of DINOv2's representation not aligned with PH. Rather than discarding these as noise, DeCUR (Wang et al., 2024) proves that unique (non-shared) components of self-supervised representations carry meaningful information. The pipeline:
+
+1. DeCUR separates DINOv2 into PH-aligned and PH-residual components
+2. Kotelevskii et al. (2025) decompose residual uncertainty into aleatoric (intra-class variability) and epistemic (data sparsity) per feature dimension
+3. Hedged instance embeddings (Oh et al., 2019) represent each analog as a distribution $\mathcal{N}(\mu, \Sigma)$ rather than a point
+4. Retrieval uses uncertainty-weighted similarity that downweights high-uncertainty dimensions
+
+This transforms Pipeline A from storing analogs as point estimates to storing analogs *with calibrated confidence about what is known and unknown* — directly implementing the epistemic humility that the evidence hierarchy demands.
+
+---
+
+## 4. Specific Changes to Each Document
+
+### 4.1 Changes to COMPLETE_VISION_v5.md
 
 | Section | Change | Rationale |
 |---------|--------|-----------|
@@ -171,7 +227,7 @@ Human expert judgment (Cohen's κ) remains valuable as the only **truly generato
 | New Chapter | "Evidence Hierarchy for Essence Claims" — the restructured hierarchy with all 7 levels | Does not currently exist |
 | TDA sections | Foreground stability theorem as the topological pathway's primary invariance guarantee, ahead of LOGO | Currently stability is background justification |
 
-### 3.2 Changes to ARCHITECTURE_DECISIONS_v1.md
+### 4.2 Changes to ARCHITECTURE_DECISIONS_v1.md
 
 | ADR | Change | Rationale |
 |-----|--------|-----------|
@@ -182,7 +238,7 @@ Human expert judgment (Cohen's κ) remains valuable as the only **truly generato
 | ADR-S04 (TDA as Ablation) | Update to reflect that TDA has *mathematical* invariance guarantees (stability theorem) that other pathways lack — strongest candidate for promotion from ablation to core | Currently frames TDA as unvalidated |
 | Open Questions | Add: "How do we verify generator independence for LOGO?" and "What information-theoretic threshold distinguishes essence from artifact?" | Currently missing these questions |
 
-### 3.3 Changes to IMPLEMENTATION_SPEC_v6.md
+### 4.3 Changes to IMPLEMENTATION_SPEC_v6.md
 
 | Section | Change | Rationale |
 |---------|--------|-----------|
@@ -194,18 +250,33 @@ Human expert judgment (Cohen's κ) remains valuable as the only **truly generato
 
 ---
 
-## 4. Impact on the Persistent Homology Paper
+## 5. Impact on the Persistent Homology Chapter
 
-The paper draft should be rewritten to reflect the updated framework:
+The dissertation chapter (`DISSERTATION_CHAPTER_PH.md`) has been substantially updated to reflect the restructured framework:
 
-1. **Section 3 (Operationalizing Essence)**: Lead with the philosophical critique of LOGO, present the restructured evidence hierarchy, then show how PH's stability theorem provides the strongest available evidence for the topological pathway
-2. **Section 5 (Open Questions)**: Expand significantly — the philosophical robustness of invariance testing is THE central open question, not a footnote
-3. **New section**: Cross-domain validation as evidence for mathematical universality
-4. **Tone shift**: From "LOGO validates essence" to "mathematical structure provides the strongest evidence; empirical testing provides corroboration; honest acknowledgment of what remains unresolved"
+1. **Section 5 (Evidence Hierarchy)**: Restructured evidence hierarchy is fully developed, with mathematical invariance as Level 1 and LOGO demoted to Level 6
+2. **Section 9 (Open Questions)**: Expanded to cover philosophical robustness of invariance, multi-parameter persistence, topological dictionary learning, and information-theoretic quantification
+3. **Section 7**: Cross-domain validation (music, neuroscience) as evidence for mathematical universality
+4. **Section 10 (NEW — Extensions)**: Three major extensions now implemented:
+   - §10.1–10.5: Response essence via dynamical systems (Morse-Smale decomposition, Takens embedding, formation dynamics as attractors)
+   - §10.6: Confidence hierarchy operationalizing the evidence levels via SLIDE, CKA, and DST
+   - §10.7: Uncertainty quantification from feature residuals via DeCUR and aleatoric/epistemic decomposition
+   - §10.8: Concrete implications for the two-pipeline architecture (tiered indexing, uncertainty-weighted retrieval)
+5. **Tone**: "Mathematical structure provides the strongest evidence; empirical testing provides corroboration; honest acknowledgment of what remains unresolved"
+
+### What Remains to Implement in the QCF Core Documents
+
+The following changes from §4 above have NOT yet been made to the QCF source documents (Vision v5, Architecture Decisions v1, Implementation Spec v6). They remain as planned changes:
+
+- New ADRs (012–014) for mathematical invariance, severe testing, and information-theoretic validation
+- LOGO limitations section in Chapter 22
+- Severity assessment additions to Chapter 23
+- Restructured validation order in Implementation Spec Phase 3
+- New evidence hierarchy chapter in Vision document
 
 ---
 
-## 5. Key References for the Overhaul
+## 6. Key References for the Overhaul
 
 ### Impossibility Results and Causal Invariance
 - Ahuja, K., Hartford, J., & Bengio, Y. (2023). Invariance & Causal Representation Learning: Prospects and Limitations. arXiv:2312.03580.
@@ -226,9 +297,28 @@ The paper draft should be rewritten to reflect the updated framework:
 ### Information Theory
 - Belghazi, M. I., et al. (2018). Mutual Information Neural Estimation. ICML.
 
+### Cross-Pathway Alignment and Decomposition
+- Kornblith, S., Norouzi, M., Lee, H., & Hinton, G. (2019). Similarity of neural network representations revisited. ICML. arXiv:1905.00414.
+- Williams, A. H., Kunz, E., Kornblith, S., & Linderman, S. W. (2024). Generalized shape metrics on neural representations. Nature Machine Intelligence, 6, 100–113.
+- Gaynanova, I., & Li, G. (2019). Structural learning and integrative decomposition of multi-view data. Biometrics, 75(4), 1121–1132.
+- Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity analysis. Frontiers in Systems Neuroscience, 2, Article 4.
+
+### Confidence Hierarchy and Uncertainty
+- Kendall, A., & Gal, Y. (2017). What uncertainties do we need in Bayesian deep learning for computer vision? NeurIPS.
+- Kotelevskii, N., et al. (2025). Uncertainty decomposition in feature space without ensembles. arXiv:2511.12389.
+- Wang, Z., et al. (2024). DeCUR: Decoupling common and unique representations for multiview self-supervised learning. ECCV. arXiv:2309.05300.
+- Oh, S., et al. (2019). Hedged instance embedding. ICLR. arXiv:1810.00319.
+- Scheidt, C., Li, L., & Caers, J. (2018). Quantifying Uncertainty in Subsurface Systems. Wiley/AGU.
+
+### Dynamical Systems and Response Essence
+- Conley, C. (1978). Isolated Invariant Sets and the Morse Index. AMS.
+- Kramar, M., et al. (2016). Analysis of Kolmogorov flow and Rayleigh-Bénard convection using persistent homology. Physica D, 334, 82–98.
+- He, Q., et al. (2023). Koopman operator-based model reduction for reservoir simulation. SPE Journal, 28(4), 2024–2040.
+- Takens, F. (1981). Detecting strange attractors in turbulence. Lecture Notes in Mathematics, 898, 366–381.
+
 ---
 
-## 6. Summary: What Changes and What Stays
+## 7. Summary: What Changes and What Stays
 
 ### What Changes
 - LOGO demoted from primary to necessary-but-insufficient evidence
@@ -236,6 +326,10 @@ The paper draft should be rewritten to reflect the updated framework:
 - New evidence levels added: severe testing, information-theoretic measures, cross-domain validation
 - Explicit acknowledgment of impossibility results and independence conditions
 - The *tone* of the essence claim: from "LOGO validates essence" to "mathematical + empirical + philosophical evidence converges, with honest limitations"
+- **NEW**: Confidence hierarchy (Tiers 1–4) operationalizes the evidence levels at the feature level via SLIDE, CKA, and DST
+- **NEW**: Essence concept extended from structural invariance to response essence via dynamical systems (Morse-Smale decomposition of basin-of-attraction topology)
+- **NEW**: Uncertainty quantification pipeline transforms feature residuals into calibrated aleatoric/epistemic uncertainty via DeCUR decomposition
+- **NEW**: Pipeline A stores analogs with tiered confidence and uncertainty envelopes, not flat feature vectors
 
 ### What Stays
 - Three-pathway architecture (ADR-001) — this is about method independence, not generator independence
@@ -248,6 +342,8 @@ The paper draft should be rewritten to reflect the updated framework:
 
 ### The Key Philosophical Shift
 **Before**: "We define essence operationally as what passes LOGO."
-**After**: "We define essence operationally as what satisfies a convergence of evidence: mathematical invariance guarantees, survival of severe testing, information-theoretic confirmation of content, cross-domain universality, generator-independence (LOGO), and expert agreement. No single test is sufficient; the convergence of independent evidence streams is the warrant for the claim."
+**After**: "We define essence operationally as what satisfies a convergence of evidence: mathematical invariance guarantees, survival of severe testing, information-theoretic confirmation of content, cross-domain universality, generator-independence (LOGO), and expert agreement. No single test is sufficient; the convergence of independent evidence streams is the warrant for the claim. The confidence hierarchy provides the mechanism for translating this convergence into concrete, per-feature trust levels — with Dempster-Shafer Theory handling the asymmetric reliability that the stability theorem creates between PH and other pathways."
+
+**The deepest extension**: Essence is no longer limited to static structure. Response essence — defined via the topology of basins of attraction — extends the framework to dynamic behavior. If structural retrieval predicts response similarity, the evidence hierarchy is validated at its deepest possible level: the invariants that organize the repository are causally connected to the outcomes the repository exists to predict.
 
 This is both more honest and more powerful than the original position.

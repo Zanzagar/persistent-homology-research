@@ -1,7 +1,7 @@
 # Persistent Homology: Motivation, Framework, and Application to Geological Essence
 
 **Corey James Hoydic**
-**Informal Writeup — Advisor Meeting, February 2026**
+**Informal Writeup — Advisor Meetings, February–March 2026**
 
 ---
 
@@ -181,6 +181,64 @@ A brief note on two specific design choices that deserve justification.
 
 **Why the SEDT filtration?** The SEDT assigns each pixel a signed distance to the nearest facies boundary—positive inside channel bodies, negative inside floodplain. This choice is geologically motivated: filtering by increasing SEDT values progressively erodes narrow connections, revealing which topological features are robust at the core of geobodies versus those that depend on thin, possibly artifactual connections. A loop that persists across a wide range of SEDT values corresponds to a thick, well-connected braided channel network. A loop that dies quickly corresponds to a thin connection that may be an artifact of grid resolution or generator noise. The filtration choice is doing real epistemic work here: it translates the mathematical abstraction of persistence into a geologically interpretable quantity.
 
+## Extensions: Dynamic Essence, Confidence Hierarchy, and Uncertainty
+
+Three extensions have emerged from this work that significantly broaden the framework. I want to sketch each here because they address natural follow-up questions that arose in our last meeting.
+
+### From Structural Essence to Response Essence
+
+Everything above deals with *structural* essence—the invariant spatial pattern of a geological image. But the ultimate purpose of analog retrieval is not to find analogs that *look like* a target reservoir but to find analogs that *behave like* it. If two geological configurations share the same topological structure, do they also produce similar dynamic responses to stimulation?
+
+This is naturally framed as a dynamical systems question. A reservoir under stimulation evolves according to a state-space model: $x_{k+1} = f(x_k, u_k)$, where different geological configurations correspond to different functions $f$, producing different trajectories through the same state space. Classical reservoir simulation *is* state-space modeling—this is not an analogy. He et al. (2023) showed that reservoir dynamics even admit Koopman linearization, connecting attractor geometry to spectral properties.
+
+The key idea is that we can apply PH to these trajectories. Takens' embedding theorem guarantees that the attractor topology can be reconstructed from a single time series, and Venkataraman et al. (2016) demonstrated that persistence diagrams of reconstructed attractors reliably distinguish different dynamical regimes. So the pipeline would be: run simulations on different geological configurations under identical forcing, embed the production time series via Takens, compute PH of the attractor, and ask whether structural PH predicts response PH.
+
+I define *response essence* formally via the Morse-Smale decomposition: two geological configurations share response essence if their basin-of-attraction structures are combinatorially equivalent. This is currently intractable for high-dimensional reservoir systems, but Lipinski et al. (2023) developed persistent Conley-Morse graphs for tracking how Morse decompositions change under parameter variation, and Koopman-based dimension reduction (He et al., 2023) may make the problem tractable.
+
+An especially intriguing observation: geological formations themselves are frozen signatures of dynamical processes. Meandering rivers exhibit self-organized criticality (Stolum, 1996); the Leopold-Wolman braided/meandering threshold is a bifurcation boundary; delta lobe switching is a limit cycle. The PH computation of §8.1—distinguishing braided from meandering via $H_1$ features—is therefore detecting *which side of a dynamical bifurcation* the formation process occupied. This suggests structural PH of the geological record may encode information about the attractor of the formation process, connecting structural and response essence at a deeper level.
+
+### The Confidence Hierarchy: PH as Epistemic Anchor
+
+The three-pathway architecture extracts features of fundamentally *different epistemic status*—and this is a distinction that, as far as I can determine, no prior work in multi-modal feature fusion has exploited.
+
+Here is the core insight. PH features have a *mathematical proof* of invariance (the stability theorem). Geostatistical descriptors have no analogous theorem—they depend on stationarity assumptions that geological data routinely violate. DINOv2 features depend on training data distribution and model architecture—no theorem guarantees their behavior under domain shift. This creates what I am calling an *asymmetric trust structure*:
+
+- **Tier 1 (Proven)**: PH features — mathematically invariant via stability theorem
+- **Tier 2 (Corroborated)**: Features where all three pathways converge (joint component in SLIDE decomposition)
+- **Tier 3 (Empirically invariant)**: Features passing LOGO but with low alignment to PH
+- **Tier 4 (Uncertain)**: Features unique to one pathway, no cross-pathway support
+
+To operationalize this, I adopt three tools from representation learning theory. First, CKA (Centered Kernel Alignment; Kornblith et al., 2019) measures global agreement between pathway pairs—Williams et al. (2024) proved CKA, RSA, and CCA are mathematically equivalent, so the choice of metric does not matter. Second, SLIDE (Gaynanova & Li, 2019) decomposes multi-view features into joint, partially-shared, and individual components—directly assigning each feature dimension to a tier. Third, Dempster-Shafer Theory (DST) provides the formal framework for combining evidence of asymmetric reliability: each pathway contributes a belief function (lower bound on probability) and a plausibility function (upper bound), with the gap encoding ignorance. PH gets a narrow gap (high confidence); single-pathway unique features get a wide gap (high ignorance).
+
+The practical pipeline: compute features from all three pathways → CKA pairwise alignment → SLIDE decomposition into joint/partial/individual → linear probes and T-CAV (Kim et al., 2018) from DINOv2 → PH concepts → assign tiers → DST-weighted evidence combination for retrieval scoring.
+
+### From Feature Residuals to Uncertainty Quantification
+
+The SLIDE decomposition identifies DINOv2 features *not* aligned with PH—the PH-residual component. A natural temptation is to discard these as noise. But DeCUR (Wang et al., 2024) proved that unique (non-shared) components of self-supervised representations carry *meaningful* information—they encode view-specific structure genuinely present in the data. For our setting, PH-residual DINOv2 features may encode texture gradients, facies boundary sharpness, or spatial frequency content that PH's topological abstraction deliberately ignores.
+
+The question is whether these residual features represent *aleatoric* uncertainty (genuine intra-class variability—different braided systems have different textures) or *epistemic* uncertainty (model ignorance). Kotelevskii et al. (2025) showed this decomposition can be performed per feature dimension without ensembles, using density estimation in representation space.
+
+The pipeline composes these methods into a chain from PH's mathematical guarantees to calibrated uncertainty in retrieval:
+
+1. PH features provide bounded invariants (stability theorem)
+2. DeCUR separates DINOv2 into PH-aligned and PH-residual components
+3. Kotelevskii density model decomposes residual into aleatoric/epistemic per dimension
+4. Hedged instance embeddings (Oh et al., 2019): represent each analog as a distribution $\mathcal{N}(\mu, \Sigma)$, not a point
+5. Uncertainty-weighted similarity for retrieval
+6. Neural Process encoder's $(\mu, \sigma)$ outputs receive structured priors from steps 3–5
+
+This connects directly to Scheidt, Li, and Caers (2018), who developed distance-based subsurface uncertainty methods using feature-space distances for scenario probabilities. Our contribution is grounding those distances in features with *known* epistemic status.
+
+### Implications for the Two-Pipeline Architecture
+
+These three extensions change what both pipelines store and compute:
+
+**Pipeline A**: Each analog's index entry becomes tiered—a core index (Tiers 1–2: PH + corroborated features), extended index (Tier 3: empirically invariant), and uncertainty envelope (Tier 4 + aleatoric variability). The repository stores analogs *with calibrated confidence about what is known and unknown*.
+
+**Pipeline B**: The Neural Process encoder produces posteriors with structured priors—tight on Tier 1 dimensions (PH constrains them), diffuse on Tier 4 dimensions. Sparse queries naturally receive wider confidence intervals where warranted.
+
+**Coupling layer**: Retrieval returns not just a ranked list but a *posterior distribution* over candidate analogs with calibrated confidence intervals. Response essence validation provides the ultimate test: retrieved analogs should not only look similar but behave similarly.
+
 ## What Remains Open
 
 Several questions remain unresolved, and intellectual honesty requires naming them.
@@ -192,3 +250,7 @@ Several questions remain unresolved, and intellectual honesty requires naming th
 **Information recovery from sparse data.** The compatibility question between Pipeline A and Pipeline B is ultimately empirical: how much topological information about a complete image can be inferred from a handful of well logs? The stability theorem provides a theoretical ceiling on the possible error, but the actual information recovery depends on the geometry of the well placement, the dimensionality of the topological features, and the capacity of the Neural Process encoder.
 
 **Cross-domain validation.** If the same PH machinery that distinguishes geological environments also distinguishes structurally analogous patterns in music (harmonic cycles), neuroscience (neural feedback loops), and other domains, the invariance transcends geology entirely—it becomes a property of the mathematics. This represents perhaps the most philosophically compelling line of future work, because it addresses the concern that any domain-specific validation might simply reflect shared biases of our geological generators.
+
+**Tractability of response essence.** Computing Morse-Smale decompositions for high-dimensional reservoir state spaces is currently intractable. The Koopman linearization + PH pipeline proposed above is a promising direction, but whether reduced-order attractor topology is sufficiently informative for geological classification remains an open empirical question.
+
+**Validation of the asymmetric trust structure.** The confidence hierarchy assumes PH features deserve higher trust because of the stability theorem. But if PH features turn out to capture irrelevant invariants (stable but not discriminative), the entire hierarchy inverts. The $H_1$ experiment is the linchpin: it tests whether mathematical invariance connects to geological relevance.
