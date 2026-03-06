@@ -4,6 +4,24 @@
 
 ---
 
+## Section Headers (paste into Word as Heading styles)
+
+1. Introduction: The Essence Problem
+2. The Motivating Gap: Why Topology?
+3. The Mathematical Framework
+3.1 Homeomorphism and Homotopy
+3.2 Metric Spaces and Point Clouds
+3.3 Simplicial and Cubical Complexes
+3.4 From Shapes to Algebra: Chains, Boundaries, and Homology
+3.5 A Worked Example: Three Wells
+3.6 Betti Numbers
+4. Persistent Homology: Tracking Features Across Scales
+5. The Stability Theorem
+6. Application: Design Choices and the Two-Pipeline Architecture
+7. What Remains Open
+
+---
+
 ## Betti Numbers (paragraph form)
 
 The homology groups are quantified by Betti numbers — the rank of each homology group, denoted $\beta_k$. Each Betti number counts a different dimension of topological feature. $\beta_0$ counts connected components: in a geological context, these are isolated channel bodies or separate sand bodies. $\beta_1$ counts loops, or one-dimensional holes: these correspond to channel network loops, oxbow lakes, and the braiding patterns that distinguish one fluvial architecture from another. $\beta_2$ counts enclosed voids: three-dimensional cavities relevant to pore-space analysis. For our research, $\beta_1$ is the critical Betti number — a braided system has many independent loops (high $\beta_1$), while a meandering system has few (low $\beta_1$). This is the topological difference that variograms miss entirely and that MPS captures only implicitly through template reproduction, without extracting it as a formal, stable descriptor.
