@@ -236,7 +236,22 @@ Why does this matter for the essence question? Recall that we defined essence as
 
 2. **Mathematical invariance theorems**: prove from first principles that the representation is stable. This is what the stability theorem provides for persistent homology, and *only* for persistent homology among our three pathways. This distinction elevates the topological pathway from "one of three parallel feature extractors" to "the pathway with the strongest epistemic warrant for invariance."
 
-I want to be precise about what this does and does not establish. The stability theorem guarantees that PH features are *invariant*—that small perturbations cannot change them dramatically. But it does not guarantee they are *relevant*—you could have perfectly stable features that are irrelevant to geological classification. This is where the $H_1$ hypothesis comes in: it connects stability to relevance by predicting that $H_1$ features specifically discriminate braided from meandering architectures. If the $H_1$ hypothesis holds (classification accuracy > 70% on variogram-matched pairs), then we have *both* mathematical invariance *and* geological relevance. That two-level warrant—stability theorem plus empirical discrimination—is the strongest evidence structure available in the evidence hierarchy.
+I want to be precise about what this does and does not establish. The stability theorem guarantees that PH features are *invariant*—that small perturbations cannot change them dramatically. But it does not guarantee they are *relevant*—you could have perfectly stable features that are irrelevant to geological classification. To illustrate this distinction: the average pixel brightness of an image is also stable under small perturbations, but it tells you nothing about channel architecture. Stability alone is not enough; we need to show that PH features capture something geologically meaningful that other methods miss.
+
+This is where the $H_1$ hypothesis and the variogram-matched pairs experiment come in. The experimental design is as follows: take a braided channel image and a meandering channel image that have been deliberately calibrated to produce the same variogram—same range, same sill, same anisotropy ratio. From the perspective of two-point geostatistics, these two images are statistically indistinguishable. Now ask: can $H_1$ features (the loop counts from persistent homology) tell them apart?
+
+The variogram matching is what makes this test powerful. Without it, a skeptic could object: "perhaps your PH-based classifier is simply picking up on differences in spatial correlation structure, redundantly encoding information that a variogram already captures." By constructing image pairs where the variograms are identical, we eliminate this explanation entirely. Any discriminating power that $H_1$ features exhibit on variogram-matched pairs *must* come from higher-order structural information—specifically, the connectivity and loop topology—that the variogram is provably blind to.
+
+The specific prediction: braided systems should have significantly more long-lived $H_1$ features (persistent loops around unfilled floodplain islands) than meandering systems (where loops, if they form at all, tend to enclose filled sediment and die quickly in homology), even when the two are constructed to have identical variograms. If a classifier trained only on vectorized $H_1$ persistence diagrams achieves greater than 70% accuracy on these variogram-matched pairs, the $H_1$ hypothesis is confirmed: PH features are not only stable but geologically discriminative in a way that geostatistical features fundamentally cannot be.
+
+This gives us a two-level evidential warrant that no single method provides:
+
+| Level | What it establishes | How |
+|---|---|---|
+| **Stability theorem** | PH features are *invariant* (bounded sensitivity to perturbation) | Mathematical proof — holds universally |
+| **$H_1$ on variogram-matched pairs** | PH features are *relevant* (capture real geological differences) | Empirical experiment — testable and falsifiable |
+
+Neither level alone is sufficient. Stability without relevance gives us features that are robust but useless. Relevance without stability gives us features that discriminate on the datasets we have tested but might break on unseen data from a new basin or generator. Together, they constitute the strongest evidence structure available in the hierarchy: mathematically guaranteed robustness *plus* empirically demonstrated geological meaning.
 
 ## Application: The Two-Pipeline Architecture
 
