@@ -353,7 +353,7 @@ Consider the geological analogy: in a braided channel system, channels form loop
 
 For reference, standard shapes have characteristic Betti numbers: a circle has $(\beta_0, \beta_1) = (1, 1)$; a sphere has $(\beta_0, \beta_1, \beta_2) = (1, 0, 1)$; a torus has $(\beta_0, \beta_1, \beta_2) = (1, 2, 1)$; two disjoint circles have $(\beta_0, \beta_1) = (2, 2)$.
 
-**Why this matters for our research**: The braided-versus-meandering geological analogy above is not merely illustrative — it is the core of the $H_1$ hypothesis developed in §6.4. The topological difference between braided and meandering systems (the number and persistence of surviving loops) is invisible to variograms and other two-point statistics. Homology detects it directly, providing the structural discrimination that motivates persistent homology's role in the Qualia Convergence Framework.
+**Why this matters for our research**: The braided-versus-meandering geological analogy above is not merely illustrative — it is the core of the $H_1$ hypothesis developed in §6.6. The topological difference between braided and meandering systems (the number and persistence of surviving loops) is invisible to variograms and other two-point statistics. Homology detects it directly, providing the structural discrimination that motivates persistent homology's role in the Qualia Convergence Framework.
 
 ### 3.5 Persistent Homology: Tracking Features Across Scales
 
@@ -518,7 +518,7 @@ The classical geostatistical pathway has a distinctive epistemic profile that di
 | **Sensitivity to topology** | None — variograms are topologically blind | Full — designed for topology | Partial — captures some topology implicitly |
 | **Operational maturity** | Highest — decades of industry use | Moderate — active research | Low — recent (2023+) |
 
-The classical pathway's most critical limitation for the QCF is its **topological blindness**: the variogram cannot distinguish braided from meandering channel architectures when spatial correlation lengths are matched (§6.4). This is not a failure of implementation but a mathematical property of two-point statistics—they are provably insensitive to connectivity topology.
+The classical pathway's most critical limitation for the QCF is its **topological blindness**: the variogram cannot distinguish braided from meandering channel architectures when spatial correlation lengths are matched (§6.6). This is not a failure of implementation but a mathematical property of two-point statistics—they are provably insensitive to connectivity topology.
 
 However, the classical pathway provides information that neither PH nor DINOv2 captures directly. The variogram range quantifies *how far* spatial correlation extends—a continuous measure of depositional scale that PH's discrete topological invariants do not encode. Anisotropy ratios characterize *directional* structure that isotropic PH computations ignore (unless directional filtrations are used). Fractal dimensions quantify *multiscale roughness* in a way that persistence diagrams do not directly capture. These complementary strengths are why the QCF uses all three pathways rather than relying on PH alone.
 
@@ -677,7 +677,59 @@ The topological pathway's unique contribution within this architecture is *struc
 
 The fused representation is projected into a hyperbolic embedding space (Poincaré ball model) where hierarchical organization of depositional environments is naturally encoded—general categories near the origin, specific sub-types near the boundary.
 
-### 6.4 The $H_1$ Hypothesis
+### 6.4 Classical Pathway: Variographic Indexing and Its Structural Boundary
+
+The classical pathway transforms each geological analog into an approximately 50-dimensional feature vector encoding its spatial correlation structure, directional fabric, connectivity, and multiscale roughness. The mathematical foundations are established in Section 4; here we describe how those foundations are applied within the QCF's retrieval architecture and where the pathway reaches its structural limits.
+
+**Feature composition.** The classical feature vector comprises four families of descriptors, each computed from the binary facies map or its continuous geostatistical properties:
+
+| Feature Family | Dimensions | What It Encodes |
+|---|---|---|
+| Directional variogram parameters | ~12 | Nugget ($c_0$), sill ($c_0 + c_1$), and range ($a$) estimated from four directional variograms (0°, 45°, 90°, 135°) |
+| Anisotropy descriptors | ~4 | Range ratio (max/min directional range), orientation of principal anisotropy axis, ellipse eccentricity |
+| Connectivity and percolation | ~8 | Connectivity function parameters at multiple lag distances, estimated percolation threshold, connected component size distribution moments |
+| Multiscale texture | ~6–10 | Box-counting fractal dimension $D_B$, lacunarity at 3–5 scales, variogram power-law slope $\beta_{\textrm{iso}}$ |
+| Facies proportions | ~2–4 | Net-to-gross ratio, facies interface density, mean channel-body thickness |
+
+These descriptors are computed deterministically from each analog image—no learning is involved, no training data required. This computational transparency is the classical pathway's primary epistemic advantage: every feature has a direct physical interpretation. The variogram range tells you the spatial correlation length. The anisotropy ratio tells you whether the depositional pattern is elongated or isotropic. The fractal dimension tells you the space-filling complexity. A geoscientist can examine any classical feature value and understand what it means for the geology.
+
+**Role in Pipeline A.** Classical features enter the geologic index as mid-tier descriptors (Tier 3 in the confidence hierarchy of §14.6). They provide information that neither PH nor DINOv2 captures directly: the variogram range quantifies *how far* spatial correlation extends—a continuous measure of depositional scale that PH's discrete topological invariants do not encode. Anisotropy ratios characterize *directional* structure that isotropic PH computations ignore. Fractal dimensions quantify *multiscale roughness* in a way that persistence diagrams capture only indirectly through the distribution of feature lifetimes.
+
+In the embedding space, classical features contribute to positioning analogs along dimensions that PH cannot distinguish. Two geological images might share identical $H_1$ persistence diagrams (same number of loops, same persistence values) while differing substantially in variogram range—one is a large-scale braided system with correlation lengths of hundreds of meters, the other a small-scale braided system with correlation lengths of tens of meters. Classical features discriminate these cases, providing scale information that refines the topological classification.
+
+**Connection to Pipeline B.** The classical pathway provides a natural bridge to the sparse-data regime of Pipeline B. Kriging (§4.6), the minimum-variance linear unbiased estimator under stationarity, offers a well-understood baseline for spatial prediction from sparse observations. When a geoscientist provides well log data at a handful of locations, the variogram estimated from those sparse observations—though necessarily less reliable than a variogram computed from a complete image—provides a first-order characterization of the depositional scale and anisotropy. The Neural Process query encoder (§9.2) should reproduce kriging's performance as a lower bound: when stationarity holds and observations are sufficient, the NP's uncertainty estimates should be at least as good as kriging variance. When stationarity is violated or observations are too sparse for reliable variogram estimation, the NP's learned inference should outperform kriging—this performance crossover is itself a diagnostic for the NP's value-added.
+
+**The structural boundary.** The classical pathway's fundamental limitation is topological blindness: variograms measure spatial correlation but are provably insensitive to connectivity topology (§4.4). This is not a failure of implementation but a mathematical property of two-point statistics. Two images can have identical variograms, identical fractal dimensions, identical connectivity functions computed at individual lag distances—and yet differ fundamentally in channel architecture. A braided system with many interconnected channels and a meandering system with a single sinuous channel can produce matching two-point statistics when their spatial correlation lengths coincide. No refinement of classical features—no additional variogram directions, no higher-order moments of the variogram—can overcome this blindness, because the relevant information (loop topology) is fundamentally higher-order.
+
+This structural boundary is not merely a theoretical concern—it is the empirical motivation for the entire multi-pathway architecture. If classical features alone could reliably distinguish depositional environments, the QCF would not need topological or learned pathways. The variogram-matched pairs experiment (§6.9) is designed precisely to demonstrate this boundary: matched pairs where classical features are identical by construction, forcing discrimination to rely on the other pathways.
+
+### 6.5 Learned Pathway: Scene Gist and Holistic Pattern Encoding
+
+The learned pathway extracts a 768-dimensional feature vector from each geological image using DINOv2-ViT-B/14, a self-supervised vision transformer. The mathematical foundations are established in Section 5; here we describe the pathway's specific role within the QCF and why its epistemic independence from domain-specific assumptions makes it uniquely valuable despite—and because of—its opacity.
+
+**Feature extraction pipeline.** Each analog image (resized to $224 \times 224$ pixels for ViT compatibility, or $256 \times 256$ with padding) is processed through the frozen DINOv2 backbone with LoRA fine-tuning adapters (§5.4). The image is divided into $14 \times 14$-pixel patches, each embedded with positional encoding, and processed through 12 transformer blocks of multi-head self-attention and feed-forward layers. The [CLS] token's final-layer representation—a single 768-dimensional vector aggregating information from all patches via learned attention—serves as the pathway's output feature.
+
+This single vector is the learned pathway's analog to the classical pathway's ~50-dimensional variogram-based descriptor and the topological pathway's 20–50-dimensional persistence features. The dimensionality difference is significant: DINOv2's 768 dimensions encode far richer information than either structured pathway, but this richness comes at the cost of interpretability. Where a variogram parameter has direct physical meaning and a Betti number counts topological features, individual DINOv2 dimensions have no straightforward geological interpretation.
+
+**What the learned features encode.** Despite their opacity, DINOv2 features capture information that is demonstrably relevant to geological classification. Three lines of evidence support this claim.
+
+First, *linear separability*. Oquab et al. (2023) demonstrated that DINOv2 features are linearly separable for semantic categories across diverse visual domains without any fine-tuning. For geological images, this implies that a simple linear classifier applied to frozen DINOv2 features should achieve competitive accuracy for depositional environment classification—a prediction that the linear probe experiments of §12.6 are designed to test.
+
+Second, *attention map alignment*. The spatial attention maps of DINOv2's self-attention layers reveal which image regions the model considers informative. For geological images, preliminary evidence suggests that attention concentrates on channel boundaries, confluence points, and structural transitions—features that are geologically meaningful and partially overlap with what PH captures through topology. The attention map analysis protocol of §12.6 will quantify this alignment systematically.
+
+Third, *the scene gist hypothesis* (§5.6). An experienced geoscientist shown a depositional image for a fraction of a second can typically identify the general environment before consciously analyzing individual features. DINOv2's [CLS] token provides a computational analog to this rapid holistic recognition. The hypothesis predicts that DINOv2 classification accuracy should be highest for broad environment discrimination (fluvial vs. aeolian) and progressively lower for finer distinctions (high-sinuosity vs. low-sinuosity meandering)—a prediction testable through hierarchical linear probing.
+
+**Role in Pipeline A.** Learned features enter the geologic index at Tier 3–4 in the confidence hierarchy (§14.6), reflecting their high discriminative power but low interpretability and absence of formal invariance guarantees. Their unique contribution is capturing the holistic pattern gestalt that neither variograms (which decompose images into pairwise spatial statistics) nor PH (which abstracts to topological invariants) preserves. A DINOv2 representation encodes texture gradients, facies boundary sharpness, spatial frequency content, bar morphology, and other visual properties that experienced geoscientists recognize intuitively but that neither structured pathway explicitly computes.
+
+This complementarity is the architectural rationale for including a learned pathway alongside two mathematically principled ones. The classical pathway fails when topological structure diverges from correlation structure (variogram-matched pairs). The topological pathway fails when geological differences are purely metric (two braided systems with different channel widths but identical loop topology). The learned pathway captures both kinds of information—and more—but with no guarantee that any specific feature is geologically meaningful rather than an artifact of the training distribution. The three pathways' failures are non-overlapping, which is precisely the condition under which multi-pathway convergence is most informative.
+
+**Independence and the LOGO protocol.** The learned pathway's epistemic value depends critically on its *independence* from the other two pathways. If DINOv2 features merely encode a noisy version of variogram parameters or a compressed version of persistence diagrams, the three-pathway architecture gains little from including them. True independent information—visual patterns that neither classical statistics nor topology captures—is what makes the convergence argument epistemically powerful.
+
+Independence is threatened by two mechanisms. First, *feature entanglement*: DINOv2's 768 dimensions may encode topological information alongside non-topological information, creating correlation with PH features that is not independence failure but natural overlap. The SLIDE decomposition (§14.6) separates genuine overlap from artificial correlation. Second, *generator dependence*: if DINOv2 features encode generator-specific visual artifacts (texture patterns characteristic of Flumy output, say) rather than geological structure, the pathway's contribution to the essence claim is undermined. The LOGO (Leave-One-Generator-Out) protocol, formalized as Sākṣī Test 2 (§10), tests for this by training on $N - 1$ generators and evaluating on the held-out generator. If DINOv2 classification accuracy drops substantially under LOGO, the features are generator-dependent and enter the confidence hierarchy at Tier 4 (uncertain) rather than Tier 3 (empirically invariant).
+
+**The representational geometry hypothesis.** A deeper question, which the experimental validation of §12.6 begins to address, is whether DINOv2's representation space has *geometric structure* that aligns with geological similarity. If the manifold of meandering-system representations in $\mathbb{R}^{768}$ is smoothly parameterized by sinuosity, channel width, and point-bar development—and the manifold of braided-system representations is similarly parameterized by braiding index, bar spacing, and channel-to-floodplain ratio—then DINOv2 is not merely discriminating environments but encoding a continuous geological parameter space. This would make the learned pathway's contribution to the hyperbolic embedding (§9.3) particularly valuable: the continuous parameterization within each branch of the depositional hierarchy would complement the topological pathway's discrete structural invariants and the classical pathway's correlation-based descriptors.
+
+### 6.6 The $H_1$ Hypothesis
 
 The central testable hypothesis of the topological pathway is:
 
@@ -702,7 +754,7 @@ Neither level alone is sufficient. Stability without relevance gives us features
 
 The framework establishes a pre-committed decision point: if classification accuracy using only $H_1$ features exceeds 70%, the hypothesis is supported and TDA becomes a core pathway; if it falls below 60%, TDA remains an ablation study (ADR-S04). This pre-commitment follows the Sākṣī (witness) validation philosophy: interpretation thresholds are fixed before data analysis.
 
-### 6.5 Cubical Complexes and the SEDT Filtration
+### 6.7 Cubical Complexes and the SEDT Filtration
 
 For geological image data, the QCF employs *cubical complexes* with a *signed Euclidean distance transform* (SEDT) filtration, following the methodology established by Robins et al. (2016) for geological pore-space characterization.
 
@@ -710,7 +762,7 @@ The SEDT assigns to each pixel a signed distance to the nearest boundary between
 
 This filtration choice is geologically meaningful: features that persist across a wide range of SEDT values correspond to thick, well-connected channel bodies—the kind of structural features that matter for reservoir connectivity and flow simulation. Features that die quickly correspond to thin connections or noise.
 
-### 6.6 Persistence Diagrams and the Hyperbolic Embedding
+### 6.8 Persistence Diagrams and the Hyperbolic Embedding
 
 The persistence diagrams produced by the topological pathway encode hierarchy in a manner that aligns naturally with the QCF's hyperbolic embedding space. In a persistence diagram, the distance of a point from the diagonal (its persistence, $d - b$) reflects the feature's structural importance: long-lived bars correspond to essential, large-scale topological features, while short-lived bars correspond to fine-scale detail or noise.
 
@@ -718,21 +770,21 @@ The Poincaré ball model used by the QCF encodes a depositional hierarchy: gener
 
 This geometric interpretation of persistence diagrams feeding directly into hierarchy-aware embedding represents, to our knowledge, a novel contribution of the QCF.
 
-### 6.7 The Adversarial Validation: Variogram-Matched Topology Swap
+### 6.9 The Adversarial Validation: Variogram-Matched Topology Swap
 
 The strongest direct test of PH's value within the QCF is Adversarial Test 23.1 (*Sankhyā-māyā*, "statistical illusion"). The test constructs matched pairs of images—one braided, one meandering—with *identical* variogram parameters (range, sill, nugget). Classical geostatistical features cannot distinguish these pairs by construction. If the system still correctly classifies them using topological features alone, the $H_1$ pathway demonstrably captures structural information invisible to two-point statistics.
 
 This test design instantiates a broader validation philosophy drawn from Mayo's (2018) severe testing framework: a hypothesis is supported only when it passes a test that it would likely fail if false. A classification test using images that are *designed* to fool the classical pathway but should be distinguishable by $H_1$ loop structure provides precisely this kind of severe evidence. The experimental protocol is detailed in the proposed validation design (Section 12).
 
-### 6.8 Scope and Limitations of the Topological Pathway
+### 6.10 Scope and Limitations of the Topological Pathway
 
 Intellectual honesty requires acknowledging what persistent homology *cannot* do within this framework. First, PH does not address the *sparsity problem*—it requires complete images as input. The Neural Process query encoder handles sparse observations; PH operates downstream on complete database analogs. Second, PH applied to 2D images captures only $H_0$ (connected components) and $H_1$ (loops); $H_2$ (voids) would require 3D volumetric data not yet available in the current pipeline. Third, topological evidence alone is insufficient for a strong essence claim. The stability theorem guarantees mathematical invariance of PH features under bounded perturbations, but the QCF's multi-level evidence hierarchy (Section 8) requires convergence of mathematical, adversarial, empirical, and expert evidence. PH provides one essential strand in that convergence—not the whole rope.
 
-### 6.9 Related Work: Component Technologies and the Integration Gap
+### 6.11 Related Work: Component Technologies and the Integration Gap
 
 The Qualia Convergence Framework draws upon several established research directions—topological data analysis in geoscience, hyperbolic representation learning, neural processes, and self-supervised visual features—while combining them in a manner not attempted in prior work. This section surveys the relevant literature for each component technology and identifies the integration gap that constitutes the framework's primary novelty claim.
 
-**Topological data analysis in geoscience.** Persistent homology has an established track record in geological and materials science applications, though primarily for structural characterization rather than retrieval. Robins et al. (2016) applied PH to micro-CT images of porous materials, developing the SEDT filtration methodology adopted by the present framework (Section 6.5). Moon et al. (2019) demonstrated that statistical inference over persistence diagrams predicts fluid flow properties from pore structure, establishing that topological features capture geologically consequential information beyond what conventional descriptors provide. Thompson et al. (2023) extended PH to dynamic settings, tracking topological changes in dissolving carbonate pore networks over time—work that connects to the dynamic extensions discussed in Section 14. In an industry context, Chawshin et al. (2021) employed topological representations for well-log interpretation and depositional facies classification. However, all existing TDA applications in geoscience operate as standalone analytical tools: no prior work integrates topological features with learned representations within a retrieval architecture, and no prior work tests the specific hypothesis that $H_1$ features discriminate channel architectures under variogram-matched conditions.
+**Topological data analysis in geoscience.** Persistent homology has an established track record in geological and materials science applications, though primarily for structural characterization rather than retrieval. Robins et al. (2016) applied PH to micro-CT images of porous materials, developing the SEDT filtration methodology adopted by the present framework (Section 6.7). Moon et al. (2019) demonstrated that statistical inference over persistence diagrams predicts fluid flow properties from pore structure, establishing that topological features capture geologically consequential information beyond what conventional descriptors provide. Thompson et al. (2023) extended PH to dynamic settings, tracking topological changes in dissolving carbonate pore networks over time—work that connects to the dynamic extensions discussed in Section 14. In an industry context, Chawshin et al. (2021) employed topological representations for well-log interpretation and depositional facies classification. However, all existing TDA applications in geoscience operate as standalone analytical tools: no prior work integrates topological features with learned representations within a retrieval architecture, and no prior work tests the specific hypothesis that $H_1$ features discriminate channel architectures under variogram-matched conditions.
 
 **Hyperbolic embeddings.** Hyperbolic representation learning has demonstrated substantial advantages for hierarchically structured data across domains. The foundational Poincaré embedding model of Nickel and Kiela (2017) was extended to graph-structured data by Chami et al. (2019), who reported a 63.1% reduction in embedding distortion for hierarchical graphs compared to Euclidean baselines. Peng et al. (2022) provide a comprehensive survey of hyperbolic deep neural networks, documenting applications in computer vision, natural language processing, social network analysis, and molecular modeling. Despite this breadth of application, hyperbolic embeddings have not been applied to geological facies classification or depositional environment retrieval—the survey characterizes geoscience applications as "still emerging." The QCF's use of the Poincaré ball to encode the natural hierarchy of depositional environments (Section 9.3) represents, to our knowledge, the first such application.
 
@@ -804,9 +856,9 @@ What evidence warrants calling a representation "essence"? No single test is suf
 
 **Level 1 — Mathematical Invariance Theorems (Strongest).** The stability theorem provides a *formal proof* that persistent homology features are invariant under bounded perturbations. This is a mathematical guarantee—it does not depend on which generators are tested, which dataset is used, or how many experiments are run. It cannot be "overengineered" because it is a theorem, not a test. For the topological pathway, this is the primary evidence for invariance.
 
-*Limitation*: The stability theorem guarantees that PH features are *invariant*, but does not guarantee they are *relevant*. You could have perfectly stable features that are irrelevant to geological classification. The $H_1$ hypothesis (Section 6.4) addresses relevance; stability addresses invariance. Together, they provide both.
+*Limitation*: The stability theorem guarantees that PH features are *invariant*, but does not guarantee they are *relevant*. You could have perfectly stable features that are irrelevant to geological classification. The $H_1$ hypothesis (Section 6.6) addresses relevance; stability addresses invariance. Together, they provide both.
 
-This limitation deserves a sharper formulation: *the $H_1$ experiment is the linchpin of the entire evidence hierarchy.* If PH features prove unable to discriminate braided from meandering architectures on variogram-matched pairs—if topological invariants capture nothing geologically meaningful—then Level 1's mathematical guarantee becomes actively misleading rather than merely incomplete. The stability theorem would certify the robustness of features that encode no geological content, and the hierarchy, designed to privilege mathematical invariance over empirical testing, would privilege precisely the wrong signals. The research program's pre-committed decision thresholds (Section 6.4; ADR-S04) reflect this centrality: below 60% classification accuracy, the topological pathway is demoted to an ablation study regardless of how elegant its mathematical foundations may be.
+This limitation deserves a sharper formulation: *the $H_1$ experiment is the linchpin of the entire evidence hierarchy.* If PH features prove unable to discriminate braided from meandering architectures on variogram-matched pairs—if topological invariants capture nothing geologically meaningful—then Level 1's mathematical guarantee becomes actively misleading rather than merely incomplete. The stability theorem would certify the robustness of features that encode no geological content, and the hierarchy, designed to privilege mathematical invariance over empirical testing, would privilege precisely the wrong signals. The research program's pre-committed decision thresholds (Section 6.6; ADR-S04) reflect this centrality: below 60% classification accuracy, the topological pathway is demoted to an ablation study regardless of how elegant its mathematical foundations may be.
 
 **Level 2 — Severe Adversarial Testing.** Following Mayo's severe testing framework (2018): a claim passes a severe test if the test was *highly capable of detecting failure* had the claim been false. The key shift: design tests to *break* the invariance claim, not merely challenge it. Specifically: construct generators designed to produce images where topological features are misleading, test whether $H_1$ features can be manipulated independently of geological meaning, and inject noise at filtration-critical scales. If the claim survives tests designed to destroy it, that is strong evidence.
 
@@ -1042,9 +1094,9 @@ The adversarial tests constitute Witness 7 (*Pratipakṣa-sthairya*, "steadiness
 
 The first adversarial test—"statistical illusion"—attacks the representation's reliance on two-point geostatistics. The test constructs matched pairs of images: one with meandering channel architecture and one with braided channel architecture, modified so that both images share *identical* variogram parameters (range, sill, nugget). By construction, classical geostatistical features cannot distinguish these pairs.
 
-If the system correctly classifies the paired images using topological features alone, the $H_1$ pathway demonstrably captures structural information invisible to two-point statistics. This is the most direct test of the $H_1$ hypothesis (Section 6.4) and is developed into a full experimental protocol in Section 12.2. If the system fails—if variogram-matched pairs defeat the topological pathway—then the representation relies on statistical properties that the classical pathway already captures, and the topological pathway adds no unique discriminative value.
+If the system correctly classifies the paired images using topological features alone, the $H_1$ pathway demonstrably captures structural information invisible to two-point statistics. This is the most direct test of the $H_1$ hypothesis (Section 6.6) and is developed into a full experimental protocol in Section 12.2. If the system fails—if variogram-matched pairs defeat the topological pathway—then the representation relies on statistical properties that the classical pathway already captures, and the topological pathway adds no unique discriminative value.
 
-This test was introduced in the context of the three-pathway architecture (Section 6.7) and is formalized here as a component of the Sākṣī battery.
+This test was introduced in the context of the three-pathway architecture (Section 6.9) and is formalized here as a component of the Sākṣī battery.
 
 #### 10.4.2 Style Transfer Attack (*Rūpa-viparyaya*)
 
@@ -1169,9 +1221,9 @@ If the same mathematical framework captures invariant structure in geology, musi
 
 ---
 
-## 12. Proposed Experimental Validation of the Topological Pathway
+## 12. Proposed Experimental Validation
 
-This section describes the experimental design for validating persistent homology as the topological pathway within the QCF. It answers the practical question: *given the mathematical framework above, how do we test whether PH actually works for geological analog retrieval?*
+This section describes the experimental design for validating all three pathways of the QCF's feature extraction architecture—topological, classical, and learned—both independently and in combination. It answers the practical question: *given the mathematical framework above, how do we test whether each pathway works, where each fails, and whether the multi-pathway architecture outperforms any single pathway?* Sections 12.1–12.4 detail the topological pathway's validation (the most methodologically novel); Sections 12.5–12.6 develop corresponding experimental designs for the classical and learned pathways; and Section 12.7 addresses cross-pathway fusion and ablation.
 
 ### 12.1 The PH Computation Pipeline
 
@@ -1191,7 +1243,7 @@ The topological pathway follows a six-stage pipeline from raw geological image t
 
 ### 12.2 The $H_1$ Hypothesis Experiment
 
-The central empirical test is a classification experiment designed to validate or falsify the $H_1$ hypothesis (§6.4).
+The central empirical test is a classification experiment designed to validate or falsify the $H_1$ hypothesis (§6.6).
 
 **Image Generation.** We generate matched pairs of geological images using process-based simulators: one meandering (Flumy or equivalent), one braided (BRAHMS or equivalent). Critically, the generator parameters are adjusted so that both images in each pair share *identical* variogram parameters—range, sill, and nugget. This ensures that two-point geostatistical descriptors cannot distinguish them. The matched-variogram constraint is what makes this a *severe* test: it eliminates the classical pathway's discriminative power by construction.
 
@@ -1226,6 +1278,101 @@ The experimental results feed into the multi-level evidence hierarchy (Section 8
 **If $H_1$ < 60%**: PH remains an ablation study. Investigation priorities: (1) whether the SEDT filtration is optimal for channel discrimination, (2) whether multi-parameter persistence (incorporating both SEDT and a scale parameter) would capture information that single-parameter PH misses, and (3) whether $H_0$ features contain complementary discriminative power.
 
 **If $H_1$ between 60–70%**: Inconclusive. Expand the test image set, refine the filtration function, and explore combining $H_0$ + $H_1$ features before concluding.
+
+### 12.5 Classical Pathway Experimental Design
+
+The classical pathway requires experimental validation distinct from the topological pathway's. Where PH has a mathematical stability theorem and needs only to demonstrate *relevance*, classical features have established relevance (decades of industry use) but lack formal invariance guarantees. The experiments below test the classical pathway's reliability, quantify its structural boundary, and establish its specific contribution to the multi-pathway architecture.
+
+**Experiment C1: Variogram Parameter Stability Across Generators.** Generate matched geological images from two or more independent generators (Flumy and BRAHMS, or equivalent) with identical target parameters (sinuosity, channel width, net-to-gross ratio). Compute directional variograms for each image and extract the three canonical parameters (nugget, sill, range) from model fits. The test question: *do images representing the same depositional environment but generated by different simulators produce similar variogram parameters?*
+
+Unlike PH's stability theorem, there is no mathematical guarantee that classical features are generator-invariant. The experiment provides empirical bounds. For each variogram parameter $\theta$, compute the coefficient of variation $\textrm{CV}_\theta$ across generators for matched depositional targets. A low $\textrm{CV}$ (< 0.15) indicates that the parameter is generator-robust; a high $\textrm{CV}$ (> 0.30) indicates generator sensitivity, demoting the parameter from Tier 3 to Tier 4 in the confidence hierarchy.
+
+**Experiment C2: Anisotropy Detection Under Rotation and Noise.** Generate a set of geological images with known depositional orientation (channel axis aligned at controlled angles). Compute the estimated anisotropy principal axis from directional variograms. Add progressively stronger noise (random pixel flips at rates 1%, 5%, 10%, 20%) and re-estimate the anisotropy axis. The test question: *how robust is anisotropy estimation to observational noise?*
+
+This experiment provides an empirical analog to PH's stability bound. Report the maximum noise level at which the anisotropy axis estimate remains within 10° of the true value. If this empirical robustness is high, anisotropy features gain support as reliable index entries; if it degrades quickly, the pathway's contribution to Pipeline A must be appropriately uncertainty-weighted.
+
+**Experiment C3: Classical Features as a Negative Control for Variogram-Matched Pairs.** The variogram-matched pairs experiment of §12.2 tests whether PH *can* discriminate where classical features cannot. The converse test is equally important: train a classifier using *only* classical features on the same matched pairs. The expected result is chance-level accuracy ($\approx$50%), confirming that the variogram-matching protocol successfully eliminates classical discriminative power. If classical features achieve significantly above-chance accuracy on matched pairs, the matching protocol is flawed—the variograms are not sufficiently matched—and the PH experiment's evidential value is compromised.
+
+This negative control is essential for the per-pathway comparison of §12.2: PH's discriminative power on matched pairs is meaningful *only if* the classical pathway demonstrably fails on the same pairs. The two experiments must be run jointly.
+
+**Experiment C4: Kriging vs. Neural Process Baseline.** Using the same analog database, generate sparse observation scenarios (3, 5, 10, and 20 randomly placed wells per analog). For each scenario, compare kriging prediction accuracy (using the variogram estimated from sparse data) against the Neural Process query encoder's prediction accuracy. Evaluate using the compatibility constraint: for each analog, how closely does the sparse-data prediction match the complete-image descriptor?
+
+The pre-committed expectation is that kriging should outperform the NP under ideal conditions (stationary fields, sufficient data for variogram estimation) and the NP should outperform kriging under non-ideal conditions (non-stationary fields, very sparse data). If the NP fails to match kriging even under ideal conditions, the query encoder requires architectural revision; if kriging matches the NP under all conditions, the NP adds no value over classical inference.
+
+### 12.6 Learned Pathway Experimental Design
+
+The learned pathway (DINOv2) requires validation that addresses its distinctive epistemic risks: distribution dependence, opacity, and potential generator-artifact encoding. The experiments below test whether DINOv2 features capture geological structure or merely visual patterns, and quantify the pathway's contribution to the multi-pathway architecture.
+
+**Experiment L1: Leave-One-Generator-Out (LOGO) Protocol.** Train a linear classifier on frozen DINOv2 features to predict depositional environment (braided, meandering, anastomosing, etc.), using images from $N - 1$ generators. Evaluate on the held-out generator. Repeat for each generator. The LOGO accuracy is the mean classification accuracy across held-out generators.
+
+This protocol, formalized as Sākṣī Test 2 (§10), directly tests generator invariance. Pre-committed thresholds:
+
+| LOGO Accuracy | Interpretation | Confidence Tier |
+|---|---|---|
+| > 80% | Features are generator-invariant | Tier 3 (empirically invariant) |
+| 60–80% | Features partially generalize | Tier 3–4 (conditional) |
+| < 60% | Features are generator-dependent | Tier 4 (uncertain) |
+
+The LOGO protocol is applied independently to each pathway, providing a direct per-pathway comparison of generator invariance. PH features, backed by the stability theorem, are expected to show minimal LOGO degradation. Classical features, if variogram parameters are generator-robust (Experiment C1), should also show moderate LOGO stability. If DINOv2 shows substantially lower LOGO accuracy than PH, this quantifies the epistemic cost of relying on learned features without formal invariance guarantees.
+
+**Experiment L2: Hierarchical Linear Probing.** Train linear probes at three hierarchical levels of geological classification:
+
+1. *Coarse*: Environment type (fluvial vs. aeolian vs. estuarine vs. deltaic)
+2. *Medium*: Sub-environment (braided vs. meandering vs. anastomosing within fluvial)
+3. *Fine*: Parametric variation (high-sinuosity vs. low-sinuosity meandering)
+
+The scene gist hypothesis (§5.6) predicts that DINOv2 accuracy should decrease monotonically from coarse to fine classification—holistic recognition is strongest for broad categories and weakest for fine parametric distinctions. If accuracy at the fine level is comparable to the coarse level, the representation encodes more detailed geological information than the gist hypothesis predicts—a welcome finding that would elevate the pathway's evidential contribution.
+
+**Experiment L3: Attention Map Analysis.** For a curated set of geological images (5 per environment type, selected to represent clear examples), extract the spatial attention maps from each of DINOv2's 12 attention heads at the final transformer layer. Overlay the attention maps on the original images and compare against expert-annotated regions of geological interest (channel boundaries, bar forms, confluence points, facies transitions).
+
+Quantify alignment using the Intersection-over-Union (IoU) metric between attention-highlighted regions and expert annotations. High IoU (> 0.5) indicates that DINOv2 attends to geologically meaningful image regions; low IoU indicates that the model's feature extraction is driven by visual patterns that do not correspond to geological structure. This experiment does not validate the features themselves but provides interpretability evidence—insight into *why* DINOv2's features may be geologically discriminative.
+
+**Experiment L4: Adversarial Robustness Assessment.** Apply Projected Gradient Descent (PGD; Madry et al., 2018) attacks to test the learned pathway's robustness. For each image, construct adversarial perturbations $\delta$ with $\lVert \delta \rVert_\infty \leq \epsilon$ for $\epsilon \in \lbrace 0.01, 0.05, 0.10 \rbrace$ (as a fraction of the input range) and measure the resulting change in the 768-dimensional DINOv2 representation.
+
+Report two metrics: (1) the maximum representation shift $\max_\delta \lVert f(x + \delta) - f(x) \rVert_2 / \lVert f(x) \rVert_2$ (relative representational instability), and (2) the classification flip rate (fraction of images whose predicted depositional environment changes under perturbation). These metrics provide an empirical upper bound on the learned pathway's sensitivity to input perturbation—the empirical analog of PH's stability theorem. If representational instability is low (< 0.1 relative shift at $\epsilon = 0.05$), DINOv2 features are empirically robust; if high, the pathway's contribution to the confidence hierarchy must be further discounted.
+
+### 12.7 Cross-Pathway Fusion and Ablation Experiments
+
+The multi-pathway architecture's value proposition is that the three pathways contribute complementary information. The experiments below test this claim directly through systematic ablation and convergence analysis.
+
+**Experiment F1: Pathway Ablation.** Train the full retrieval system in seven configurations:
+
+| Configuration | Pathways Included | What It Tests |
+|---|---|---|
+| PH only | Topological | Topological features alone |
+| Classical only | Classical | Variogram-based features alone |
+| DINOv2 only | Learned | Learned features alone |
+| PH + Classical | Topological, Classical | Structured pathways without learned |
+| PH + DINOv2 | Topological, Learned | Theorem-backed + gestalt without classical |
+| Classical + DINOv2 | Classical, Learned | What is lost without topological invariants |
+| All three | Topological, Classical, Learned | Full architecture |
+
+For each configuration, evaluate retrieval accuracy on three tasks: (1) depositional environment classification (coarse), (2) sub-environment discrimination on standard pairs, and (3) sub-environment discrimination on variogram-matched pairs. The last task is critical: it is the only condition where the classical pathway is expected to contribute nothing, isolating the topological and learned pathways' joint contribution.
+
+Pre-committed expectations: the full three-pathway system should outperform any single pathway on all tasks. PH alone should outperform Classical alone on variogram-matched pairs. DINOv2 alone should outperform PH alone on coarse classification (where gestalt recognition suffices). If any single pathway matches the full system on all tasks, the other two are redundant—a finding that would fundamentally challenge the multi-pathway architecture's rationale.
+
+**Experiment F2: Convergence Analysis.** For each image in the test set, compute the pairwise agreement between pathways using Centered Kernel Alignment (CKA; §14.6). Classify each image into one of four convergence states:
+
+1. *Full convergence*: All three pathways agree (CKA > 0.7 for all pairs)
+2. *Partial convergence*: Two pathways agree, third disagrees
+3. *Full disagreement*: No pair exceeds CKA > 0.5
+4. *Degenerate*: One or more pathways produce uninformative features
+
+Analyze the correlation between convergence state and geological properties. The convergence regularization loss (§6.3) encourages agreement, but perfect agreement is undesirable—it would mean the pathways are redundant. The expected pattern is that structurally unambiguous images (clearly braided, clearly meandering) show full convergence, while transitional or ambiguous images (low-sinuosity systems near the braided-meandering threshold) show partial convergence or disagreement. If full convergence dominates even for ambiguous images, the convergence loss may be over-regularizing; if disagreement dominates even for clear images, the pathways may not be encoding consistent information.
+
+**Experiment F3: Evidence Hierarchy Population.** The multi-level evidence hierarchy (§8) defines seven levels of evidence. The experimental results from §12.1–12.6 and F1–F2 collectively populate these levels:
+
+| Evidence Level | Experiment(s) | What It Establishes |
+|---|---|---|
+| L1: Mathematical Invariance | Stability theorem (§3.6) | PH features are provably bounded |
+| L2: Severe Testing | PH adversarial perturbation (§12.3) | PH survives targeted attacks |
+| L3: Information-Theoretic | SLIDE decomposition (§14.6) + mutual information | Cross-pathway information content |
+| L4: Cross-Domain | PH across domains (§11) | Mathematical universality |
+| L5: Real-Data | Field analog comparison | Ground truth validation |
+| L6: Cross-Generator | LOGO per pathway (L1, C1) | Generator invariance per pathway |
+| L7: Expert Agreement | Expert survey of retrieval results | Human-AI alignment |
+
+This mapping ensures that the experimental program is *complete* with respect to the evidence hierarchy—every level has at least one corresponding experiment—and *traceable*—each experimental result feeds into a specific level of the hierarchy, allowing systematic assessment of which levels are satisfied and which remain open.
 
 ---
 
