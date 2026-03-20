@@ -19,6 +19,56 @@ We develop each pillar with mathematical rigor: the stability theorem for persis
 
 ---
 
+## Contents
+
+**1. The Dissertation Research Problem and System Architecture**
+&ensp; 1.1 The Research Question · 1.2 The Two-Pipeline Architecture · 1.3 Essence as the Enabling Abstraction · 1.4 Dissertation Overview
+
+**2. The Principle-Based Generator: Experimental Apparatus for Invariance Testing**
+&ensp; 2.1 Why Build a Generator? · 2.2 Generator Taxonomy and Design Philosophy · 2.3 Three Depositional Environments · 2.4 Fluvial Environment: The Leopold-Wolman Framework · 2.5 Aeolian Environment: The Werner Dune Framework · 2.6 Estuarine Environment: The Tidal Prism Framework · 2.7 Validation Strategy · 2.8 Current Implementation Status
+
+**3. Mathematical Foundations of Persistent Homology**
+&ensp; 3.1 From Topology to Data Analysis · 3.2 Topological Foundations · 3.3 Simplicial Complexes · 3.4 Homology: Detecting Holes Algebraically · 3.5 Persistent Homology: Tracking Features Across Scales · 3.6 Stability: The Theoretical Guarantee
+
+**4. Mathematical Foundations of Classical Geostatistics**
+&ensp; 4.1 From Spatial Statistics to Pattern Description · 4.2 Stationarity · 4.3 The Variogram · 4.4 Beyond the Variogram: Connectivity and Higher-Order Statistics · 4.5 Fractal Dimensions · 4.6 Kriging · 4.7 Epistemic Status and Limitations
+
+**5. Mathematical Foundations of Self-Supervised Visual Representations**
+&ensp; 5.1 From Hand-Crafted to Learned Features · 5.2 The Vision Transformer Architecture · 5.3 Self-Supervised Pretraining: DINO and DINOv2 · 5.4 Domain Adaptation: LoRA Fine-Tuning · 5.5 Representation Geometry and Interpretability · 5.6 The Scene Gist Connection · 5.7 Epistemic Status and Limitations
+
+**6. Application to the Qualia Convergence Framework**
+&ensp; 6.1 The Research Problem · 6.2 Operationalizing Essence · 6.3 Three-Pathway Architecture · 6.4 Classical Pathway: Variographic Indexing · 6.5 Learned Pathway: Scene Gist and Holistic Pattern Encoding · 6.6 The H₁ Hypothesis · 6.7 Cubical Complexes and the SEDT Filtration · 6.8 Persistence Diagrams and the Hyperbolic Embedding · 6.9 The Adversarial Validation · 6.10 Scope and Limitations · 6.11 Related Work
+
+**7. The Ellipse Degradation Thought Experiment**
+&ensp; 7.1 The Setup · 7.2 Five Problems with Degradation-Based Essence · 7.3 Generator Invariance as an Alternative
+
+**8. The Evidence Hierarchy: Mathematical Invariance Over Empirical Testing**
+&ensp; 8.1 A Multi-Level Evidence Structure · 8.2 The Revised Essence Claim · 8.3 Implications for Descriptor Admissibility and Query Validation
+
+**9. System Architecture: From Invariants to Analog Retrieval**
+&ensp; 9.1 Pipeline A: Building the Geologic Index · 9.2 Pipeline B: The Neural Process Query Encoder · 9.3 The Hyperbolic Embedding Space · 9.4 Perceiver IO · 9.5 Pathway Fusion and the Underdetermination Principle · 9.6 Validation: The Sākṣī Layer · 9.7 Open Design Questions
+
+**10. The Sākṣī Validation Framework**
+&ensp; 10.1 The Witness Principle · 10.2 The Ten Witnesses · 10.3 The LOGO Protocol · 10.4 Adversarial Tests (10.4.1–10.4.4) · 10.5 The Claim Survival Matrix · 10.6 Integration with the Evidence Hierarchy
+
+**11. Persistent Homology Across Domains: Music, Neuroscience, and Mathematical Universality**
+&ensp; 11.1 The Argument from Domain Agnosticism · 11.2 TDA Applied to Musical Structure · 11.3 TDA in Neuroscience · 11.4 The Cross-Domain Argument
+
+**12. Proposed Experimental Validation**
+&ensp; 12.1 The PH Computation Pipeline · 12.2 The H₁ Hypothesis Experiment · 12.3 Validation Through the Evidence Hierarchy · 12.4 What Success and Failure Look Like · 12.5 Classical Pathway Experimental Design · 12.6 Learned Pathway Experimental Design · 12.7 Cross-Pathway Fusion and Ablation
+
+**13. Open Questions and the Path Forward**
+&ensp; 13.1 Philosophical Robustness of Invariance · 13.2 Multi-Parameter Persistence · 13.3 Topological Dictionary Learning · 13.4 Information-Theoretic Quantification · 13.5 Cross-Domain Validation as Evidence
+
+**14. Extensions: Dynamic Essence, Confidence Hierarchy, and Uncertainty**
+&ensp; 14.1 From Structural Essence to Response Essence · 14.2 PH of Dynamical Systems · 14.3 Response Essence via Basin-of-Attraction Topology · 14.4 Formation Dynamics as Attractor Systems · 14.5 State Space Models · 14.6 The Confidence Hierarchy: PH as Epistemic Anchor · 14.7 From Feature Residuals to Uncertainty Quantification · 14.8 Implications for the Two-Pipeline Architecture
+
+**15. Conclusion**
+
+**References**
+
+---
+
 ## 1. The Dissertation Research Problem and System Architecture
 
 ### 1.1 The Research Question
