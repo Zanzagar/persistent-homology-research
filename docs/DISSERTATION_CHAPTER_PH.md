@@ -67,7 +67,7 @@ The purpose of determining essence is therefore twofold: to identify invariant s
 
 This chapter develops the mathematical and architectural foundations for the two-pipeline system. Section 2 introduces the mathematical machinery of persistent homology—topological spaces, simplicial complexes, homology groups, persistence, and the stability theorem—establishing the formal tools on which the framework depends. Section 3 examines how persistent homology is applied within the Qualia Convergence Framework, including the three-pathway feature extraction architecture, the $H_1$ hypothesis for channel discrimination, and the limitations of the topological pathway. Section 4 engages critically with the ellipse degradation thought experiment on the nature of essence, revealing fundamental problems with degradation-based definitions and motivating generator invariance as the preferred alternative. Section 5 develops a structured evidence hierarchy for essence claims organized by epistemic strength, and shows how this hierarchy governs both pipeline operations.
 
-Section 6 presents the system architecture that connects topological invariants to analog retrieval: the Neural Process query encoder, the hyperbolic embedding space, the Perceiver IO fusion module, and the Sākṣī validation layer. Section 7 explores cross-domain applications of persistent homology—in music, neuroscience, and consciousness research—as evidence for mathematical universality. Section 8 presents the design of the principle-based geological image generator—the experimental apparatus that produces controlled training data with known structural properties for invariance testing across three depositional environments. Section 9 describes the proposed experimental validation design, and Section 10 discusses open questions and the path forward. Section 11 develops three extensions that broaden the framework beyond static structural essence: dynamic response essence via basin-of-attraction topology, a confidence hierarchy exploiting PH's unique epistemic status as epistemic anchor for multi-pathway fusion, and an uncertainty quantification pipeline grounded in feature residual decomposition. Section 12 concludes with an assessment of persistent homology's role as the mathematical backbone of the research program.
+Section 6 presents the system architecture that connects topological invariants to analog retrieval: the Neural Process query encoder, the hyperbolic embedding space, the Perceiver IO fusion module, and the pathway fusion layer. Section 7 develops the Sākṣī validation framework—ten independent witnesses, the LOGO protocol, geology-specific adversarial tests, and the pre-committed Claim Survival Matrix—that operationalizes the evidence hierarchy as a concrete validation protocol. Section 8 explores cross-domain applications of persistent homology—in music, neuroscience, and consciousness research—as evidence for mathematical universality. Section 9 presents the design of the principle-based geological image generator—the experimental apparatus that produces controlled training data with known structural properties for invariance testing across three depositional environments. Section 10 describes the proposed experimental validation design, and Section 11 discusses open questions and the path forward. Section 12 develops three extensions that broaden the framework beyond static structural essence: dynamic response essence via basin-of-attraction topology, a confidence hierarchy exploiting PH's unique epistemic status as epistemic anchor for multi-pathway fusion, and an uncertainty quantification pipeline grounded in feature residual decomposition. Section 13 concludes with an assessment of persistent homology's role as the mathematical backbone of the research program.
 
 ---
 
@@ -328,7 +328,7 @@ This geometric interpretation of persistence diagrams feeding directly into hier
 
 The strongest direct test of PH's value within the QCF is Adversarial Test 23.1 (*Sankhyā-māyā*, "statistical illusion"). The test constructs matched pairs of images—one braided, one meandering—with *identical* variogram parameters (range, sill, nugget). Classical geostatistical features cannot distinguish these pairs by construction. If the system still correctly classifies them using topological features alone, the $H_1$ pathway demonstrably captures structural information invisible to two-point statistics.
 
-This test design instantiates a broader validation philosophy drawn from Mayo's (2018) severe testing framework: a hypothesis is supported only when it passes a test that it would likely fail if false. A classification test using images that are *designed* to fool the classical pathway but should be distinguishable by $H_1$ loop structure provides precisely this kind of severe evidence. The experimental protocol is detailed in the proposed validation design (Section 9).
+This test design instantiates a broader validation philosophy drawn from Mayo's (2018) severe testing framework: a hypothesis is supported only when it passes a test that it would likely fail if false. A classification test using images that are *designed* to fool the classical pathway but should be distinguishable by $H_1$ loop structure provides precisely this kind of severe evidence. The experimental protocol is detailed in the proposed validation design (Section 10).
 
 ### 3.8 Scope and Limitations of the Topological Pathway
 
@@ -402,7 +402,7 @@ This limitation deserves a sharper formulation: *the $H_1$ experiment is the lin
 
 **Level 3 — Information-Theoretic Measures.** Quantify what representations capture using mutual information: $I(f(X); \theta \mid G)$ measures geological information captured independently of generator; $I(f(X); G \mid \theta)$ measures generator-artifact contamination. High $I(f(X); \theta \mid G)$ and low $I(f(X); G \mid \theta)$ provide continuous, quantitative evidence that the representation captures geology, not generator artifacts.
 
-**Level 4 — Cross-Domain Validation.** If the same topological features that distinguish geological environments also distinguish structurally analogous patterns in music, neuroscience, or other domains, the invariance transcends the generator concept entirely—it is a property of the mathematics, not of any particular application. (See Section 7.)
+**Level 4 — Cross-Domain Validation.** If the same topological features that distinguish geological environments also distinguish structurally analogous patterns in music, neuroscience, or other domains, the invariance transcends the generator concept entirely—it is a property of the mathematics, not of any particular application. (See Section 8.)
 
 **Level 5 — Real-Data Validation.** Testing against real geological data that no generator was designed to reproduce. This is the ultimate generator-independent benchmark, but requires data that may not be available in early research phases.
 
@@ -432,7 +432,7 @@ The evidence hierarchy is not merely a philosophical organizing device—it has 
 
 The preceding sections establish three foundational results: persistent homology provides mathematically guaranteed invariants (Section 2), the three-pathway architecture encodes essence through independent epistemic perspectives (Section 3), and the evidence hierarchy governs which descriptors qualify as essence carriers (Section 5). This section addresses the architectural question that connects these foundations to a working retrieval system: *how do topological invariants, together with complementary descriptors, become a mechanism for finding geological analogs under sparse data constraints?*
 
-The most important conceptual principle governing this architecture is that persistent homology is not simply one of three parallel feature extractors of equal standing. It is the only pathway with a mathematical stability guarantee, and this epistemic asymmetry should govern the entire design. The three pathways produce features of fundamentally different epistemic status: PH features are backed by the stability theorem—a mathematical proof of bounded sensitivity to input perturbation; classical geostatistical features are well-understood but depend on stationarity assumptions that geological data routinely violates, and have no analogous stability theorem; DINOv2 learned features capture rich visual semantics but are opaque, entangled, and dependent on the training distribution. This asymmetry means the three pathways should not be treated symmetrically in fusion. PH features serve as the *epistemic anchor*—the features around which the architecture is organized—and the other pathways are measured against them. Section 11.6 develops this principle into a formal confidence hierarchy with operationalized tiers; here, we show how it shapes the system architecture at every level.
+The most important conceptual principle governing this architecture is that persistent homology is not simply one of three parallel feature extractors of equal standing. It is the only pathway with a mathematical stability guarantee, and this epistemic asymmetry should govern the entire design. The three pathways produce features of fundamentally different epistemic status: PH features are backed by the stability theorem—a mathematical proof of bounded sensitivity to input perturbation; classical geostatistical features are well-understood but depend on stationarity assumptions that geological data routinely violates, and have no analogous stability theorem; DINOv2 learned features capture rich visual semantics but are opaque, entangled, and dependent on the training distribution. This asymmetry means the three pathways should not be treated symmetrically in fusion. PH features serve as the *epistemic anchor*—the features around which the architecture is organized—and the other pathways are measured against them. Section 12.6 develops this principle into a formal confidence hierarchy with operationalized tiers; here, we show how it shapes the system architecture at every level.
 
 We present the system architecture as a conceptual design with key mathematical formulations. No implementation code is given; the goal is to specify what each component does, why it is needed, and how the components compose into a coherent system. The architecture realizes the two-pipeline structure introduced in Section 1 and is governed at every stage by the evidence hierarchy of Section 5.
 
@@ -474,7 +474,7 @@ $$\mathcal{L}_{\textrm{NP}} = \mathbb{E}_C\left[\textrm{KL}\big(q(z \mid C) \;\l
 
 where $q(z \mid C)$ is the encoder distribution given the context, $p(z)$ is the prior (standard normal or learned), and $p(\textrm{targets} \mid z)$ is the decoder likelihood measuring retrieval accuracy. The KL term regularizes the encoder distribution toward the prior, preventing overfitting to any particular sparsity pattern; the reconstruction term ensures the encoding is informative for retrieval.
 
-**Graceful degradation.** A key property of the Neural Process architecture is that uncertainty scales monotonically with sparsity. With many observations ($n > 10$), the encoder produces low $\sigma$ and confident embeddings. With few observations ($n = 2\text{--}5$), $\sigma$ increases appropriately. With a single observation ($n = 1$), uncertainty is high. With no observations ($n = 0$), the encoder returns the prior—an uninformative distribution reflecting complete ignorance. This graceful degradation is not merely desirable; it is a calibration requirement enforced by the Sākṣī validation layer (Section 6.6), with a target expected calibration error (ECE) below 0.1. If graceful degradation fails—if $\sigma$ is not monotonically related to sparsity—this is a revision trigger requiring architectural modification (ADR-003).
+**Graceful degradation.** A key property of the Neural Process architecture is that uncertainty scales monotonically with sparsity. With many observations ($n > 10$), the encoder produces low $\sigma$ and confident embeddings. With few observations ($n = 2\text{--}5$), $\sigma$ increases appropriately. With a single observation ($n = 1$), uncertainty is high. With no observations ($n = 0$), the encoder returns the prior—an uninformative distribution reflecting complete ignorance. This graceful degradation is not merely desirable; it is a calibration requirement enforced by the Sākṣī validation layer (Section 7), with a target expected calibration error (ECE) below 0.1. If graceful degradation fails—if $\sigma$ is not monotonically related to sparsity—this is a revision trigger requiring architectural modification (ADR-003).
 
 **Compatibility constraint.** The query encoder must map sparse observations into the *same* descriptor space as Pipeline A. This is the core coupling requirement introduced in Section 1.2. Concretely, when Pipeline B's encoder is given a *complete* analog as input (the limiting case of zero sparsity), its output $\mu$ should closely approximate Pipeline A's descriptor for that analog. This constraint is enforced during training by including complete analogs in the training set and penalizing divergence between the Pipeline A descriptor and the Pipeline B $\mu$ output. Without this compatibility constraint, the two pipelines could organize analogs in incompatible ways, rendering cross-pipeline retrieval meaningless.
 
@@ -534,11 +534,7 @@ This principle has direct architectural consequences. The fusion layer must not 
 
 ### 6.6 Validation: The Sākṣī Layer
 
-The QCF employs a validation philosophy drawn from Vedantic epistemology: the Sākṣī ("witness") principle, in which ten independent tests act as witnesses to the representation's quality. Each witness validates a different aspect of the system, and no single witness is sufficient—confidence accrues through the convergence of independent evidence.
-
-The witnesses most relevant to the architecture described in this chapter are: *LOGO invariance* (Witness 3, *Janaka-nirpekṣatā*), requiring that retrieval performance degrades by less than 20% when the system is tested on generators not seen during training—a direct test of generator-independent essence; *pathway convergence* (Witness 6, *Mārga-saṅgama*), requiring that disagreement among the three pathways remains below 0.2, ensuring that independent epistemic perspectives converge; *calibration* (Witness 8, *Saṅkhyā-samya*), requiring that the expected calibration error remains below 0.1, ensuring that the system's stated uncertainty matches its actual accuracy; and *adversarial robustness* (Witness 7, *Pratipakṣa-sthairya*), requiring that adversarial attacks succeed less than 30% of the time, ensuring that the representation captures genuine structure rather than exploitable statistical artifacts.
-
-Each witness provides evidence at a specific level of the evidence hierarchy. LOGO invariance provides Level 6 evidence (cross-generator validation); pathway convergence provides evidence supporting Level 1 (if independent pathways agree, the shared signal is more likely to reflect genuine invariance); calibration provides evidence supporting Level 2 (a well-calibrated system is harder to fool by adversarial construction); adversarial robustness provides direct Level 2 evidence (severe testing). The Sākṣī layer thus operationalizes the evidence hierarchy as a concrete validation protocol.
+The system architecture described in Sections 6.1–6.5 requires a validation framework commensurate with its epistemic ambitions. The QCF employs a comprehensive validation philosophy—the Sākṣī ("witness") framework—in which ten independent tests act as witnesses to the representation's quality. Each witness validates a different aspect of the system, and no single witness is sufficient; confidence accrues through the convergence of independent evidence. The full Sākṣī validation framework, including the complete ten-witness table, the LOGO protocol, all four geology-specific adversarial tests, and the pre-committed Claim Survival Matrix, is developed in Section 7.
 
 ### 6.7 Open Design Questions
 
@@ -554,15 +550,180 @@ Several architectural decisions remain unresolved and constitute active research
 
 ---
 
-## 7. Persistent Homology Across Domains: Music, Neuroscience, and Mathematical Universality
+## 7. The Sākṣī Validation Framework
 
-### 7.1 The Argument from Domain Agnosticism
+The system architecture of Section 6 describes *what* the retrieval system computes; this section describes *how we determine whether it works*. The Qualia Convergence Framework's approach to validation draws on a principle from Vedantic epistemology that addresses the deepest methodological challenge in machine learning evaluation: the circularity of validating a representation using the same features or assumptions used to construct it.
+
+The framework defines ten independent tests—"witnesses"—each probing a different aspect of the representation's quality. It specifies the LOGO protocol for cross-generator invariance testing, a battery of four geology-specific adversarial tests designed for maximum severity, and a Claim Survival Matrix that pre-commits to interpretation criteria before any experiments are conducted. Together, these components operationalize the abstract evidence hierarchy of Section 5 into a concrete, pre-registered validation protocol.
+
+### 7.1 The Witness Principle
+
+The Vedantic tradition offers the concept of **Sākṣī** (साक्षी)—the "witness"—referring to the aspect of consciousness that observes without being entangled in what it observes. We adapt this concept methodologically:
+
+> **The Sākṣī Principle**: A claim about essence must be validated by an observer (test) that is independent of the representation being evaluated.
+
+This principle guards against circular validation—the most common and most insidious failure mode in representation learning evaluation. If we claim a representation captures essence, the test of that claim cannot depend on the same features, the same generators, or the same statistical properties used to construct the representation. Each test must constitute a genuinely independent epistemic perspective on the representation's quality.
+
+The framework operationalizes this principle through ten independent tests, each validating a different aspect of the system. No single witness is sufficient for an essence claim. Confidence accrues through the *convergence* of independent evidence, following the same epistemological logic that justifies the three-pathway architecture itself (Section 3.3): when multiple independent perspectives agree, the shared signal is more likely to reflect genuine structure than artifact.
+
+Critically, the interpretation criteria for all witnesses are fixed *before* any experiments are conducted. This pre-commitment discipline—borrowed from pre-registration practices in experimental psychology and clinical trials—prevents the post-hoc rationalization that vitiates much machine learning evaluation. One cannot adjust the definition of "good performance" after seeing the results.
+
+### 7.2 The Ten Witnesses
+
+Each of the ten witnesses validates a distinct aspect of the representation, drawing its evidentiary power from independence with respect to a specific component of the system:
+
+| # | Witness | Sanskrit Gloss | What It Witnesses | Independence From | Target |
+|---|---------|----------------|-------------------|-------------------|--------|
+| 1 | Cluster Purity | *Varga-śuddhi* | Basic class separation in embedding space | — | ARI > 0.7 |
+| 2 | Retrieval Precision | *Prāpti-sūkṣmatā* | Practical utility for analog retrieval | — | P@10 > 0.8 |
+| 3 | LOGO Invariance | *Janaka-nirpekṣatā* | Generator invariance of representation | Training generators | Degradation < 20% |
+| 4 | Transfer Prediction | *Saṅkramaṇa* | Generalization to held-out properties | Training features | $R^2$ > 0.5 |
+| 5 | Expert Validation | *Vidvat-pratyaya* | Geological meaningfulness | All algorithmic features | Cohen's $\kappa$ > 0.6 |
+| 6 | Pathway Convergence | *Mārga-saṅgama* | Agreement across epistemic perspectives | — | Disagreement < 0.2 |
+| 7 | Adversarial Robustness | *Pratipakṣa-sthairya* | Resistance to deliberate spoofing | Superficial statistics | Attack success < 30% |
+| 8 | Calibration | *Saṅkhyā-samya* | Uncertainty quantification accuracy | — | ECE < 0.1 |
+| 9 | Mixture Handling | *Miśra-vicāra* | Appropriate response to ambiguous inputs | — | Correct high entropy on mixtures |
+| 10 | Process Correlation | *Prakriyā-sambandha* | Physical interpretability of features | — | $r$ > 0.4 with physical parameters |
+
+The witnesses form a complementary structure in which different tests probe different failure modes. Witnesses 1–2 establish baseline competence: if the representation cannot separate depositional classes in embedding space (Witness 1) or retrieve relevant analogs (Witness 2), no further validation is meaningful. Witness 3 (LOGO) tests the central claim of generator invariance. Witness 4 tests whether the representation generalizes beyond the properties used in its construction—a direct test of whether "essence" has been captured rather than surface statistics memorized. Witness 5 provides the only fully generator-independent assessment, relying on expert geological judgment that is independent of all algorithmic features.
+
+Witnesses 6–8 address internal coherence and epistemic calibration. Pathway convergence (Witness 6) provides indirect evidence for Level 1 of the evidence hierarchy (Section 5): if three independent feature-extraction pathways agree, the shared signal is more likely to reflect genuine invariance than pathway-specific artifacts. Calibration (Witness 8) ensures that the system's stated uncertainty matches its actual accuracy—a prerequisite for the underdetermination principle (Section 6.5) to function as intended: a system that is confident when it should be uncertain is worse than useless. Adversarial robustness (Witness 7) provides direct Level 2 evidence by testing whether the representation survives deliberately constructed attacks designed to exploit superficial statistical regularities. The four adversarial tests are detailed in Section 7.4.
+
+Witnesses 9–10 address edge cases that the other witnesses miss. Mixture handling (Witness 9) tests the system's response to genuinely ambiguous inputs—images that blend characteristics of multiple depositional environments. The correct response is high uncertainty (broad distribution in embedding space), not a confident but arbitrary classification. This witness directly validates the underdetermination principle. Process correlation (Witness 10) tests whether learned features correlate with known physical parameters of the generative process—sinuosity with meander amplitude, net-to-gross ratio with channel density, bar aspect ratio with braid index. A positive correlation provides evidence that the representation is capturing geologically meaningful structure rather than incidental statistical patterns.
+
+### 7.3 The LOGO Protocol
+
+The Leave-One-Generator-Out (LOGO) protocol is the third witness and the most direct test of generator invariance—the necessary (though not sufficient) condition for an essence claim.
+
+**Protocol.** The test requires a pool of generators $\lbrace G_1, G_2, \ldots, G_N \rbrace$ drawn from fundamentally different generative paradigms. For the current research program, the generator pool comprises:
+
+- **$G_1$**: The principle-based generator (Section 9), producing fluvial, aeolian, and estuarine patterns from empirical formulas
+- **$G_2$**: A GAN-based generator (if available), producing patterns via adversarial training on real geological images
+- **$G_3$**: An MPS-based generator (SNESIM with varied training images), producing patterns via multiple-point statistical simulation
+- **$G_4$**: A process-based generator (Flumy), producing patterns via physical process simulation
+
+The use of fundamentally different generator types—principle-based, adversarial, statistical, and process-based—strengthens the invariance claim: if representations transfer across paradigms that share no implementation assumptions, the captured structure is more likely to reflect geological reality than generator artifacts.
+
+For each held-out generator $G_h$, the model is trained on all remaining generators $\lbrace G_1, \ldots, G_N \rbrace \setminus \lbrace G_h \rbrace$ and evaluated on $G_h$. Three metrics are computed on the held-out generator: cluster purity (adjusted Rand index), retrieval precision (P@$K$), and transfer prediction ($R^2$ on held-out geological properties). The degradation for each metric is:
+
+$$\Delta_m = \frac{M_{\textrm{train}} - M_{\textrm{test}}}{M_{\textrm{train}}}$$
+
+where $M_{\textrm{train}}$ is the metric evaluated on training generators and $M_{\textrm{test}}$ is the metric evaluated on the held-out generator.
+
+**Interpretation thresholds (pre-committed).** The following thresholds are fixed before experimentation:
+
+| Degradation | Interpretation | Action |
+|---|---|---|
+| $\Delta < 0.2$ for all $G_h$ | Generator-invariant | Witness 3 passed |
+| $\Delta < 0.3$ for most $G_h$ | Mostly invariant | Investigate specific generator dependencies |
+| $\Delta > 0.3$ for any $G_h$ | Generator-specific | Witness 3 failed; essence claim not supported |
+
+**Why LOGO is more stringent than standard domain adaptation.** Standard domain adaptation (Ganin & Lempitsky, 2015) assumes partial overlap between source and target domains and employs explicit adaptation techniques (adversarial training, gradient reversal layers) to bridge the gap. LOGO assumes *complete exclusion* of the target generator, with no adaptation mechanism—pure generalization. This is a test of fundamental invariance, not of transfer learning capacity. An architecture that passes LOGO without any adaptation mechanism provides stronger evidence for generator-independent essence than one that requires domain adaptation to bridge generator gaps.
+
+**Epistemic limitations.** LOGO is a necessary but not sufficient condition for essence capture, and the limitations developed in the evidence hierarchy (Section 5) apply in full. Four structural limitations must be explicitly acknowledged. First, *generator-family boundedness*: LOGO tests invariance within the generator pool, not invariance to geology in general. If all generators share physical assumptions (Leopold-Wolman relationships, process-based sediment transport equations), then passing LOGO may reflect invariance to that shared assumption space rather than to the underlying geological process (Wimsatt, 1981). Second, *impossibility results*: Ahuja et al. (2023) proved that invariance alone is insufficient to identify latent causal variables—passing LOGO does not prove that invariant features correspond to geological causes rather than to spurious correlations shared across generators. Third, *environment diversity*: the epistemic strength of LOGO depends on the genuine independence of the generators in the pool, a property that is itself difficult to verify. Fourth, *degrees-of-freedom risk*: with sufficient control over the generator space, LOGO can be made to trivially succeed—not because essence has been captured but because the generator pool has been (perhaps inadvertently) designed to agree on non-essential features.
+
+These limitations do not invalidate LOGO but constrain its epistemic reach. LOGO provides Level 6 evidence in the evidence hierarchy (Section 5)—evidence that must be corroborated by mathematical invariance (Level 1), severe testing (Level 2), and empirical validation (Levels 5, 7) before an essence claim is warranted.
+
+### 7.4 Adversarial Tests
+
+The adversarial tests constitute Witness 7 (*Pratipakṣa-sthairya*, "steadiness against opposition") and provide Level 2 evidence in the evidence hierarchy. Following Mayo's (2018) severe testing framework, each test is designed to be *maximally capable of detecting failure* if the representation relies on the specific statistical property being attacked. A claim that survives a severe test—one that was highly likely to reveal the claim's falsity had it been false—carries substantially more evidential weight than a claim that survives only lenient testing. The four tests target different levels of statistical sophistication, ensuring that the representation must capture genuine structural information to survive the full battery.
+
+#### 7.4.1 Variogram-Matched Topology Swap (*Sankhyā-māyā*)
+
+The first adversarial test—"statistical illusion"—attacks the representation's reliance on two-point geostatistics. The test constructs matched pairs of images: one with meandering channel architecture and one with braided channel architecture, modified so that both images share *identical* variogram parameters (range, sill, nugget). By construction, classical geostatistical features cannot distinguish these pairs.
+
+If the system correctly classifies the paired images using topological features alone, the $H_1$ pathway demonstrably captures structural information invisible to two-point statistics. This is the most direct test of the $H_1$ hypothesis (Section 3.4) and is developed into a full experimental protocol in Section 10.2. If the system fails—if variogram-matched pairs defeat the topological pathway—then the representation relies on statistical properties that the classical pathway already captures, and the topological pathway adds no unique discriminative value.
+
+This test was introduced in the context of the three-pathway architecture (Section 3.7) and is formalized here as a component of the Sākṣī battery.
+
+#### 7.4.2 Style Transfer Attack (*Rūpa-viparyaya*)
+
+The second adversarial test—"form reversal"—attacks the representation's reliance on visual texture and appearance. A meandering channel pattern is subjected to neural style transfer (Gatys, Ecker, & Bethge, 2016) to acquire the visual texture of a braided system: rough, multi-threaded appearance with bar-like texture patterns. The structural connectivity of the channel network is preserved—the single sinuous channel remains topologically unchanged—but the surface appearance mimics a different depositional class.
+
+If the system maintains correct classification despite the style transfer, the representation captures structural connectivity rather than surface texture. This is a direct test of whether the topological pathway's signal survives in the fused representation. Failure indicates that the learned pathway (DINOv2) dominates the classification decision and that the topological pathway's signal is suppressed in fusion—a diagnosis requiring rebalancing of the fusion weights or architectural revision of the cross-attention mechanism (Section 6.5).
+
+#### 7.4.3 Channel Skeleton Permutation (*Nāḍī-krama-pariṇāma*)
+
+The third adversarial test—"conduit rearrangement"—attacks the representation's sensitivity to connectivity structure. The channel skeleton of a geological image is extracted (via morphological thinning), and individual segments are permuted: reconnected in a different configuration while preserving the total channel length, the number of branch points, and the channel-body thickness distribution. The resulting image has identical first-order channel statistics but fundamentally different connectivity topology—the $H_1$ loop structure is disrupted because the permuted connections create different enclosed regions.
+
+If the system detects the difference between the original and permuted images, the representation is genuinely sensitive to topological connectivity rather than aggregate channel statistics such as total channel area or branch density. This is a direct test of whether the $H_1$ persistence features computed in the topological pathway (Section 10.1) are capturing loop structure—as the stability theorem guarantees they should for bounded perturbations—rather than proxy statistics that happen to correlate with topology in the training distribution. Failure indicates that the vectorization step (persistence images or persistence landscapes) loses the connectivity information present in the raw persistence diagram, warranting investigation of alternative vectorization methods.
+
+#### 7.4.4 Histogram Equalization (*Sāmya-karaṇa*)
+
+The fourth adversarial test—"equalization"—attacks the representation's reliance on first-order intensity statistics. Images from different depositional classes are subjected to histogram equalization so that all images share identical first-order statistics (pixel intensity distribution). The spatial structure of each image is preserved, but any information derivable from the marginal distribution of pixel values is eliminated.
+
+If the system still separates depositional classes after histogram equalization, the representation relies on spatial structure (higher-order statistics and topology) rather than intensity distribution. For binary facies images—the primary input to the topological pathway—this test is less discriminating than for continuous-valued data, since binary images already have trivial two-valued histograms. However, the test becomes important when the pipeline processes grayscale SEDT fields or continuous seismic amplitude data, where intensity histograms carry meaningful geological information that could serve as a confounding shortcut for classification.
+
+**Composite adversarial assessment.** The four tests are designed to be applied as a battery, not individually. Passing all four provides strong evidence that the representation captures genuine structural information at multiple levels of abstraction: beyond two-point statistics (Test 1), beyond surface texture (Test 2), sensitive to connectivity (Test 3), and beyond marginal distributions (Test 4). Failure on any single test identifies a specific vulnerability—a statistical shortcut the representation exploits—and prescribes a targeted diagnostic: which pathway, which feature, and which fusion weight to investigate.
+
+### 7.5 The Claim Survival Matrix
+
+The Claim Survival Matrix is the pre-committed interpretation framework that translates experimental outcomes into warranted epistemic claims. Its critical property is that all interpretation criteria are fixed *before* any experiments are conducted—a discipline that prevents the post-hoc rationalization that vitiates much of machine learning evaluation.
+
+The matrix is structured around the multi-level evidence hierarchy of Section 5, recognizing that no single test is sufficient for an essence claim:
+
+**Multi-Level Evidence Matrix.**
+
+| Evidence Level | Test | Outcome | Interpretation |
+|---|---|---|---|
+| L1: Mathematical | Stability theorem applies to topological pathway | Proven | Topological features have formal invariance guarantee |
+| L2: Severe Testing | Adversarial tests (§7.4) | Pass | Strong evidence; tests were designed to break claim |
+| L2: Severe Testing | Adversarial tests (§7.4) | Fail | Specific vulnerability identified; revise or scope claim |
+| L3: Info-Theoretic | $I(f(X); \theta \mid G)$ high | Confirmed | Representation encodes geological information |
+| L3: Info-Theoretic | $I(f(X); G \mid \theta)$ high | Contaminated | Representation contains generator artifacts |
+| L6: LOGO | $\Delta < 0.2$ all generators | Passed | Generator-invariant within pool (necessary, not sufficient) |
+| L6: LOGO | $\Delta > 0.3$ any generator | Failed | Representation depends on generation method |
+| L7: Expert | Cohen's $\kappa > 0.6$ | Aligned | Representation matches human geological judgment |
+
+**Composite Claim Interpretations.** The evidentiary configuration determines the strength of the warranted essence claim:
+
+| Configuration | Essence Claim | Epistemic Status |
+|---|---|---|
+| L1 + L2 pass + L3 confirmed + L6 pass + L7 pass | **Strong** | Multi-level convergence with mathematical, empirical, and human evidence |
+| L1 + L2 pass + L6 pass, L7 marginal | **Moderate** | Mathematical and empirical support, but experts do not fully agree |
+| L6 pass only (no L1, L2 marginal) | **Weak** | LOGO alone is necessary but not sufficient |
+| L6 pass + L5 (real data) pass | **Strong** | Generator-independence confirmed empirically against field data |
+| L6 fail, all others pass | **Not supported** | Generator-specific despite other evidence—fundamental problem |
+| L1 applies + L2 pass + L6 fail | **Pathway-specific** | Topological pathway has mathematical warrant; other pathways do not |
+| Calibration failure (any level) | **Misleading** | Overconfident predictions are worse than no predictions |
+
+Three configurations deserve particular discussion. The "pathway-specific" configuration arises when LOGO fails for the fused representation but the topological pathway individually passes adversarial testing. This indicates that the learned or classical pathways introduce generator-specific artifacts that contaminate the fusion. The response is not to abandon the multi-pathway architecture but to restructure it—using the confidence hierarchy (Section 12.6) to downweight contaminated pathways while preserving the topological pathway's mathematical warrant.
+
+The "misleading" configuration enforces an absolute constraint: a system that is confidently wrong is worse than one that is modestly accurate but well-calibrated. Calibration failure at any evidence level—even if all other witnesses pass—disqualifies the essence claim, because the system's uncertainty estimates cannot be trusted to guide retrieval decisions. This is the architectural consequence of the underdetermination principle (Section 6.5): a system that claims to "know what it doesn't know" must actually know what it doesn't know.
+
+The "weak" configuration is the most epistemically dangerous, because it is the most likely to be misinterpreted. LOGO passing alone, without corroboration from mathematical invariance or severe testing, provides only necessary evidence. As argued in the evidence hierarchy (Section 5), passing LOGO across $N$ generators proves invariance within that generator family—it does not prove geological invariance in general (Wimsatt, 1981; Ahuja et al., 2023). The Claim Survival Matrix makes this limitation explicit and non-negotiable.
+
+### 7.6 Integration with the Evidence Hierarchy
+
+The ten witnesses do not operate in isolation; they provide evidence at specific levels of the evidence hierarchy established in Section 5. The mapping between witnesses and evidence levels reveals the complementary structure of the validation framework:
+
+| Evidence Level | Contributing Witnesses | Evidence Type |
+|---|---|---|
+| Level 1: Mathematical Invariance | (Not a witness—provided by stability theorem directly) | Mathematical proof |
+| Level 2: Severe Testing | Witness 7 (Adversarial Robustness) | Direct severe testing |
+| Level 3: Information-Theoretic | (Not directly witnessed—requires mutual information computation) | Quantitative measurement |
+| Level 4: Cross-Domain Validation | (Addressed in Section 8, not a numbered witness) | Domain transfer |
+| Level 5: Real-Data Validation | Witness 4 (Transfer Prediction), Witness 5 (Expert Validation) | Empirical generalization |
+| Level 6: LOGO | Witness 3 (LOGO Invariance) | Cross-generator validation |
+| Level 7: Expert Agreement | Witness 5 (Expert Validation) | Human judgment |
+
+Several witnesses contribute to the overall assessment without mapping to a single evidence level. Witnesses 1–2 (cluster purity and retrieval precision) are necessary preconditions—baseline competence that must be established before higher-level evidence is meaningful. Witness 6 (pathway convergence) provides supporting evidence for Level 1: if three independent feature-extraction pathways converge on the same structural characterization, the shared signal is more likely to reflect genuine mathematical invariance than pathway-specific artifacts. Witness 8 (calibration) is a cross-cutting constraint that applies to all evidence levels: evidence from an uncalibrated system is uninterpretable regardless of the level at which it is generated.
+
+Witnesses 9–10 address dimensions of quality not captured by the evidence hierarchy's level structure. Mixture handling (Witness 9) validates the underdetermination principle—a design philosophy rather than an evidence claim. The correct response to a genuinely ambiguous image is not confident classification into one category but a broad distribution reflecting the ambiguity. Process correlation (Witness 10) provides interpretability evidence connecting the learned representation to known physical processes—important for expert adoption and scientific credibility but not reducible to a single evidence level.
+
+The full Sākṣī framework thus provides the operational bridge between the abstract evidence hierarchy of Section 5 and the concrete experimental validation design of Section 10: the evidence hierarchy defines *what kinds of evidence matter and in what order of epistemic strength*, the ten witnesses define *what specific tests provide that evidence*, and the Claim Survival Matrix defines *how to interpret the results once obtained*. Together, they constitute a pre-committed validation protocol that is simultaneously rigorous (no post-hoc rationalization), comprehensive (multiple independent perspectives probing different failure modes), and epistemically honest (explicit about what each test can and cannot establish).
+
+---
+
+## 8. Persistent Homology Across Domains: Music, Neuroscience, and Mathematical Universality
+
+### 8.1 The Argument from Domain Agnosticism
 
 One of the most epistemically significant properties of persistent homology is its domain agnosticism: the same mathematical machinery—filtrations, Betti numbers, persistence diagrams, stability theorems—applies to *any* data that can be represented as a topological space. This property is directly relevant to the evidence hierarchy (Level 4, cross-domain validation) and to the broader philosophical claim about the nature of "essence."
 
 If persistent homology captures meaningful invariant structure only in geology, the skeptic can argue that the invariance is an artifact of the geological domain—perhaps all geological generators share biases that topological methods exploit. But if the same framework captures meaningful invariant structure in music, neural data, and other domains built on entirely different physical processes, then the invariance must be a property of the *mathematics*, not of any particular domain.
 
-### 7.2 TDA Applied to Musical Structure
+### 8.2 TDA Applied to Musical Structure
 
 Recent work has demonstrated that persistent homology captures meaningful structure in musical data:
 
@@ -572,7 +733,7 @@ Recent work has demonstrated that persistent homology captures meaningful struct
 
 **Homological Persistence for Genre Classification.** Bergomi and Barate (2020) applied persistence to musical time series for genre classification, demonstrating that topological features capture structural patterns invisible to spectral analysis alone. Their approach describes time-varying systems through the evolution of geometric and topological properties, using persistent homology to track how these properties change over time.
 
-### 7.3 TDA in Neuroscience and Consciousness Research
+### 8.3 TDA in Neuroscience and Consciousness Research
 
 The application of persistent homology to neural data provides another line of cross-domain evidence:
 
@@ -582,7 +743,7 @@ The application of persistent homology to neural data provides another line of c
 
 **Gestalt Pattern Recognition.** Liu et al. (2021) applied persistent homology to EEG data during pattern recognition tasks and showed that the persistence entropy of brain signals evoked by ordered Gestalt images differs significantly from that evoked by random patterns—suggesting that human cognition itself has a topological signature.
 
-### 7.4 The Cross-Domain Argument
+### 8.4 The Cross-Domain Argument
 
 The parallel between geological and musical applications of PH is more than analogical. In both domains, the fundamental research question is the same: *what features are invariant across different realizations of the same underlying structure?*
 
@@ -598,13 +759,13 @@ If the same mathematical framework captures invariant structure in geology, musi
 
 ---
 
-## 8. The Principle-Based Generator: Experimental Apparatus for Invariance Testing
+## 9. The Principle-Based Generator: Experimental Apparatus for Invariance Testing
 
 The preceding sections establish the theoretical case for persistent homology as the mathematical backbone of geological essence determination and develop an evidence hierarchy that governs what claims are warranted. But theoretical frameworks, however internally coherent, require experimental validation—and experimental validation requires controlled data. This section describes the design of a *principle-based geological image generator* that produces synthetic depositional analogs with known generating parameters, providing the experimental apparatus necessary to test the $H_1$ hypothesis, execute the LOGO (Leave-One-Generator-Out) protocol, and populate the evidence hierarchy with empirical results.
 
 The generator is not merely a data source. It is the instrument that makes the theoretical framework *testable*. Without controlled generation—images whose structural properties are known by construction—the evidence hierarchy's demand for cross-generator invariance testing (Level 6), severe adversarial testing (Level 2), and the linchpin $H_1$ experiment all become abstract aspirations rather than executable protocols.
 
-### 8.1 Why Build a Generator?
+### 9.1 Why Build a Generator?
 
 Three approaches exist for obtaining geological image data with the properties required for systematic invariance testing:
 
@@ -616,7 +777,7 @@ Three approaches exist for obtaining geological image data with the properties r
 
 The principle-based approach is chosen as the primary data source for a specific epistemic reason: *known ground truth is essential for the LOGO test*. When we generate an image using specified parameters—a meandering channel with sinuosity $S = 1.8$, wavelength $\lambda = 12W$, and bankfull width $W = 15$ pixels—we know exactly what structural properties the image should exhibit. This allows rigorous testing of whether PH features capture those properties invariantly across generator families. If representations trained on principle-based, GAN-generated, and MPS-generated images transfer successfully to process-based (Flumy) images, the invariance claim is strengthened because the generators employ fundamentally different mechanisms: empirical formulas, adversarial training, statistical pattern reproduction, and physics simulation, respectively.
 
-### 8.2 Generator Taxonomy and Design Philosophy
+### 9.2 Generator Taxonomy and Design Philosophy
 
 Our generator occupies a deliberate position in the geological image generation landscape, distinguished by its epistemic function rather than its physical fidelity.
 
@@ -628,15 +789,15 @@ Our generator occupies a deliberate position in the geological image generation 
 
 The design philosophy can be summarized: *constrain geometry with empirical formulas from the literature, not with physics simulation*. The generator does not solve the Saint-Venant equations for shallow water flow or the Exner equation for sediment continuity. Instead, it directly implements the geometric relationships that these equations produce at equilibrium—relationships that have been measured, validated, and published by geomorphologists over decades of field work. This approach sacrifices physical realism in exchange for interpretability, computational speed, and known ground truth.
 
-### 8.3 Three Depositional Environments
+### 9.3 Three Depositional Environments
 
 The generator encompasses three major depositional environments, each with multiple sub-styles that span the morphological diversity observed in natural systems:
 
 **Fluvial**: Channel systems governed by the Leopold-Wolman (1957) classification, producing meandering, braided, and anastomosing architectures. **Aeolian**: Dune fields governed by the Werner (1995) cellular automaton framework, producing barchan, linear/seif, and transverse morphologies. **Estuarine**: Coastal systems governed by tidal prism relationships, producing tide-dominated, wave-dominated, and mixed-energy configurations informed by recent work from Jiwei et al. (2025).
 
-This three-environment, nine-substyle design provides the morphological diversity required for meaningful cross-environment testing: if PH features trained on fluvial systems transfer to aeolian and estuarine systems, the argument for mathematical universality (Section 7) is substantiated empirically, not merely by analogy.
+This three-environment, nine-substyle design provides the morphological diversity required for meaningful cross-environment testing: if PH features trained on fluvial systems transfer to aeolian and estuarine systems, the argument for mathematical universality (Section 8) is substantiated empirically, not merely by analogy.
 
-### 8.4 Fluvial Environment: The Leopold-Wolman Framework
+### 9.4 Fluvial Environment: The Leopold-Wolman Framework
 
 The fluvial generator implements three channel styles based on the Leopold-Wolman (1957) classification of alluvial channels, supplemented by subsequent quantitative work from Williams (1986), Parker (1976), and Nanson and Knighton (1996).
 
@@ -687,7 +848,7 @@ where $\Delta x_{\textrm{bif}}$ is the downstream distance between successive bi
 
 where $\beta_{\textrm{iso}}$ is the isotropic variogram power-law slope, anisotropy ratio is $\max(\beta_{\textrm{dir}}) / \min(\beta_{\textrm{dir}})$ across directional variograms, compactness is $4\pi A / P^2$ for point bar polygons, and connectivity is $1 - \chi / A$ ($\chi$ = Euler characteristic) for channel network masks. Realizations failing any criterion are rejected and regenerated.
 
-### 8.5 Aeolian Environment: The Werner Dune Framework
+### 9.5 Aeolian Environment: The Werner Dune Framework
 
 The aeolian generator implements three dune morphologies based on the Werner (1995) cellular automaton model of dune self-organization, parameterized by wind regime and sand supply.
 
@@ -706,7 +867,7 @@ The key parameters and their ranges:
 
 Acceptance criteria require that crest orientation error $|\theta_{\textrm{PSD}} - \theta_{\textrm{wind}}| \leq 15°$, ridge continuity falls within morphology-specific bands (barchan: 0.3–0.5; linear: $\geq 0.7$; transverse: 0.4–0.6), and spacing regularity (coefficient of variation) satisfies $\textrm{CV} \leq 0.3$ for barchan, $\leq 0.25$ for linear, and $\leq 0.2$ for transverse morphologies.
 
-### 8.6 Estuarine Environment: The Tidal Prism Framework
+### 9.6 Estuarine Environment: The Tidal Prism Framework
 
 The estuarine generator implements three dominance regimes governed by the interplay of tidal prism and wave energy, informed by classical tidal prism relationships and recent work from Jiwei et al. (2025) on tidal-dominated estuary reservoir modeling.
 
@@ -734,7 +895,7 @@ A distinctive contribution of the estuarine generator is the incorporation of in
 
 These statistics constrain the fine-scale heterogeneity of generated estuarine images, ensuring that internal reservoir architecture reflects observed distributions rather than arbitrary assumptions.
 
-### 8.7 Validation Strategy: Internal and External
+### 9.7 Validation Strategy: Internal and External
 
 The generator validation strategy operates at two levels that correspond to different positions in the evidence hierarchy.
 
@@ -746,21 +907,21 @@ $$\textrm{Train:} \; \lbrace \textrm{Principle-based, MPS, GAN} \rbrace \;\;\to\
 
 If representations trained on the first three generators transfer successfully to Flumy—a fundamentally different generative process that solves physics equations rather than applying empirical formulas—the invariance claim is strengthened. The epistemic force of this test depends on the *diversity* of the training generators: our principle-based generator, which implements empirical scaling laws, provides a qualitatively different generation mechanism from both statistical reproduction (MPS) and adversarial learning (GAN), maximizing the diversity of the training pool and thereby strengthening the LOGO test's evidential force.
 
-### 8.8 Current Implementation Status and Path Forward
+### 9.8 Current Implementation Status and Path Forward
 
 Intellectual honesty requires acknowledging the gap between the generator design presented above and its current implementation. The fluvial environment is substantially implemented, with both physics-based and legacy generation algorithms available for meandering, braided, and anastomosing channel systems. The physics-based variants implement the quantitative constraints from the sedimentological literature detailed in Section 8.4, including arc-based meander centerlines, curvature-driven width variation, point bar deposition, and bifurcation-confluence braided networks. Sedimentary overlays—channel-fill textures, cross-bedding, ripple marks, lateral accretion surfaces, and fining-upward sequences—are implemented and produce per-realization petrology metadata.
 
 The aeolian and estuarine environments exist only as design specifications. Detailed product requirement documents with parameter tables, acceptance criteria, and generation algorithms have been developed, but code implementation has not yet begun. This sequencing is deliberate: the fluvial environment provides the data for the $H_1$ experiment (Section 9.2), which is the linchpin test that must be resolved before investment in additional environments is warranted. If $H_1$ features do not discriminate braided from meandering architectures on variogram-matched pairs, the framework requires revision before expanding the generator scope.
 
-The path forward is therefore experimentally driven: (1) validate the existing fluvial generator outputs against the acceptance criteria of Section 8.4, (2) execute the $H_1$ experiment using fluvial data, (3) if the $H_1$ hypothesis is confirmed, implement the aeolian and estuarine environments to enable the full cross-environment testing described in Section 8.3, and (4) execute the LOGO test with all three environments to provide Level 6 evidence for the invariance claim.
+The path forward is therefore experimentally driven: (1) validate the existing fluvial generator outputs against the acceptance criteria of Section 9.4, (2) execute the $H_1$ experiment using fluvial data, (3) if the $H_1$ hypothesis is confirmed, implement the aeolian and estuarine environments to enable the full cross-environment testing described in Section 9.3, and (4) execute the LOGO test with all three environments to provide Level 6 evidence for the invariance claim.
 
 ---
 
-## 9. Proposed Experimental Validation of the Topological Pathway
+## 10. Proposed Experimental Validation of the Topological Pathway
 
 This section describes the experimental design for validating persistent homology as the topological pathway within the QCF. It answers the practical question: *given the mathematical framework above, how do we test whether PH actually works for geological analog retrieval?*
 
-### 9.1 The PH Computation Pipeline
+### 10.1 The PH Computation Pipeline
 
 The topological pathway follows a six-stage pipeline from raw geological image to fixed-dimensional feature vector:
 
@@ -776,7 +937,7 @@ The topological pathway follows a six-stage pipeline from raw geological image t
 
 **Stage 6: Vectorization.** Persistence diagrams are infinite-dimensional objects that cannot be directly input to machine learning models. We convert them to fixed-dimensional vectors via persistence images (Adams et al., 2017), persistence landscapes (Bubenik, 2015), or persistence entropy (Atienza, Gonzalez-Diaz, & Soriano-Trigueros, 2020), producing the 20–50-dimensional topological feature vectors that enter the fusion layer.
 
-### 9.2 The $H_1$ Hypothesis Experiment
+### 10.2 The $H_1$ Hypothesis Experiment
 
 The central empirical test is a classification experiment designed to validate or falsify the $H_1$ hypothesis (§3.4).
 
@@ -794,7 +955,7 @@ The central empirical test is a classification experiment designed to validate o
 
 **Per-Pathway Comparison.** The classification is repeated using: (1) classical features only, (2) learned features only, (3) topological features only, and (4) all pathways fused. If the topological pathway outperforms the classical pathway specifically on matched-variogram pairs, this provides direct evidence for PH's unique discriminative contribution.
 
-### 9.3 Validation Through the Evidence Hierarchy
+### 10.3 Validation Through the Evidence Hierarchy
 
 The experimental results feed into the multi-level evidence hierarchy (Section 5):
 
@@ -806,7 +967,7 @@ The experimental results feed into the multi-level evidence hierarchy (Section 5
 
 **Levels 5–7 (Empirical Validation).** Real-data validation with field analogs (Level 5), cross-generator protocols with multiple independent simulators (Level 6), and expert geological assessment of retrieval results (Level 7) provide necessary empirical grounding for the mathematical and adversarial evidence above.
 
-### 9.4 What Success and Failure Look Like
+### 10.4 What Success and Failure Look Like
 
 **If $H_1$ > 70% on matched-variogram pairs**: PH is validated as a core pathway. Mathematical invariance (the stability theorem) combined with empirical discrimination under statistical degeneracy provides a two-level warrant—the strongest evidence structure within the hierarchy.
 
@@ -816,9 +977,9 @@ The experimental results feed into the multi-level evidence hierarchy (Section 5
 
 ---
 
-## 10. Open Questions and the Path Forward
+## 11. Open Questions and the Path Forward
 
-### 10.1 The Central Open Question: Philosophical Robustness of Invariance
+### 11.1 The Central Open Question: Philosophical Robustness of Invariance
 
 The restructured evidence hierarchy (Section 5) does not eliminate the fundamental tension between operational invariance and genuine essence. It acknowledges and addresses the tension more honestly. But several questions remain:
 
@@ -828,29 +989,29 @@ The restructured evidence hierarchy (Section 5) does not eliminate the fundament
 
 **What is the relationship between mathematical and geological invariance?** The stability theorem proves that PH features are invariant under bounded perturbations. But does mathematical invariance imply geological invariance? Could there be geological differences that produce unbounded perturbations in the input function, violating the stability theorem's premise? Understanding the relationship between the mathematical bound and the geological reality is essential.
 
-### 10.2 Multi-Parameter Persistence
+### 11.2 Multi-Parameter Persistence
 
 Standard persistent homology uses a single filtration parameter $\epsilon$. Geological images exhibit structure at multiple scales simultaneously—bar spacing at one scale, channel sinuosity at another, floodplain texture at a third. Multi-parameter persistence (Cerri et al., 2013) would track how topological features at different scales interact—literally the "objects of different dimensions crafting each other" that motivates the research. However, the vectorization problem for multi-parameter persistence remains an active area of research, and computational costs are substantially higher.
 
-### 10.3 Topological Dictionary Learning
+### 11.3 Topological Dictionary Learning
 
 An ambitious extension would learn a set of *topological atoms*—canonical persistence diagrams—such that any geological image's persistence diagram decomposes as a sparse combination of these atoms. Each atom would represent a canonical topological primitive ("sinuous channel with one oxbow," "braided network with 3–5 through-going connections"), and the correspondence between generator parameters and these atoms would close the loop between generative processes, topological representations, and the essence claim.
 
-### 10.4 Information-Theoretic Quantification
+### 11.4 Information-Theoretic Quantification
 
 The information-theoretic measures proposed in the evidence hierarchy (Level 3) have not yet been implemented. Estimating conditional mutual information from finite samples is itself a challenging statistical problem, particularly in high-dimensional representation spaces. The use of variational bounds (MINE; Belghazi et al., 2018) or other neural estimators is a promising but untested direction for this framework.
 
-### 10.5 Cross-Domain Validation as Evidence
+### 11.5 Cross-Domain Validation as Evidence
 
 The most philosophically compelling line of future work may be systematic cross-domain validation: applying the *identical* PH pipeline used for geological images to musical scores, neural recordings, and other structured data. If the same pipeline that distinguishes braided from meandering channels also distinguishes musical genres or neural states, the argument for mathematical universality becomes very strong. This would provide Level 4 evidence that is not merely "consistent with" but "predicted by" the mathematical theory.
 
 ---
 
-## 11. Extensions: Dynamic Essence, Confidence Hierarchy, and Uncertainty
+## 12. Extensions: Dynamic Essence, Confidence Hierarchy, and Uncertainty
 
-The preceding sections developed persistent homology as the mathematical backbone for *structural* essence—multiscale invariance of spatial pattern independent of generator artifacts. This section extends the framework in three directions that emerged from the research program's natural evolution. First, we generalize essence from static structure to dynamic response, asking whether analogs sharing structural essence also share the same *response* to stimulation (§11.1–11.5). Second, we develop a confidence hierarchy that exploits the epistemic asymmetry between theorem-backed PH features and empirically derived features from other pathways (§11.6). Third, we show how feature residuals—the components of learned representations *not* captured by PH—can be decomposed into meaningful uncertainty estimates that inform retrieval (§11.7). Section 11.8 synthesizes these extensions into concrete implications for the two-pipeline architecture.
+The preceding sections developed persistent homology as the mathematical backbone for *structural* essence—multiscale invariance of spatial pattern independent of generator artifacts. This section extends the framework in three directions that emerged from the research program's natural evolution. First, we generalize essence from static structure to dynamic response, asking whether analogs sharing structural essence also share the same *response* to stimulation (§12.1–12.5). Second, we develop a confidence hierarchy that exploits the epistemic asymmetry between theorem-backed PH features and empirically derived features from other pathways (§12.6). Third, we show how feature residuals—the components of learned representations *not* captured by PH—can be decomposed into meaningful uncertainty estimates that inform retrieval (§12.7). Section 12.8 synthesizes these extensions into concrete implications for the two-pipeline architecture.
 
-### 11.1 From Structural Essence to Response Essence
+### 12.1 From Structural Essence to Response Essence
 
 Section 1.3 defined essence as "multiscale structural invariance independent of generator artifacts" and explicitly deferred response invariance to future work. This deferral was necessary—structural characterization must precede dynamic analysis—but it leaves a critical gap. The ultimate purpose of analog retrieval is not to find analogs that *look like* a target reservoir but to find analogs that *behave like* it: analogs whose response to fluid injection, pressure depletion, or natural loading faithfully predicts the target's response.
 
@@ -862,7 +1023,7 @@ Two geological configurations share response essence if their trajectories throu
 
 The relationship between structural and response essence is the central question: *does shared structural essence imply shared response essence?* If yes, then Pipeline A's structural index already organizes analogs by dynamic relevance. If no—if structurally equivalent formations can produce topologically distinct responses—then the retrieval system requires additional descriptors capturing dynamic properties. Both outcomes are scientifically valuable; the question is empirical.
 
-### 11.2 Persistent Homology of Dynamical Systems
+### 12.2 Persistent Homology of Dynamical Systems
 
 Applying PH to dynamical systems requires reframing geological response as a trajectory in state space. A reservoir under stimulation evolves according to a state-space model:
 
@@ -883,7 +1044,7 @@ The pipeline for geological application would be:
 
 **Double persistent homology.** Kramar et al. (2016) introduced a particularly relevant technique: computing PH not of the raw attractor but of *snapshots* of a spatiotemporal field, then tracking how the persistence diagrams themselves evolve over time. Applied to Rayleigh-Benard convection, this "double PH" approach captured transitions between flow regimes that single-snapshot PH missed. For geological systems, double PH could track how the topological structure of a pressure or saturation field evolves during production—providing a topological fingerprint of the dynamic response that goes beyond single-time-step analysis.
 
-### 11.3 Defining Response Essence via Basin-of-Attraction Topology
+### 12.3 Defining Response Essence via Basin-of-Attraction Topology
 
 The attractor perspective suggests a precise mathematical definition of response essence. A dynamical system's long-term behavior is organized by its *attractors*—stable equilibria, limit cycles, strange attractors—and the *basins of attraction* that partition state space into regions flowing toward each attractor. Two dynamical systems have the same qualitative behavior if and only if their basin-of-attraction structures are topologically equivalent.
 
@@ -897,31 +1058,31 @@ This definition has several attractive properties. It is mathematically precise,
 
 **Practical computation.** Computing full Morse-Smale decompositions for high-dimensional reservoir systems is currently intractable. However, Dey et al. (2020) developed computational methods for approximating Morse decompositions from sampled trajectories, and dimension reduction via the Koopman operator (He et al., 2023) may make the problem tractable in a reduced state space. This remains a research challenge, but the mathematical framework is well-defined.
 
-### 11.4 Formation Dynamics as Attractor Systems
+### 12.4 Formation Dynamics as Attractor Systems
 
 The dynamical systems perspective extends beyond reservoir response to the *formation* of geological structures themselves. The geological record is not merely a static pattern—it is a frozen signature of dynamical processes operating over geological time. This observation suggests that structural essence and response essence may be connected at a deeper level than the retrieval problem requires.
 
 **Meandering rivers as self-organized criticality.** Stolum (1996) demonstrated that river meandering exhibits self-organized criticality: the channel evolves toward a critical state where meander cutoffs maintain a characteristic sinuosity. Frascati and Lanzoni (2009) formalized this further, showing that meandering dynamics can be modeled as attractor systems in which channel geometry converges to characteristic planform distributions. The attractor of this system is not a fixed channel geometry but a *statistical steady state*—a distribution over channel configurations. Phillips (1992, 2003, 2006, 2011) developed this perspective systematically for geomorphological systems, showing that landscape evolution frequently exhibits nonlinear dynamics including bifurcations, chaos, and self-organization.
 
-**Channel pattern bifurcation.** Leopold and Wolman (1957) identified the now-classical threshold between braided and meandering channel patterns as a function of slope and discharge. Kleinhans and van den Berg (2011) extended this to include sediment transport, revealing a richer bifurcation structure. In dynamical systems terms, this threshold is a *bifurcation boundary*: the same governing equations produce qualitatively different attractors (braided vs. meandering) depending on parameter values. The PH computation of §8.1—distinguishing braided from meandering via $H_1$ features—is therefore detecting *which side of a dynamical bifurcation* the formation process occupied.
+**Channel pattern bifurcation.** Leopold and Wolman (1957) identified the now-classical threshold between braided and meandering channel patterns as a function of slope and discharge. Kleinhans and van den Berg (2011) extended this to include sediment transport, revealing a richer bifurcation structure. In dynamical systems terms, this threshold is a *bifurcation boundary*: the same governing equations produce qualitatively different attractors (braided vs. meandering) depending on parameter values. The PH computation of §10.1—distinguishing braided from meandering via $H_1$ features—is therefore detecting *which side of a dynamical bifurcation* the formation process occupied.
 
-**Delta lobe switching as limit cycles.** Fluvial delta systems exhibit quasi-periodic lobe switching, where the active depositional lobe shifts position over millennial timescales. This behavior is naturally modeled as a limit cycle in the dynamical system governing sediment routing and channel avulsion. The topological signature of a limit cycle—a persistent $H_1$ feature in the attractor's phase portrait—connects directly to the PH machinery developed in §11.2.
+**Delta lobe switching as limit cycles.** Fluvial delta systems exhibit quasi-periodic lobe switching, where the active depositional lobe shifts position over millennial timescales. This behavior is naturally modeled as a limit cycle in the dynamical system governing sediment routing and channel avulsion. The topological signature of a limit cycle—a persistent $H_1$ feature in the attractor's phase portrait—connects directly to the PH machinery developed in §12.2.
 
 **Equifinality and the limits of structural inference.** A complicating factor is *equifinality*—the well-documented phenomenon in geomorphology whereby fundamentally different processes can produce landforms with similar structural signatures (Phillips, 2006). Two depositional environments governed by different dynamical systems could, in principle, converge on similar topological structures through different attractor mechanisms. Equifinality implies that the mapping from formation dynamics to structural PH may be many-to-one: identical $H_1$ signatures could arise from different formation processes. This does not invalidate the structural-to-response link, but it constrains the inference direction—shared structural PH is *necessary* but may not be *sufficient* for shared response essence.
 
 These observations suggest a provocative hypothesis: *structural PH of the geological record encodes information about the attractor of the formation process*. If true, structural essence and response essence are not independent properties but reflections of the same underlying dynamical organization—one frozen in the rock, the other activated by stimulation. Testing this hypothesis requires comparing structural PH features of geological images with response PH features of simulated dynamics on those same images, a direction for future experimental work.
 
-### 11.5 State Space Models: Classical and Modern
+### 12.5 State Space Models: Classical and Modern
 
-The state-space formulation of §11.2 connects to two distinct but converging research traditions that are relevant to the retrieval architecture.
+The state-space formulation of §12.2 connects to two distinct but converging research traditions that are relevant to the retrieval architecture.
 
-**Classical state space models.** Reservoir simulation has always been a state-space problem: discretize the governing PDEs (Darcy's law, mass conservation, constitutive relations) on a grid, advance the state vector through time. Jansen et al. (2009) made this connection explicit, framing reservoir management as optimal control of a state-space system. The Koopman linearization of He et al. (2023) does not change the physics but provides a new mathematical lens—one that enables spectral decomposition of reservoir dynamics and direct connection to the attractor topology discussed in §11.3.
+**Classical state space models.** Reservoir simulation has always been a state-space problem: discretize the governing PDEs (Darcy's law, mass conservation, constitutive relations) on a grid, advance the state vector through time. Jansen et al. (2009) made this connection explicit, framing reservoir management as optimal control of a state-space system. The Koopman linearization of He et al. (2023) does not change the physics but provides a new mathematical lens—one that enables spectral decomposition of reservoir dynamics and direct connection to the attractor topology discussed in §12.3.
 
 **Modern ML state space models.** A parallel development in machine learning has produced architectures—S4, Mamba, and their variants—that process sequential data through learned state-space representations. These models learn compact state representations that capture long-range dependencies in time series. Early geoscience applications (2024–2025) have applied these architectures to pore pressure prediction, well log interpretation, and seismic processing, demonstrating that learned state spaces can capture geological dynamics.
 
-**Convergence opportunity.** The two traditions meet at a natural interface: classical SSMs provide the physical state space whose attractor topology defines response essence; modern ML SSMs provide efficient learned approximations that could make attractor topology computation tractable for high-dimensional systems. A hybrid approach—using physics-informed ML state-space models to approximate the Koopman operator, then computing PH of the resulting attractor—could bridge the computational gap between the mathematical framework of §11.3 and practical implementation.
+**Convergence opportunity.** The two traditions meet at a natural interface: classical SSMs provide the physical state space whose attractor topology defines response essence; modern ML SSMs provide efficient learned approximations that could make attractor topology computation tractable for high-dimensional systems. A hybrid approach—using physics-informed ML state-space models to approximate the Koopman operator, then computing PH of the resulting attractor—could bridge the computational gap between the mathematical framework of §12.3 and practical implementation.
 
-### 11.6 The Confidence Hierarchy: PH as Epistemic Anchor
+### 12.6 The Confidence Hierarchy: PH as Epistemic Anchor
 
 The multi-pathway architecture of the Qualia Convergence Framework (§3) extracts features through three independent pathways: topological (PH), classical (geostatistical), and learned (DINOv2 foundation model). These pathways produce features of fundamentally *different epistemic status*—a distinction that no prior work in multi-modal feature fusion has exploited.
 
@@ -961,9 +1122,9 @@ The proposed pipeline for confidence-tiered feature fusion is:
 5. **Confidence assignment**: Map each feature dimension to Tiers 1–4 based on decomposition results
 6. **Evidence combination**: DST with tier-dependent reliability weights for retrieval scoring
 
-### 11.7 From Feature Residuals to Uncertainty Quantification
+### 12.7 From Feature Residuals to Uncertainty Quantification
 
-The SLIDE decomposition of §11.6 partitions DINOv2's 768-dimensional representation into PH-aligned and PH-residual components. A natural but premature conclusion would be to discard the residual as noise. However, DeCUR (Decoupling Common and Unique Representations; Wang et al., 2024) demonstrated that the unique (non-shared) components of self-supervised representations carry *meaningful* information—they encode view-specific structure that is genuinely present in the data but not captured by shared features. Applied to our setting, DINOv2's PH-residual features may encode geological information that is real but not topological: texture gradients, facies boundary sharpness, spatial frequency content, or other properties that PH's topological abstraction deliberately ignores.
+The SLIDE decomposition of §12.6 partitions DINOv2's 768-dimensional representation into PH-aligned and PH-residual components. A natural but premature conclusion would be to discard the residual as noise. However, DeCUR (Decoupling Common and Unique Representations; Wang et al., 2024) demonstrated that the unique (non-shared) components of self-supervised representations carry *meaningful* information—they encode view-specific structure that is genuinely present in the data but not captured by shared features. Applied to our setting, DINOv2's PH-residual features may encode geological information that is real but not topological: texture gradients, facies boundary sharpness, spatial frequency content, or other properties that PH's topological abstraction deliberately ignores.
 
 **Aleatoric vs. epistemic decomposition.** The critical question is whether these residual features represent *aleatoric* uncertainty (genuine intra-class variability—different braided systems have different textures) or *epistemic* uncertainty (model ignorance—the feature extractor is uncertain about what it sees). Kendall and Gal (2017) established the foundational framework for this decomposition. Kotelevskii et al. (2025) extended it to feature space, showing that uncertainty can be decomposed *per feature dimension* without requiring model ensembles—using density estimation in the representation space to distinguish regions of high data density (low epistemic uncertainty) from regions of low density (high epistemic uncertainty).
 
@@ -978,11 +1139,11 @@ The SLIDE decomposition of §11.6 partitions DINOv2's 768-dimensional representa
 
 **Connection to subsurface uncertainty quantification.** This pipeline connects to established practice in geostatistical uncertainty quantification. Scheidt, Li, and Caers (2018) developed distance-based methods for subsurface uncertainty assessment that use feature-space distances to define scenario probabilities—precisely the framework that uncertainty-weighted retrieval implements. Arnold et al. (2018) extended this to geological scenario probability estimation. The contribution here is to ground the distance computation in features with *known* epistemic status: PH features anchor the distance with mathematical guarantees, while residual features contribute with appropriate uncertainty discounting.
 
-### 11.8 Implications for the Two-Pipeline Architecture
+### 12.8 Implications for the Two-Pipeline Architecture
 
 The three extensions of this section have concrete implications for both pipelines and their coupling.
 
-**Pipeline A (Cataloguing).** The confidence hierarchy (§11.6) changes what gets indexed and how. Rather than a flat feature vector, each analog's index entry becomes a *tiered descriptor*:
+**Pipeline A (Cataloguing).** The confidence hierarchy (§12.6) changes what gets indexed and how. Rather than a flat feature vector, each analog's index entry becomes a *tiered descriptor*:
 
 - **Core index** (Tiers 1–2): PH features and cross-pathway corroborated features. These are the primary keys for retrieval—the features with strongest invariance guarantees.
 - **Extended index** (Tier 3): Empirically invariant features. Used for refinement within equivalence classes defined by the core index.
@@ -992,27 +1153,27 @@ This tiered structure means Pipeline A does not merely store analogs—it stores
 
 **Pipeline B (Retrieval).** Sparse field observations will typically constrain some feature dimensions well and leave others poorly constrained. The confidence hierarchy provides a principled way to handle this asymmetry: features that are both well-constrained by observations *and* high-tier in the confidence hierarchy receive maximal weight in retrieval. Features that are poorly constrained or low-tier contribute uncertainty rather than false precision.
 
-The Neural Process query encoder (§6.1) is naturally suited to this framework. Given sparse observations, it produces a posterior distribution in feature space. The structured uncertainty from §11.7 provides an informative prior: dimensions corresponding to Tier 1 features have tight priors (PH constrains them strongly), while dimensions corresponding to Tier 4 features have diffuse priors (little a priori constraint). This is a concrete realization of the Bayesian retrieval framework discussed abstractly in §6.
+The Neural Process query encoder (§6.1) is naturally suited to this framework. Given sparse observations, it produces a posterior distribution in feature space. The structured uncertainty from §12.7 provides an informative prior: dimensions corresponding to Tier 1 features have tight priors (PH constrains them strongly), while dimensions corresponding to Tier 4 features have diffuse priors (little a priori constraint). This is a concrete realization of the Bayesian retrieval framework discussed abstractly in §6.
 
-**Response essence and Pipeline validation.** The dynamic extensions (§11.1–11.5) suggest a validation criterion for the entire retrieval system: analogs retrieved by Pipeline B (based on structural similarity) should exhibit similar dynamic response when subjected to identical simulation protocols. If structural retrieval predicts response similarity, the system is validated at the deepest level. If not, the gap between structural and response essence identifies which additional descriptors Pipeline A must incorporate.
+**Response essence and Pipeline validation.** The dynamic extensions (§12.1–12.5) suggest a validation criterion for the entire retrieval system: analogs retrieved by Pipeline B (based on structural similarity) should exhibit similar dynamic response when subjected to identical simulation protocols. If structural retrieval predicts response similarity, the system is validated at the deepest level. If not, the gap between structural and response essence identifies which additional descriptors Pipeline A must incorporate.
 
 **The coupling layer.** The coupling between pipelines—the similarity metric that compares a sparse query to dense catalog entries—benefits from all three extensions. The confidence hierarchy ensures the metric is grounded in features with known invariance properties. The uncertainty decomposition ensures the metric is uncertainty-aware, returning not just a ranked list but a *posterior distribution* over candidate analogs with calibrated confidence intervals. And the response essence framework provides the ultimate validation criterion: retrieved analogs should not only look similar but behave similarly.
 
 ---
 
-## 12. Conclusion
+## 13. Conclusion
 
 Persistent homology provides a unique combination of mathematical rigor, computational tractability, and domain agnosticism that makes it the natural backbone of the Qualia Convergence Framework's essence claim. The stability theorem provides what no empirical test can: a mathematical *proof* of invariance under bounded perturbations. The $H_1$ hypothesis provides a specific, falsifiable prediction about the discriminative power of topological features for geological classification. Cross-generator validation provides a necessary (though not sufficient) empirical check on invariance, with its limitations honestly acknowledged.
 
-The epistemological contribution of this chapter is the recognition that mathematical invariance is epistemically *stronger* than empirical invariance, and the consequent restructuring of the evidence hierarchy for essence claims. This restructuring is not merely a philosophical exercise—it changes what experiments are prioritized, how results are interpreted, and what claims are warranted. The confidence hierarchy of Section 11.6 operationalizes this recognition: PH features anchor the entire multi-pathway architecture as Tier 1 descriptors, and the epistemic asymmetry between theorem-backed and empirically derived features—previously unexploited in multi-modal fusion research—structures how evidence from different pathways is weighted, combined, and trusted.
+The epistemological contribution of this chapter is the recognition that mathematical invariance is epistemically *stronger* than empirical invariance, and the consequent restructuring of the evidence hierarchy for essence claims. This restructuring is not merely a philosophical exercise—it changes what experiments are prioritized, how results are interpreted, and what claims are warranted. The confidence hierarchy of Section 12.6 operationalizes this recognition: PH features anchor the entire multi-pathway architecture as Tier 1 descriptors, and the epistemic asymmetry between theorem-backed and empirically derived features—previously unexploited in multi-modal fusion research—structures how evidence from different pathways is weighted, combined, and trusted.
 
 The colleague's challenge—"patterns based on statistical coherence will never solve the essence problem"—remains the animating question. Our response is now more nuanced: patterns based on statistical coherence indeed cannot capture topological structure. But patterns based on *topological* coherence, validated by mathematical invariance theorems and severe testing, can approach something worthy of the designation "essence"—with epistemic humility about the gap between operational definitions and deeper truths.
 
-The system architecture presented in Section 6 demonstrates how these mathematical and epistemological foundations translate into an operational retrieval system. Persistent homology provides the mathematically guaranteed descriptors that anchor Pipeline A's geologic index—the only descriptors in the current framework with Level 1 evidence from the stability theorem. The evidence hierarchy governs both pipelines: it determines which descriptors are admitted into Pipeline A's index, how Pipeline B's query encodings are validated against the same descriptor space, and what justifies the similarity metric that couples the two pipelines. The Neural Process query encoder, the hyperbolic embedding space, and the Perceiver IO fusion architecture each address specific architectural challenges—sparse-to-dense inference with calibrated uncertainty, hierarchy-aware organization with exponential dimensional efficiency, and variable-modality input handling—that are necessary for the two-pipeline system to function coherently.
+The system architecture presented in Section 6 demonstrates how these mathematical and epistemological foundations translate into an operational retrieval system. Persistent homology provides the mathematically guaranteed descriptors that anchor Pipeline A's geologic index—the only descriptors in the current framework with Level 1 evidence from the stability theorem. The evidence hierarchy governs both pipelines: it determines which descriptors are admitted into Pipeline A's index, how Pipeline B's query encodings are validated against the same descriptor space, and what justifies the similarity metric that couples the two pipelines. The Neural Process query encoder, the hyperbolic embedding space, and the Perceiver IO fusion architecture each address specific architectural challenges—sparse-to-dense inference with calibrated uncertainty, hierarchy-aware organization with exponential dimensional efficiency, and variable-modality input handling—that are necessary for the two-pipeline system to function coherently. The Sākṣī validation framework (Section 7) operationalizes the evidence hierarchy as a pre-committed protocol of ten independent witnesses, four geology-specific adversarial tests, and a Claim Survival Matrix that fixes interpretation criteria before experimentation—ensuring that the system's claims about essence are evaluated with the same rigor that motivates the architecture.
 
-The extensions developed in Section 11 broaden the framework in three directions. The generalization from structural to response essence (§11.1–11.5) connects the static PH analysis of geological images to the dynamical systems theory of reservoir response, proposing that basin-of-attraction topology—formalized via Morse-Smale decomposition—provides the mathematical definition of response equivalence. The confidence hierarchy (§11.6) exploits PH's epistemic privilege to structure multi-pathway fusion via SLIDE decomposition and Dempster-Shafer evidence combination. The uncertainty quantification pipeline (§11.7) transforms what would otherwise be discarded feature residuals into calibrated uncertainty estimates that inform retrieval. Together, these extensions transform the two-pipeline architecture from a structural matching system into a confidence-aware, uncertainty-quantified retrieval framework with a clear pathway toward dynamic validation.
+The extensions developed in Section 12 broaden the framework in three directions. The generalization from structural to response essence (§12.1–12.5) connects the static PH analysis of geological images to the dynamical systems theory of reservoir response, proposing that basin-of-attraction topology—formalized via Morse-Smale decomposition—provides the mathematical definition of response equivalence. The confidence hierarchy (§12.6) exploits PH's epistemic privilege to structure multi-pathway fusion via SLIDE decomposition and Dempster-Shafer evidence combination. The uncertainty quantification pipeline (§12.7) transforms what would otherwise be discarded feature residuals into calibrated uncertainty estimates that inform retrieval. Together, these extensions transform the two-pipeline architecture from a structural matching system into a confidence-aware, uncertainty-quantified retrieval framework with a clear pathway toward dynamic validation.
 
-The principle-based generator design (Section 8) provides the experimental apparatus—synthetic geological images with known structural properties across fluvial, aeolian, and estuarine depositional environments—and the proposed experimental validation design (Section 9) provides the concrete testing protocol: generating matched-variogram image pairs, computing persistence, and evaluating the $H_1$ hypothesis against pre-committed decision thresholds. Together, these components form a research program that is mathematically grounded, architecturally specified, experimentally equipped, epistemologically honest about its limitations, and empirically testable.
+The principle-based generator design (Section 9) provides the experimental apparatus—synthetic geological images with known structural properties across fluvial, aeolian, and estuarine depositional environments—and the proposed experimental validation design (Section 10) provides the concrete testing protocol: generating matched-variogram image pairs, computing persistence, and evaluating the $H_1$ hypothesis against pre-committed decision thresholds. Together, these components form a research program that is mathematically grounded, architecturally specified, experimentally equipped, epistemologically honest about its limitations, and empirically testable.
 
 ---
 
@@ -1062,7 +1223,11 @@ Edelsbrunner, H., Letscher, D., & Zomorodian, A. (2002). Topological persistence
 
 Frascati, A., & Lanzoni, S. (2009). Morphodynamic regime and long-term evolution of meandering rivers. *Journal of Geophysical Research: Earth Surface*, 114(F2), F02002.
 
+Ganin, Y., & Lempitsky, V. (2015). Unsupervised domain adaptation by backpropagation. *Proceedings of the 32nd International Conference on Machine Learning (ICML)*, 1180–1189.
+
 Garnelo, M., Schwarz, J., Rosenbaum, D., Viola, F., Rezende, D. J., Eslami, S. M. A., & Teh, Y. W. (2018). Neural processes. *arXiv:1807.01622*.
+
+Gatys, L. A., Ecker, A. S., & Bethge, M. (2016). Image style transfer using convolutional neural networks. *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)*, 2414–2423.
 
 Gaynanova, I., & Li, G. (2019). Structural learning and integrative decomposition of multi-view data. *Biometrics*, 75(4), 1121–1132.
 
