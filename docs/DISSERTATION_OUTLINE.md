@@ -149,6 +149,8 @@ The complete parameter specification for the three fluvial channel styles:
 | Oxbow mechanism | — | Deterministic cutoff | N/A | N/A |
 | Crevasse fan length | $L_{\textrm{fan}}$ | N/A | N/A | 15–60 px |
 
+*Note on sinuosity range.* The classical threshold for "meandering" channels is $S \geq 1.5$ (Leopold & Wolman, 1957); below this, channels are considered transitional or low-sinuosity. The generator deliberately extends the meandering range down to $S = 1.3$ to include transitional channels that occupy the ambiguous zone between straight and fully meandering. This choice is epistemically motivated: transitional channels are the hardest cases for classification, and including them in the training database tests whether the topological pathway can discriminate channel architecture in exactly the regime where classical features are most likely to fail. The lower bound of the anastomosing range ($S \in [1.0, 1.3]$) creates a deliberate overlap zone at $S = 1.3$, reflecting the genuine ambiguity in the field between low-sinuosity meandering and high-sinuosity anastomosing systems.
+
 **Braided channels.** The braided sub-generator implements a bifurcation-confluence network model. The key physical constraint is the confluence-bifurcation spacing:
 
 $$\Delta x_{\textrm{bif}} = k \times W, \quad k \in [4, 5]$$
@@ -1510,6 +1512,10 @@ where $X_{\text{joint}}$ captures variation shared across all views, $X_{\text{p
 
 **Directed probing: DINOv2 $\to$ PH.** The learned pathway (DINOv2) operates in a 768-dimensional space that is far richer than PH's 20–50 dimensions. A natural question is: *which DINOv2 features encode topological information?* Linear probing (Alain and Bengio, 2016) and Testing with Concept Activation Vectors (T-CAV; Kim et al., 2018) provide complementary answers. Linear probes test whether PH features are *linearly decodable* from DINOv2 representations—a strong test given that Oquab et al. (2023) showed DINOv2 features are generally linearly separable. T-CAV identifies *directions* in DINOv2 space that correspond to topological concepts (e.g., "high $H_1$ persistence"), providing interpretable decomposition of the learned representation into topologically meaningful and topologically opaque components.
 
+**Directed probing: Classical $\leftrightarrow$ PH and Classical $\leftrightarrow$ DINOv2.** The directed probing framework extends naturally to the classical pathway, revealing a different pattern of cross-pathway alignment. Classical features (~50 dimensions) overlap with PH in a specific, interpretable way: variogram range encodes spatial scale information that PH does not directly capture, but connectivity functions partially encode the same structural information as $H_0$ persistence features. A linear probe testing whether PH features (specifically $H_0$ lifetimes) are decodable from connectivity function values quantifies this overlap. High decodability confirms that the classical pathway's connectivity features are partially redundant with PH—information that the SLIDE decomposition would assign to the partial component (PH $\cap$ geostat) rather than the joint or individual components.
+
+The classical-DINOv2 probe is equally informative. DINOv2's 768 dimensions likely encode variogram-like spatial correlation information implicitly—the self-attention mechanism can detect spatial periodicity, directional patterns, and scale structure. A linear probe testing whether variogram parameters are decodable from DINOv2 representations quantifies what classical information the learned pathway captures on its own. High decodability would mean that DINOv2 partially subsumes the classical pathway, reducing the marginal value of including classical features in the fusion layer. Low decodability would confirm that classical features provide genuinely independent information—spatial statistics that the neural network does not learn to extract from raw pixels.
+
 **Evidence combination via Dempster-Shafer Theory.** The confidence hierarchy requires a formal framework for combining evidence of asymmetric reliability. Classical Bayesian fusion treats all sources symmetrically—each contributes a likelihood. But when one source (PH) has provable guarantees and others do not, symmetric treatment is epistemically inappropriate. Dempster-Shafer Theory (DST) provides an alternative: each source contributes a *belief function* (lower bound on probability) and a *plausibility function* (upper bound), with the gap between them encoding *ignorance*. For Tier 1 features (PH), the belief-plausibility gap is narrow (high confidence). For Tier 4 features (single-pathway unique), the gap is wide (high ignorance). Dempster's rule of combination then fuses these asymmetric assessments into a combined belief structure that appropriately weights theorem-backed evidence over empirically derived evidence.
 
 The proposed pipeline for confidence-tiered feature fusion is:
@@ -1517,7 +1523,7 @@ The proposed pipeline for confidence-tiered feature fusion is:
 1. **Compute features**: PH (20–50d), geostatistical (~50d), DINOv2 (768d)
 2. **Global alignment**: CKA pairwise between all three pathway pairs
 3. **Decomposition**: SLIDE into joint / partially-shared / individual components
-4. **Directed probing**: Linear probes and T-CAV from DINOv2 $\to$ PH concepts
+4. **Directed probing**: Linear probes and T-CAV across all pathway pairs (DINOv2 $\to$ PH, Classical $\to$ PH, Classical $\to$ DINOv2)
 5. **Confidence assignment**: Map each feature dimension to Tiers 1–4 based on decomposition results
 6. **Evidence combination**: DST with tier-dependent reliability weights for retrieval scoring
 
@@ -1535,6 +1541,17 @@ The SLIDE decomposition of §14.6 partitions DINOv2's 768-dimensional representa
 4. **Heteroscedastic embedding**: Rather than representing each analog as a point in feature space, represent it as a distribution $\mathcal{N}(\mu, \Sigma)$ where $\Sigma$ encodes per-feature uncertainty (following Oh et al., 2019, on hedged instance embeddings)
 5. **Uncertainty-weighted similarity**: Retrieval uses a similarity metric that downweights feature dimensions with high uncertainty, following Uncertainty-Aware Embedding Comparison (UEC) principles
 6. **Neural Process integration**: The Neural Process query encoder (§9.2) naturally produces uncertainty-calibrated outputs $(\mu, \sigma)$; the structured uncertainty from steps 3–5 provides a principled initialization of the encoder's uncertainty prior
+
+**Classical pathway residuals and three-pathway decomposition.** The residual analysis above focuses on DINOv2's PH-residual—what the learned pathway captures beyond topology. But the classical pathway also produces residuals worth analyzing. The *classical PH-residual*—geostatistical features not predictable from PH—encodes scale, anisotropy, and stationarity information that PH deliberately abstracts away. Unlike DINOv2's opaque residual, the classical residual is fully interpretable: it consists of variogram range (depositional scale), anisotropy ratio (directional fabric), and fractal dimension (multiscale roughness), each with direct physical meaning. This interpretability makes the classical residual particularly valuable for uncertainty quantification: when the classical and topological pathways disagree, the classical residual identifies *which specific geostatistical property* is responsible for the disagreement, enabling targeted investigation rather than opaque "pathway disagreement" diagnostics.
+
+The full three-pathway residual decomposition is therefore:
+
+- **PH features**: Tier 1 anchor — bounded invariants via the stability theorem
+- **Classical PH-residual**: Scale, anisotropy, and roughness not captured by topology — interpretable, Tier 3
+- **DINOv2 PH-residual**: Gestalt and texture information not captured by topology — opaque, Tier 3–4
+- **DINOv2 classical-residual**: Visual information captured by neither geostatistics nor topology — the most uncertain features, requiring the strongest uncertainty discounting
+
+This hierarchy of residuals maps directly to the tiered descriptor structure of Pipeline A (§14.8): core index features come from PH, extended index features come from the interpretable classical residual, and the uncertainty envelope incorporates the opaque learned residuals with appropriate discounting.
 
 **Connection to subsurface uncertainty quantification.** This pipeline connects to established practice in geostatistical uncertainty quantification. Scheidt, Li, and Caers (2018) developed distance-based methods for subsurface uncertainty assessment that use feature-space distances to define scenario probabilities—precisely the framework that uncertainty-weighted retrieval implements. Arnold et al. (2018) extended this to geological scenario probability estimation. The contribution here is to ground the distance computation in features with *known* epistemic status: PH features anchor the distance with mathematical guarantees, while residual features contribute with appropriate uncertainty discounting.
 
