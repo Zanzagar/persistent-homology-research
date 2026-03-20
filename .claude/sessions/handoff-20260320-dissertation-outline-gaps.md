@@ -30,9 +30,10 @@
 - This is the experimental apparatus — without it, everything else is untestable theory
 - **Key resource**: `~/projects/analog_image_generator/` has:
   - 5 PRDs: `.taskmaster/docs/prd.txt`, `prd_aeolian.txt`, `prd_estuarine.txt`, `prd_fluvial_demo.txt`, `prd_fluvial_realism.txt`
-  - Working code: `src/analog_image_generator/geologic_generators.py`
+  - Code structure: `src/analog_image_generator/geologic_generators.py`
   - Tests: `tests/test_fluvial.py`, `test_braided.py`, `test_anastomosing.py`
-  - Last commit: 2025-12-04 (~3.5 months ago, likely has gaps vs. current vision)
+  - Last commit: 2025-12-04 (~3.5 months ago)
+  - **IMPORTANT**: Code is barely implemented and not working. The basic project structure exists but the implementation was never completed. The PRDs and structure are useful as design references for the dissertation chapter, but don't treat the code as a working reference. The generator chapter in the dissertation should be a theoretical treatment of what needs to be built, informed by the PRDs and Complete Vision — not a description of existing working software. The code will need considerable theoretical evaluation and likely a ground-up implementation effort in a future phase.
 
 **Gap 2: Linchpin Framing** (QUICK WIN)
 - The advisor writeup states starkly: "if PH features turn out to capture irrelevant invariants, the entire hierarchy inverts. The H₁ experiment is the linchpin."
