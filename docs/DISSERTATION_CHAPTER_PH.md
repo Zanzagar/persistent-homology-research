@@ -146,30 +146,38 @@ $$\delta_k(\sigma) = \sum_{i=0}^{k} \sigma_{-i}$$
 
 where $\sigma_{-i}$ denotes the face obtained by removing vertex $i$ (Kemmea & Agyingi, 2025, Definition 9).
 
-**The fundamental property**: $\delta_{k-1} \circ \delta_k = 0$—the boundary of a boundary is always empty. This is not merely a technical convenience; it expresses a deep geometric truth. The boundary of a filled triangle is a closed loop; a closed loop has no boundary (no endpoints). This property is what allows us to *define* holes: they are the cycles that aren't boundaries of anything.
+**The fundamental property**: $\delta_{k-1} \circ \delta_k = 0$—the boundary of a boundary is always empty. This is not merely a technical convenience; it expresses a deep geometric truth. The boundary of a filled triangle is a closed loop; a closed loop has no boundary (no endpoints). This property guarantees a critical containment: every boundary is automatically a cycle, but not every cycle is a boundary—and it is this gap that homology detects.
 
-**Worked example: detecting a hole.** Imagine you are looking at three wells arranged in a triangle—call them $v_0$, $v_1$, $v_2$—with edges connecting each pair. The 1-chain $\gamma = [v_0, v_1] + [v_1, v_2] + [v_0, v_2]$ traces a closed loop through all three edges. Applying the boundary map:
-
-$$\delta_1(\gamma) = (v_0 + v_1) + (v_1 + v_2) + (v_0 + v_2) = 0$$
-
-Each vertex appears exactly twice, and $1 + 1 = 0$ in $\mathbb{Z}_2$, so every vertex cancels. The loop has no boundary—it is a *cycle*. Now the critical question: is this cycle a *boundary* of some filled-in region?
-
-- **If the triangle is filled** (the 2-simplex $[v_0, v_1, v_2]$ exists): then $\gamma = \delta_2([v_0, v_1, v_2])$, and the cycle is a boundary. It represents no hole—the interior fills the loop. This cycle contributes nothing to $H_1$.
-- **If the triangle is unfilled** (only edges, no face): then $\gamma$ is a cycle that is *not* a boundary of anything. It detects a genuine 1-dimensional hole—an element of $H_1 \neq 0$.
-
-This is exactly how homology works in practice: cycles that bound filled regions are trivial; cycles that enclose genuine holes survive in the homology group.
-
-This property yields the *chain complex*:
+The chain groups connected by boundary maps form a *chain complex*:
 
 $$0 \to C_k(K) \xrightarrow{\delta_k} C_{k-1}(K) \to \cdots \xrightarrow{\delta_1} C_0(K) \to 0$$
 
-**Homology groups and Betti numbers.** The $k$-th *homology group* is defined as:
+**From chains to homology.** The fundamental property $\delta \circ \delta = 0$ allows us to define two subsets of the chain group that are central to everything that follows. The *kernel* of $\delta_k$, written $\ker(\delta_k)$, is the set of all $k$-chains whose boundary is zero. The *image* of $\delta_{k+1}$, written $\textrm{im}(\delta_{k+1})$, is the set of all $k$-chains that are the boundary of some $(k{+}1)$-chain.
+
+Elements of the kernel are called **$k$-cycles** — chains with no boundary. A 1-cycle, for example, is a collection of edges that forms one or more closed loops: every vertex appears an even number of times, so the boundary (the sum of endpoints) cancels to zero. Elements of the image are called **$k$-boundaries** — chains that bound a filled region of one dimension higher.
+
+Because $\delta_{k} \circ \delta_{k+1} = 0$, every boundary is automatically a cycle (if $\gamma = \delta_{k+1}(\alpha)$, then $\delta_k(\gamma) = \delta_k \circ \delta_{k+1}(\alpha) = 0$). But not every cycle is a boundary — some cycles surround genuine unfilled holes. A closed loop of edges around an unfilled region has no boundary (it is a cycle) and is not the boundary of any filled surface (nothing fills the hole) — this is a genuine topological feature. The same loop around a filled triangle *is* a boundary, and thus a false positive: the "hole" was already filled in. Distinguishing the genuine holes from the false positives is exactly what homology computes.
+
+The algebraic tool for this distinction is the quotient group: we take all cycles and collapse those that differ only by a boundary into the same equivalence class. What remains are the genuine holes. The $k$-th *homology group* formalizes this:
 
 $$H_k(K) = \ker(\delta_k) \,/\, \textrm{im}(\delta_{k+1})$$
 
-This quotient captures precisely the *k*-dimensional cycles — elements of the kernel of the boundary map — that are **not** boundaries of higher-dimensional simplices. These non-boundary cycles are the genuine topological "holes" in dimension *k*.
+This quotient captures precisely the $k$-dimensional cycles that are *not* boundaries of $(k{+}1)$-dimensional chains. Two cycles that differ by a boundary are considered equivalent — they enclose the same hole. The non-boundary cycles that survive this collapsing are the genuine topological "holes" in dimension $k$.
 
-The rank of this group is the *k*-th **Betti number** (denoted $\beta_k$), which provides an interpretable summary:
+**Worked example: detecting a hole.** A concrete example makes the abstraction tangible. Consider three wells arranged in a triangle—call them $v_0$, $v_1$, $v_2$—with edges connecting each pair. The 1-chain $\gamma = [v_0, v_1] + [v_1, v_2] + [v_0, v_2]$ traces a closed loop through all three edges. Applying the boundary map:
+
+$$\delta_1(\gamma) = (v_0 + v_1) + (v_1 + v_2) + (v_0 + v_2) = 0$$
+
+Each vertex appears exactly twice, and $1 + 1 = 0$ in $\mathbb{Z}_2$, so every vertex cancels. The loop has no boundary—it is a 1-cycle. Now the critical question: is this cycle a boundary?
+
+- **If the triangle is filled** (the 2-simplex $[v_0, v_1, v_2]$ exists): then $\gamma = \delta_2([v_0, v_1, v_2])$, and the cycle is a boundary. It encloses no hole—the interior fills the loop. This cycle is trivial in $H_1$.
+- **If the triangle is unfilled** (only edges, no face): then $\gamma$ is a cycle that is not a boundary of anything. It detects a genuine 1-dimensional hole—a nontrivial element of $H_1$.
+
+This is exactly how homology works: cycles that bound filled regions are trivial; cycles that enclose genuine holes survive in the homology group. The quotient $H_k = \ker / \textrm{im}$ is doing precisely this classification — it takes every cycle and asks "is this the boundary of something filled?" If yes, it collapses to zero (false positive). If no, it survives as a genuine topological feature. The same geometric loop gets a different algebraic answer depending on what fills its interior, and this is exactly the discriminating power we need.
+
+Consider the geological analogy: in a braided channel system, channels form loops around unfilled floodplain islands — these are genuine $H_1$ features because nothing fills the interior. In a meandering system, an oxbow lake might close a loop, but the interior is typically filled with deposited sediment — that loop dies in homology because the filled region makes it a boundary. The same geometric shape (a closed path of channels) carries different homological meaning depending on what occupies its interior. This is why $\beta_1$ — the count of surviving loops — discriminates braided from meandering architectures in a way that variograms, which see only pairwise correlation, fundamentally cannot.
+
+**Betti numbers.** The homology groups capture the essential topological features of the space. These features are quantified by *Betti numbers*—the rank (dimension) of each homology group, denoted $\beta_k$:
 
 | Betti Number | What It Counts | Geological Interpretation |
 |---|---|---|
@@ -179,7 +187,7 @@ The rank of this group is the *k*-th **Betti number** (denoted $\beta_k$), which
 
 For reference, standard shapes have characteristic Betti numbers: a circle has $(\beta_0, \beta_1) = (1, 1)$; a sphere has $(\beta_0, \beta_1, \beta_2) = (1, 0, 1)$; a torus has $(\beta_0, \beta_1, \beta_2) = (1, 2, 1)$; two disjoint circles have $(\beta_0, \beta_1) = (2, 2)$.
 
-**Why this matters for our research**: For geological images, the critical insight is that $\beta_1$ (loop count) directly corresponds to channel network connectivity. A braided system has many loops ($\beta_1$ large); a meandering system has few ($\beta_1$ small). This topological difference is invisible to variograms and other two-point statistics, but homology detects it directly.
+**Why this matters for our research**: The braided-versus-meandering geological analogy above is not merely illustrative — it is the core of the $H_1$ hypothesis developed in §3.4. The topological difference between braided and meandering systems (the number and persistence of surviving loops) is invisible to variograms and other two-point statistics. Homology detects it directly, providing the structural discrimination that motivates persistent homology's role in the Qualia Convergence Framework.
 
 ### 2.5 Persistent Homology: Tracking Features Across Scales
 
@@ -281,9 +289,22 @@ The central testable hypothesis of the topological pathway is:
 
 > **$H_1$ Hypothesis**: First-dimensional persistent homology ($H_1$) discriminates braided from meandering channel architectures even when variogram parameters (range, sill, nugget) are matched.
 
-The physical reasoning is as follows. Braided river systems are characterized by multiple interconnected channels that split and rejoin around bars, creating a network of closed loops in planform view. A braided system should exhibit many persistent $H_1$ features—loops that persist over a wide range of filtration scales. Meandering systems have a single sinuous channel with occasional oxbow cutoffs, yielding few $H_1$ features (primarily at scales corresponding to oxbow-lake formation).
+The physical reasoning is as follows. Braided river systems are characterized by multiple interconnected channels that split and rejoin around bars, creating a network of closed loops in planform view. A braided system should exhibit many persistent $H_1$ features—loops that persist over a wide range of filtration scales, corresponding to channels encircling unfilled floodplain islands (genuine $H_1$ features, as developed in §2.4). Meandering systems have a single sinuous channel with occasional oxbow cutoffs, yielding few $H_1$ features—and those that do form tend to enclose sediment-filled regions, dying quickly in homology because the filled interior makes them boundaries rather than genuine holes.
 
-Critically, two-point geostatistics (variograms) *cannot* distinguish these configurations when spatial correlation lengths are similar—they measure correlation structure but are blind to connectivity topology. This is precisely the "essence problem" the colleague's critique identifies, and it is precisely the problem that persistent homology is designed to solve.
+It is important to distinguish *invariance* from *relevance*. The stability theorem (§2.6) guarantees that PH features are invariant under bounded perturbations—but invariance alone does not guarantee geological usefulness. A perfectly stable feature might capture nothing meaningful; for instance, the average pixel brightness of an image is also stable under small perturbations but tells you nothing about channel architecture. The $H_1$ hypothesis is what connects mathematical invariance to geological meaning: it claims that topologically stable features are also geologically discriminative.
+
+The variogram-matched pairs design is what makes this test epistemically powerful. Critically, two-point geostatistics (variograms) cannot distinguish braided from meandering configurations when spatial correlation lengths are similar—they measure correlation structure but are blind to connectivity topology. Without variogram matching, a skeptic could object: "perhaps your PH-based classifier is simply picking up on differences in spatial correlation structure, redundantly encoding information that a variogram already captures." By constructing image pairs where the variograms are identical, we eliminate this explanation entirely. Any discriminating power that $H_1$ features exhibit on variogram-matched pairs *must* come from higher-order structural information—specifically, the connectivity and loop topology—that the variogram is provably blind to.
+
+The specific prediction: braided systems should exhibit significantly more long-lived $H_1$ features (persistent loops around unfilled floodplain islands) than meandering systems (where loops, if they form at all, tend to enclose filled sediment and die quickly in homology), even when the two are constructed to have identical variograms. If a classifier trained only on vectorized $H_1$ persistence diagrams achieves greater than 70% accuracy on these variogram-matched pairs, the $H_1$ hypothesis is confirmed: PH features are not only stable but geologically discriminative in a way that geostatistical features fundamentally cannot be.
+
+This gives us a two-level evidential warrant that no single method provides:
+
+| Level | What it establishes | How |
+|---|---|---|
+| **Stability theorem** | PH features are *invariant* (bounded sensitivity to perturbation) | Mathematical proof — holds universally |
+| **$H_1$ on variogram-matched pairs** | PH features are *relevant* (capture real geological differences) | Empirical experiment — testable and falsifiable |
+
+Neither level alone is sufficient. Stability without relevance gives us features that are robust but useless. Relevance without stability gives us features that discriminate on the datasets we have tested but might break on unseen data from a new basin or generator. Together, they constitute the strongest evidence structure available in the hierarchy: mathematically guaranteed robustness *plus* empirically demonstrated geological meaning.
 
 The framework establishes a pre-committed decision point: if classification accuracy using only $H_1$ features exceeds 70%, the hypothesis is supported and TDA becomes a core pathway; if it falls below 60%, TDA remains an ablation study (ADR-S04). This pre-commitment follows the Sākṣī (witness) validation philosophy: interpretation thresholds are fixed before data analysis.
 
@@ -408,6 +429,8 @@ The evidence hierarchy is not merely a philosophical organizing device—it has 
 ## 6. System Architecture: From Invariants to Analog Retrieval
 
 The preceding sections establish three foundational results: persistent homology provides mathematically guaranteed invariants (Section 2), the three-pathway architecture encodes essence through independent epistemic perspectives (Section 3), and the evidence hierarchy governs which descriptors qualify as essence carriers (Section 5). This section addresses the architectural question that connects these foundations to a working retrieval system: *how do topological invariants, together with complementary descriptors, become a mechanism for finding geological analogs under sparse data constraints?*
+
+The most important conceptual principle governing this architecture is that persistent homology is not simply one of three parallel feature extractors of equal standing. It is the only pathway with a mathematical stability guarantee, and this epistemic asymmetry should govern the entire design. The three pathways produce features of fundamentally different epistemic status: PH features are backed by the stability theorem—a mathematical proof of bounded sensitivity to input perturbation; classical geostatistical features are well-understood but depend on stationarity assumptions that geological data routinely violates, and have no analogous stability theorem; DINOv2 learned features capture rich visual semantics but are opaque, entangled, and dependent on the training distribution. This asymmetry means the three pathways should not be treated symmetrically in fusion. PH features serve as the *epistemic anchor*—the features around which the architecture is organized—and the other pathways are measured against them. Section 10.6 develops this principle into a formal confidence hierarchy with operationalized tiers; here, we show how it shapes the system architecture at every level.
 
 We present the system architecture as a conceptual design with key mathematical formulations. No implementation code is given; the goal is to specify what each component does, why it is needed, and how the components compose into a coherent system. The architecture realizes the two-pipeline structure introduced in Section 1 and is governed at every stage by the evidence hierarchy of Section 5.
 
