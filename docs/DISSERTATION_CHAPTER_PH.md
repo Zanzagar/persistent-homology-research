@@ -500,17 +500,17 @@ Depositional environments exhibit natural hierarchical structure: at the coarses
 
 **Why Euclidean space fails.** Embedding hierarchical (tree-like) data in Euclidean space requires $O(n)$ dimensions to avoid distortion, where $n$ is the number of leaf categories. This is because Euclidean volume grows polynomially with radius, whereas tree structures grow exponentially with depth—there is a fundamental geometric mismatch. Hyperbolic space resolves this mismatch: volume in hyperbolic space grows *exponentially* with radius, naturally accommodating the exponential branching of hierarchical data in $O(\log n)$ dimensions (Nickel & Kiela, 2017).
 
-**The Poincare ball model.** We adopt the Poincare ball model $\mathbb{B}^n = \lbrace x \in \mathbb{R}^n : \lVert x \rVert < 1 \rbrace$ equipped with the Riemannian metric:
+**The Poincaré ball model.** We adopt the Poincaré ball model $\mathbb{B}^n = \lbrace x \in \mathbb{R}^n : \lVert x \rVert < 1 \rbrace$ equipped with the Riemannian metric:
 
 $$ds^2 = \left(\frac{2}{1 - \lVert x \rVert^2}\right)^2 \lVert dx \rVert^2$$
 
 This metric has two critical properties for our purposes. First, distances grow exponentially toward the boundary: as $\lVert x \rVert \to 1$, the conformal factor $\lambda_x = 2/(1 - \lVert x \rVert^2)$ diverges, so equal Euclidean displacements correspond to increasingly large hyperbolic distances near the boundary. This means the boundary region has "room" for exponentially many distinct points—exactly the capacity needed to represent a fine-grained taxonomy. Second, points near the origin represent general categories (large uncertainty, broad environment type) while points near the boundary represent specific sub-types (high confidence, narrow classification)—a geometric property that aligns naturally with the Neural Process encoder's uncertainty output.
 
-**Key operations.** Three operations are essential for working with the Poincare ball. The *exponential map* projects Euclidean vectors into hyperbolic space:
+**Key operations.** Three operations are essential for working with the Poincaré ball. The *exponential map* projects Euclidean vectors into hyperbolic space:
 
 $$\textrm{exp}_x(v) = x \oplus \left(\tanh\left(\frac{\lambda_x \lVert v \rVert}{2}\right) \frac{v}{\lVert v \rVert}\right)$$
 
-where $\oplus$ denotes Mobius addition and $\lambda_x = 2/(1 - \lVert x \rVert^2)$ is the conformal factor. The *logarithmic map* performs the inverse projection, mapping hyperbolic points back to the Euclidean tangent space for gradient computation. The *hyperbolic distance* between two points is:
+where $\oplus$ denotes Möbius addition and $\lambda_x = 2/(1 - \lVert x \rVert^2)$ is the conformal factor. The *logarithmic map* performs the inverse projection, mapping hyperbolic points back to the Euclidean tangent space for gradient computation. The *hyperbolic distance* between two points is:
 
 $$d_{\mathbb{B}}(x, y) = 2 \cdot \textrm{arctanh}(\lVert -x \oplus y \rVert)$$
 
@@ -915,7 +915,7 @@ These statistics constrain the fine-scale heterogeneity of generated estuarine i
 
 The generator validation strategy operates at two levels that correspond to different positions in the evidence hierarchy.
 
-**Internal validation (per-realization).** Each generated image undergoes automated acceptance testing against the metric bands specified in Sections 8.4–8.6. Images failing any criterion are rejected and regenerated with a new random seed, producing a quality-controlled ensemble in which every realization satisfies environment-specific structural constraints. The target acceptance rate with reasonable parameters is $\geq 90\%$; rates significantly below this threshold indicate that the generator's parameter space is misspecified relative to the empirical relationships it implements.
+**Internal validation (per-realization).** Each generated image undergoes automated acceptance testing against the metric bands specified in Sections 9.4–9.6. Images failing any criterion are rejected and regenerated with a new random seed, producing a quality-controlled ensemble in which every realization satisfies environment-specific structural constraints. The target acceptance rate with reasonable parameters is $\geq 90\%$; rates significantly below this threshold indicate that the generator's parameter space is misspecified relative to the empirical relationships it implements.
 
 **External validation (LOGO test).** The generator's primary validation is its role in the Leave-One-Generator-Out test, which provides Level 6 evidence (cross-generator validation) in the evidence hierarchy. The LOGO protocol trains representations on images from multiple generator families—principle-based (this work), statistical (MPS), and learned (GAN)—and evaluates transfer to a held-out process-based generator (Flumy):
 
@@ -925,9 +925,9 @@ If representations trained on the first three generators transfer successfully t
 
 ### 9.8 Current Implementation Status and Path Forward
 
-Intellectual honesty requires acknowledging the gap between the generator design presented above and its current implementation. The fluvial environment is substantially implemented, with both physics-based and legacy generation algorithms available for meandering, braided, and anastomosing channel systems. The physics-based variants implement the quantitative constraints from the sedimentological literature detailed in Section 8.4, including arc-based meander centerlines, curvature-driven width variation, point bar deposition, and bifurcation-confluence braided networks. Sedimentary overlays—channel-fill textures, cross-bedding, ripple marks, lateral accretion surfaces, and fining-upward sequences—are implemented and produce per-realization petrology metadata.
+Intellectual honesty requires acknowledging the gap between the generator design presented above and its current implementation. The fluvial environment is substantially implemented, with both physics-based and legacy generation algorithms available for meandering, braided, and anastomosing channel systems. The physics-based variants implement the quantitative constraints from the sedimentological literature detailed in Section 9.4, including arc-based meander centerlines, curvature-driven width variation, point bar deposition, and bifurcation-confluence braided networks. Sedimentary overlays—channel-fill textures, cross-bedding, ripple marks, lateral accretion surfaces, and fining-upward sequences—are implemented and produce per-realization petrology metadata.
 
-The aeolian and estuarine environments exist only as design specifications. Detailed product requirement documents with parameter tables, acceptance criteria, and generation algorithms have been developed, but code implementation has not yet begun. This sequencing is deliberate: the fluvial environment provides the data for the $H_1$ experiment (Section 9.2), which is the linchpin test that must be resolved before investment in additional environments is warranted. If $H_1$ features do not discriminate braided from meandering architectures on variogram-matched pairs, the framework requires revision before expanding the generator scope.
+The aeolian and estuarine environments exist only as design specifications. Detailed product requirement documents with parameter tables, acceptance criteria, and generation algorithms have been developed, but code implementation has not yet begun. This sequencing is deliberate: the fluvial environment provides the data for the $H_1$ experiment (Section 10.2), which is the linchpin test that must be resolved before investment in additional environments is warranted. If $H_1$ features do not discriminate braided from meandering architectures on variogram-matched pairs, the framework requires revision before expanding the generator scope.
 
 The path forward is therefore experimentally driven: (1) validate the existing fluvial generator outputs against the acceptance criteria of Section 9.4, (2) execute the $H_1$ experiment using fluvial data, (3) if the $H_1$ hypothesis is confirmed, implement the aeolian and estuarine environments to enable the full cross-environment testing described in Section 9.3, and (4) execute the LOGO test with all three environments to provide Level 6 evidence for the invariance claim.
 
@@ -945,7 +945,7 @@ The topological pathway follows a six-stage pipeline from raw geological image t
 
 **Stage 2: Signed Euclidean Distance Transform.** The binary image is converted to a continuous scalar field via the SEDT: each pixel receives a signed distance to the nearest facies boundary (positive inside channels, negative inside floodplain). This transformation is critical—it provides a geologically meaningful filtration where thick channel cores receive high positive values and thin connections receive values near zero.
 
-**Stage 3: Cubical Complex Construction.** Because the input is a regular pixel grid, we use cubical complexes rather than simplicial complexes (Vietoris-Rips or Cech). Cubical complexes respect the grid structure of image data, avoid the quadratic memory cost of point-cloud methods, and are computed efficiently by algorithms specialized for gridded input (Wagner, Chen, & Vucini, 2012).
+**Stage 3: Cubical Complex Construction.** Because the input is a regular pixel grid, we use cubical complexes rather than simplicial complexes (Vietoris–Rips or Čech). Cubical complexes respect the grid structure of image data, avoid the quadratic memory cost of point-cloud methods, and are computed efficiently by algorithms specialized for gridded input (Wagner, Chen, & Vucini, 2012).
 
 **Stage 4: Persistent Homology Computation.** Using Giotto-TDA (Tauzin et al., 2021), we compute persistence in dimensions $H_0$ (connected components) and $H_1$ (loops) as the filtration threshold sweeps from the minimum to maximum SEDT value. The output is a pair of persistence diagrams: one for $H_0$, one for $H_1$.
 
@@ -1151,7 +1151,7 @@ The SLIDE decomposition of §12.6 partitions DINOv2's 768-dimensional representa
 3. **Kotelevskii density model** decomposes residual uncertainty into aleatoric (intra-class variability) and epistemic (data sparsity) components, *per feature dimension*
 4. **Heteroscedastic embedding**: Rather than representing each analog as a point in feature space, represent it as a distribution $\mathcal{N}(\mu, \Sigma)$ where $\Sigma$ encodes per-feature uncertainty (following Oh et al., 2019, on hedged instance embeddings)
 5. **Uncertainty-weighted similarity**: Retrieval uses a similarity metric that downweights feature dimensions with high uncertainty, following Uncertainty-Aware Embedding Comparison (UEC) principles
-6. **Neural Process integration**: The Neural Process query encoder (§6.1) naturally produces uncertainty-calibrated outputs $(\mu, \sigma)$; the structured uncertainty from steps 3–5 provides a principled initialization of the encoder's uncertainty prior
+6. **Neural Process integration**: The Neural Process query encoder (§6.2) naturally produces uncertainty-calibrated outputs $(\mu, \sigma)$; the structured uncertainty from steps 3–5 provides a principled initialization of the encoder's uncertainty prior
 
 **Connection to subsurface uncertainty quantification.** This pipeline connects to established practice in geostatistical uncertainty quantification. Scheidt, Li, and Caers (2018) developed distance-based methods for subsurface uncertainty assessment that use feature-space distances to define scenario probabilities—precisely the framework that uncertainty-weighted retrieval implements. Arnold et al. (2018) extended this to geological scenario probability estimation. The contribution here is to ground the distance computation in features with *known* epistemic status: PH features anchor the distance with mathematical guarantees, while residual features contribute with appropriate uncertainty discounting.
 
@@ -1169,7 +1169,7 @@ This tiered structure means Pipeline A does not merely store analogs—it stores
 
 **Pipeline B (Retrieval).** Sparse field observations will typically constrain some feature dimensions well and leave others poorly constrained. The confidence hierarchy provides a principled way to handle this asymmetry: features that are both well-constrained by observations *and* high-tier in the confidence hierarchy receive maximal weight in retrieval. Features that are poorly constrained or low-tier contribute uncertainty rather than false precision.
 
-The Neural Process query encoder (§6.1) is naturally suited to this framework. Given sparse observations, it produces a posterior distribution in feature space. The structured uncertainty from §12.7 provides an informative prior: dimensions corresponding to Tier 1 features have tight priors (PH constrains them strongly), while dimensions corresponding to Tier 4 features have diffuse priors (little a priori constraint). This is a concrete realization of the Bayesian retrieval framework discussed abstractly in §6.
+The Neural Process query encoder (§6.2) is naturally suited to this framework. Given sparse observations, it produces a posterior distribution in feature space. The structured uncertainty from §12.7 provides an informative prior: dimensions corresponding to Tier 1 features have tight priors (PH constrains them strongly), while dimensions corresponding to Tier 4 features have diffuse priors (little a priori constraint). This is a concrete realization of the Bayesian retrieval framework discussed abstractly in §6.
 
 **Response essence and Pipeline validation.** The dynamic extensions (§12.1–12.5) suggest a validation criterion for the entire retrieval system: analogs retrieved by Pipeline B (based on structural similarity) should exhibit similar dynamic response when subjected to identical simulation protocols. If structural retrieval predicts response similarity, the system is validated at the deepest level. If not, the gap between structural and response essence identifies which additional descriptors Pipeline A must incorporate.
 
@@ -1241,6 +1241,8 @@ Edelsbrunner, H., Letscher, D., & Zomorodian, A. (2002). Topological persistence
 
 Frascati, A., & Lanzoni, S. (2009). Morphodynamic regime and long-term evolution of meandering rivers. *Journal of Geophysical Research: Earth Surface*, 114(F2), F02002.
 
+Gal, Y., & Ghahramani, Z. (2016). Dropout as a Bayesian approximation: Representing model uncertainty in deep learning. *Proceedings of the 33rd International Conference on Machine Learning (ICML)*, 1050–1059.
+
 Ganin, Y., & Lempitsky, V. (2015). Unsupervised domain adaptation by backpropagation. *Proceedings of the 32nd International Conference on Machine Learning (ICML)*, 1180–1189.
 
 Garnelo, M., Schwarz, J., Rosenbaum, D., Viola, F., Rezende, D. J., Eslami, S. M. A., & Teh, Y. W. (2018). Neural processes. *arXiv:1807.01622*.
@@ -1279,6 +1281,8 @@ Kornblith, S., Norouzi, M., Lee, H., & Hinton, G. (2019). Similarity of neural n
 
 Kotelevskii, N., Panov, M., Zaytsev, A., & Spokoiny, V. (2025). Uncertainty decomposition in feature space without ensembles. *arXiv:2511.12389*.
 
+Lakshminarayanan, B., Pritzel, A., & Blundell, C. (2017). Simple and scalable predictive uncertainty estimation using deep ensembles. *Advances in Neural Information Processing Systems* 30.
+
 Kramar, M., Levanger, R., Tithof, J., Suri, B., Xu, M., Paul, M., ... & Mischaikow, K. (2016). Analysis of Kolmogorov flow and Rayleigh-Benard convection using persistent homology. *Physica D*, 334, 82–98.
 
 Kriegeskorte, N., Mur, M., & Bandettini, P. (2008). Representational similarity analysis — connecting the branches of systems neuroscience. *Frontiers in Systems Neuroscience*, 2, Article 4.
@@ -1295,7 +1299,7 @@ Moon, C., Mitchell, S. A., Heath, J. E., & Andrew, M. (2019). Statistical infere
 
 Nanson, G. C., & Knighton, A. D. (1996). Anabranching rivers: Their cause, character and classification. *Earth Surface Processes and Landforms*, 21(3), 217–239.
 
-Nickel, M., & Kiela, D. (2017). Poincare embeddings for learning hierarchical representations. *Advances in Neural Information Processing Systems* 30.
+Nickel, M., & Kiela, D. (2017). Poincaré embeddings for learning hierarchical representations. *Advances in Neural Information Processing Systems* 30.
 
 Nickel, M., & Kiela, D. (2018). Learning continuous hierarchies in the Lorentz model of hyperbolic geometry. *ICML 2018*.
 
