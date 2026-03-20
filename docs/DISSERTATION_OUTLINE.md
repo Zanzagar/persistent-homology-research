@@ -524,7 +524,7 @@ The classical pathway's most critical limitation for the QCF is its **topologica
 
 However, the classical pathway provides information that neither PH nor DINOv2 captures directly. The variogram range quantifies *how far* spatial correlation extends—a continuous measure of depositional scale that PH's discrete topological invariants do not encode. Anisotropy ratios characterize *directional* structure that isotropic PH computations ignore (unless directional filtrations are used). Fractal dimensions quantify *multiscale roughness* in a way that persistence diagrams do not directly capture. These complementary strengths are why the QCF uses all three pathways rather than relying on PH alone.
 
-The classical pathway also lacks any analog to the stability theorem. The empirical observation that "small changes to geological images produce small changes to variograms" is well-supported in practice but has no formal proof. This places classical features at a lower tier in the confidence hierarchy (§14.6): they enter Pipeline A's index as empirically validated but not mathematically guaranteed descriptors—Tier 3 rather than PH's Tier 1.
+The classical pathway also lacks any analog to the stability theorem. The empirical observation that "small changes to geological images produce small changes to variograms" is well-supported in practice but has no formal proof. This places classical features at a lower tier in the confidence hierarchy (§14.6): they enter Pipeline A's index as empirically validated but not mathematically guaranteed descriptors—Tier 3 as individual features, though the subset corroborated across all three pathways via the SLIDE decomposition (§14.6) may be promoted to Tier 2.
 
 ---
 
@@ -542,7 +542,7 @@ For geological image analysis, this distinction is especially significant. Hand-
 
 The QCF employs DINOv2-ViT-B/14 (Oquab et al., 2023) as its learned feature extractor. Understanding what this model computes—and what its features represent—requires unpacking the Vision Transformer (ViT) architecture (Dosovitskiy et al., 2020).
 
-**Patch embedding.** A ViT does not process an image as a grid of pixels. Instead, it divides the input image into a regular grid of non-overlapping square patches. For ViT-B/14, each patch is $14 \times 14$ pixels; a $256 \times 256$ geological image yields $18 \times 18 = 324$ patches. Each patch is flattened into a vector and linearly projected to a $D$-dimensional embedding ($D = 768$ for ViT-B):
+**Patch embedding.** A ViT does not process an image as a grid of pixels. Instead, it divides the input image into a regular grid of non-overlapping square patches. For ViT-B/14, each patch is $14 \times 14$ pixels; a $224 \times 224$ geological image (the standard ViT input size) yields $16 \times 16 = 256$ patches. Each patch is flattened into a vector and linearly projected to a $D$-dimensional embedding ($D = 768$ for ViT-B):
 
 $$\mathbf{z}_i^{(0)} = \mathbf{W}_p \cdot \textrm{flatten}(\textrm{patch}_i) + \mathbf{e}_{\textrm{pos}}(i), \quad i = 1, \ldots, N$$
 
@@ -693,9 +693,11 @@ The classical pathway transforms each geological analog into an approximately 50
 | Multiscale texture | ~6–10 | Box-counting fractal dimension $D_B$, lacunarity at 3–5 scales, variogram power-law slope $\beta_{\textrm{iso}}$ |
 | Facies proportions | ~2–4 | Net-to-gross ratio, facies interface density, mean channel-body thickness |
 
+The exact dimensionality depends on implementation choices—the number of directional azimuths (4 in the minimal configuration above, up to 8 or more for finer angular resolution), the number of lag distances at which connectivity is evaluated, and the number of scales for lacunarity. The minimal configuration yields ~32 dimensions; a full configuration with 8 azimuths and additional connectivity lags reaches ~50. All references to "approximately 50 dimensions" elsewhere in this document reflect the full configuration.
+
 These descriptors are computed deterministically from each analog image—no learning is involved, no training data required. This computational transparency is the classical pathway's primary epistemic advantage: every feature has a direct physical interpretation. The variogram range tells you the spatial correlation length. The anisotropy ratio tells you whether the depositional pattern is elongated or isotropic. The fractal dimension tells you the space-filling complexity. A geoscientist can examine any classical feature value and understand what it means for the geology.
 
-**Role in Pipeline A.** Classical features enter the geologic index as mid-tier descriptors (Tier 3 in the confidence hierarchy of §14.6). They provide information that neither PH nor DINOv2 captures directly: the variogram range quantifies *how far* spatial correlation extends—a continuous measure of depositional scale that PH's discrete topological invariants do not encode. Anisotropy ratios characterize *directional* structure that isotropic PH computations ignore. Fractal dimensions quantify *multiscale roughness* in a way that persistence diagrams capture only indirectly through the distribution of feature lifetimes.
+**Role in Pipeline A.** Classical features enter the geologic index as mid-tier descriptors (Tier 3 as individual features in the confidence hierarchy of §14.6; those corroborated across all three pathways are promoted to Tier 2 via SLIDE decomposition). They provide information that neither PH nor DINOv2 captures directly: the variogram range quantifies *how far* spatial correlation extends—a continuous measure of depositional scale that PH's discrete topological invariants do not encode. Anisotropy ratios characterize *directional* structure that isotropic PH computations ignore. Fractal dimensions quantify *multiscale roughness* in a way that persistence diagrams capture only indirectly through the distribution of feature lifetimes.
 
 In the embedding space, classical features contribute to positioning analogs along dimensions that PH cannot distinguish. Two geological images might share identical $H_1$ persistence diagrams (same number of loops, same persistence values) while differing substantially in variogram range—one is a large-scale braided system with correlation lengths of hundreds of meters, the other a small-scale braided system with correlation lengths of tens of meters. Classical features discriminate these cases, providing scale information that refines the topological classification.
 
@@ -727,7 +729,7 @@ This complementarity is the architectural rationale for including a learned path
 
 **Independence and the LOGO protocol.** The learned pathway's epistemic value depends critically on its *independence* from the other two pathways. If DINOv2 features merely encode a noisy version of variogram parameters or a compressed version of persistence diagrams, the three-pathway architecture gains little from including them. True independent information—visual patterns that neither classical statistics nor topology captures—is what makes the convergence argument epistemically powerful.
 
-Independence is threatened by two mechanisms. First, *feature entanglement*: DINOv2's 768 dimensions may encode topological information alongside non-topological information, creating correlation with PH features that is not independence failure but natural overlap. The SLIDE decomposition (§14.6) separates genuine overlap from artificial correlation. Second, *generator dependence*: if DINOv2 features encode generator-specific visual artifacts (texture patterns characteristic of Flumy output, say) rather than geological structure, the pathway's contribution to the essence claim is undermined. The LOGO (Leave-One-Generator-Out) protocol, formalized as Sākṣī Test 2 (§10), tests for this by training on $N - 1$ generators and evaluating on the held-out generator. If DINOv2 classification accuracy drops substantially under LOGO, the features are generator-dependent and enter the confidence hierarchy at Tier 4 (uncertain) rather than Tier 3 (empirically invariant).
+Independence is threatened by two mechanisms. First, *feature entanglement*: DINOv2's 768 dimensions may encode topological information alongside non-topological information, creating correlation with PH features that is not independence failure but natural overlap. The SLIDE decomposition (§14.6) separates genuine overlap from artificial correlation. Second, *generator dependence*: if DINOv2 features encode generator-specific visual artifacts (texture patterns characteristic of Flumy output, say) rather than geological structure, the pathway's contribution to the essence claim is undermined. The LOGO (Leave-One-Generator-Out) protocol, formalized as Sākṣī Witness 3 (§10.3), tests for this by training on $N - 1$ generators and evaluating on the held-out generator. If DINOv2 classification accuracy drops substantially under LOGO, the features are generator-dependent and enter the confidence hierarchy at Tier 4 (uncertain) rather than Tier 3 (empirically invariant).
 
 **The representational geometry hypothesis.** A deeper question, which the experimental validation of §12.6 begins to address, is whether DINOv2's representation space has *geometric structure* that aligns with geological similarity. If the manifold of meandering-system representations in $\mathbb{R}^{768}$ is smoothly parameterized by sinuosity, channel width, and point-bar development—and the manifold of braided-system representations is similarly parameterized by braiding index, bar spacing, and channel-to-floodplain ratio—then DINOv2 is not merely discriminating environments but encoding a continuous geological parameter space. This would make the learned pathway's contribution to the hyperbolic embedding (§9.3) particularly valuable: the continuous parameterization within each branch of the depositional hierarchy would complement the topological pathway's discrete structural invariants and the classical pathway's correlation-based descriptors.
 
@@ -774,9 +776,9 @@ This geometric interpretation of persistence diagrams feeding directly into hier
 
 ### 6.9 The Adversarial Validation: Variogram-Matched Topology Swap
 
-The strongest direct test of PH's value within the QCF is Adversarial Test 23.1 (*Sankhyā-māyā*, "statistical illusion"). The test constructs matched pairs of images—one braided, one meandering—with *identical* variogram parameters (range, sill, nugget). Classical geostatistical features cannot distinguish these pairs by construction. If the system still correctly classifies them using topological features alone, the $H_1$ pathway demonstrably captures structural information invisible to two-point statistics.
+The strongest direct test of PH's value within the QCF is the *Sankhyā-māyā* ("statistical illusion") adversarial test, formalized as §10.4.1 in the Sākṣī validation battery. The test constructs matched pairs of images—one braided, one meandering—with *identical* variogram parameters (range, sill, nugget). Classical geostatistical features cannot distinguish these pairs by construction. If the system still correctly classifies them using topological features alone, the $H_1$ pathway demonstrably captures structural information invisible to two-point statistics.
 
-This test design instantiates a broader validation philosophy drawn from Mayo's (2018) severe testing framework: a hypothesis is supported only when it passes a test that it would likely fail if false. A classification test using images that are *designed* to fool the classical pathway but should be distinguishable by $H_1$ loop structure provides precisely this kind of severe evidence. The experimental protocol is detailed in the proposed validation design (Section 12).
+This test design instantiates a broader validation philosophy drawn from Mayo's (2018) severe testing framework: a hypothesis is supported only when it passes a test that it would likely fail if false. A classification test using images that are *designed* to fool the classical pathway but should be distinguishable by $H_1$ loop structure provides precisely this kind of severe evidence. The experimental protocol is detailed in the proposed validation design (Section 12.2).
 
 ### 6.10 Scope and Limitations of the Topological Pathway
 
@@ -1098,7 +1100,7 @@ The first adversarial test—"statistical illusion"—attacks the representation
 
 If the system correctly classifies the paired images using topological features alone, the $H_1$ pathway demonstrably captures structural information invisible to two-point statistics. This is the most direct test of the $H_1$ hypothesis (Section 6.6) and is developed into a full experimental protocol in Section 12.2. If the system fails—if variogram-matched pairs defeat the topological pathway—then the representation relies on statistical properties that the classical pathway already captures, and the topological pathway adds no unique discriminative value.
 
-This test was introduced in the context of the three-pathway architecture (Section 6.9) and is formalized here as a component of the Sākṣī battery.
+This test was introduced in the adversarial validation subsection (Section 6.9) and is formalized here as a component of the Sākṣī battery.
 
 #### 10.4.2 Style Transfer Attack (*Rūpa-viparyaya*)
 
@@ -1171,7 +1173,7 @@ The ten witnesses do not operate in isolation; they provide evidence at specific
 | Level 6: LOGO | Witness 3 (LOGO Invariance) | Cross-generator validation |
 | Level 7: Expert Agreement | Witness 5 (Expert Validation) | Human judgment |
 
-Several witnesses contribute to the overall assessment without mapping to a single evidence level. Witnesses 1–2 (cluster purity and retrieval precision) are necessary preconditions—baseline competence that must be established before higher-level evidence is meaningful. Witness 6 (pathway convergence) provides supporting evidence for Level 1: if three independent feature-extraction pathways converge on the same structural characterization, the shared signal is more likely to reflect genuine mathematical invariance than pathway-specific artifacts. Witness 8 (calibration) is a cross-cutting constraint that applies to all evidence levels: evidence from an uncalibrated system is uninterpretable regardless of the level at which it is generated.
+Several witnesses contribute to the overall assessment without mapping to a single evidence level. Witnesses 1–2 (cluster purity and retrieval precision) are necessary preconditions—baseline competence that must be established before higher-level evidence is meaningful. Witness 6 (pathway convergence) provides supporting evidence for Level 1: if three independent feature-extraction pathways converge on the same structural characterization, the shared signal is more likely to reflect genuine mathematical invariance than pathway-specific artifacts. Witness 8 (calibration) is a cross-cutting constraint that applies to all evidence levels: evidence from an uncalibrated system is uninterpretable regardless of the level at which it is generated. Witness 5 (expert validation) intentionally appears at two levels: at Level 5, experts assess whether retrieved analogs match real geological data (empirical generalization); at Level 7, experts judge whether the system's similarity rankings agree with their professional intuition (human-AI alignment). These are distinct evaluative acts—one grounds the system in field reality, the other validates its usefulness to practitioners.
 
 Witnesses 9–10 address dimensions of quality not captured by the evidence hierarchy's level structure. Mixture handling (Witness 9) validates the underdetermination principle—a design philosophy rather than an evidence claim. The correct response to a genuinely ambiguous image is not confident classification into one category but a broad distribution reflecting the ambiguity. Process correlation (Witness 10) provides interpretability evidence connecting the learned representation to known physical processes—important for expert adoption and scientific credibility but not reducible to a single evidence level.
 
@@ -1307,7 +1309,7 @@ The learned pathway (DINOv2) requires validation that addresses its distinctive 
 
 **Experiment L1: Leave-One-Generator-Out (LOGO) Protocol.** Train a linear classifier on frozen DINOv2 features to predict depositional environment (braided, meandering, anastomosing, etc.), using images from $N - 1$ generators. Evaluate on the held-out generator. Repeat for each generator. The LOGO accuracy is the mean classification accuracy across held-out generators.
 
-This protocol, formalized as Sākṣī Test 2 (§10), directly tests generator invariance. Pre-committed thresholds:
+This protocol, formalized as Sākṣī Witness 3 (§10.3), directly tests generator invariance. Pre-committed thresholds:
 
 | LOGO Accuracy | Interpretation | Confidence Tier |
 |---|---|---|
@@ -1371,7 +1373,7 @@ Analyze the correlation between convergence state and geological properties. The
 | L3: Information-Theoretic | SLIDE decomposition (§14.6) + mutual information | Cross-pathway information content |
 | L4: Cross-Domain | PH across domains (§11) | Mathematical universality |
 | L5: Real-Data | Field analog comparison | Ground truth validation |
-| L6: Cross-Generator | LOGO per pathway (L1, C1) | Generator invariance per pathway |
+| L6: Cross-Generator | LOGO per pathway (Exp. L1, Exp. C1, §10.3 for PH) | Generator invariance per pathway |
 | L7: Expert Agreement | Expert survey of retrieval results | Human-AI alignment |
 
 This mapping ensures that the experimental program is *complete* with respect to the evidence hierarchy—every level has at least one corresponding experiment—and *traceable*—each experimental result feeds into a specific level of the hierarchy, allowing systematic assessment of which levels are satisfied and which remain open.
@@ -1724,6 +1726,8 @@ Lipinski, M., Mrozek, M., & Batko, B. (2023). Persistent Conley-Morse graphs: At
 Lowe, D. G. (2004). Distinctive image features from scale-invariant keypoints. *International Journal of Computer Vision*, 60(2), 91–110.
 
 Liu, J., Wang, J., Liu, B., & Ma, Z. (2021). Persistent homology-based topological analysis on the Gestalt patterns during human brain cognition process. *Journal of Healthcare Engineering*, 2021, 2334332.
+
+Madry, A., Makelov, A., Schmidt, L., Tsipras, D., & Vladu, A. (2018). Towards deep learning models resistant to adversarial attacks. *Proceedings of the 6th International Conference on Learning Representations (ICLR 2018)*.
 
 Mandelbrot, B. B. (1982). *The Fractal Geometry of Nature*. W. H. Freeman.
 
