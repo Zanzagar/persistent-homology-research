@@ -242,6 +242,234 @@ This guarantee is *mathematical*, not empirical. It does not depend on which gen
 
 ---
 
+## 2B. Mathematical Foundations of Classical Geostatistics
+
+*[Note: In the final dissertation, §2, §2B, and §2C will be reorganized into a unified Mathematical Foundations part or three parallel chapters. Section numbering is provisional.]*
+
+### 2B.1 From Spatial Statistics to Pattern Description
+
+Classical geostatistics provides the mathematical framework for the QCF's classical pathway—the oldest and most operationally established of the three feature-extraction approaches. Where persistent homology asks "what is the *shape* of this data?", geostatistics asks "what is the *spatial correlation structure* of this data?" The two questions are complementary: correlation structure captures how similar nearby locations tend to be, while topology captures how those locations are *connected*.
+
+The foundational object in geostatistics is the *regionalized variable*—a spatially distributed quantity $Z(\mathbf{x})$ defined at every location $\mathbf{x} \in D \subset \mathbb{R}^d$ in a spatial domain $D$ (Matheron, 1963). In geological applications, $Z(\mathbf{x})$ may represent facies type (channel vs. floodplain), porosity, permeability, seismic amplitude, or any spatially varying property. The key insight of geostatistics is to model $Z(\mathbf{x})$ as a *realization of a random field*—a collection of random variables indexed by spatial location—allowing probabilistic inference about unobserved locations from sparse observations.
+
+This probabilistic framing is directly relevant to the retrieval problem. Pipeline A must characterize the spatial correlation structure of complete analogs, producing descriptors that capture how geological properties covary across space. Pipeline B must infer these same descriptors from sparse observations—a task for which geostatistics was explicitly designed (kriging is literally optimal spatial interpolation under specific assumptions). The classical pathway thus provides not only features for indexing but a theoretical foundation for the sparse-to-dense inference that Pipeline B requires.
+
+### 2B.2 Stationarity: The Foundation and Its Limits
+
+Geostatistical inference relies on *stationarity assumptions*—the requirement that the statistical properties of the random field do not change across the spatial domain. Three levels of stationarity are commonly distinguished, each progressively weaker:
+
+**Strict stationarity** requires that the full joint probability distribution of $\lbrace Z(\mathbf{x}_1), \ldots, Z(\mathbf{x}_n) \rbrace$ is invariant under spatial translation: shifting all locations by the same vector $\mathbf{h}$ does not change the distribution. This is almost never satisfied by geological data—a channel belt has different statistical properties than its floodplain margin.
+
+**Second-order (weak) stationarity** requires only that the mean $E[Z(\mathbf{x})] = \mu$ is constant across the domain and that the covariance $C(\mathbf{h}) = \textrm{Cov}(Z(\mathbf{x}), Z(\mathbf{x} + \mathbf{h}))$ depends only on the separation vector $\mathbf{h}$, not on the absolute location $\mathbf{x}$. This is the standard assumption underlying variogram-based analysis.
+
+**Intrinsic stationarity** requires only that the *increments* $Z(\mathbf{x} + \mathbf{h}) - Z(\mathbf{x})$ have constant mean (zero, for unbiased increments) and that their variance depends only on $\mathbf{h}$. This is the weakest assumption that supports variogram estimation and is the formal requirement for the variogram to be well-defined (Chilès & Delfiner, 2012).
+
+**Why stationarity matters for the QCF.** The stationarity assumption is simultaneously the power and the Achilles' heel of the classical pathway. Under stationarity, the variogram provides a complete second-order characterization of spatial structure from a single realization—enabling feature extraction from individual geological images. Without stationarity, the variogram is at best a local average of a non-stationary structure, and at worst a misleading summary that conflates distinct spatial regimes.
+
+Geological data routinely violates stationarity. A fluvial depositional system contains channel belts, levees, crevasse splays, and floodplain fines—each with different statistical properties. The boundary between a channel and its floodplain is a non-stationary transition. Stratigraphic layering introduces vertical non-stationarity. The QCF handles this through domain-specific preprocessing (computing variograms within geologically homogeneous windows) and through the multi-pathway architecture itself: when stationarity violations cause the classical pathway to produce misleading features, the topological and learned pathways—which make no stationarity assumption—provide independent characterizations that the fusion layer can use to detect and compensate for the classical pathway's failure.
+
+### 2B.3 The Variogram: Measuring Spatial Correlation
+
+The variogram is the central tool of geostatistics—a function that quantifies how spatial correlation decays with distance. The *experimental variogram* at lag $\mathbf{h}$ is estimated from data as:
+
+$$\hat{\gamma}(\mathbf{h}) = \frac{1}{2 \lvert N(\mathbf{h}) \rvert} \sum_{(i,j) \in N(\mathbf{h})} \left[ Z(\mathbf{x}_i) - Z(\mathbf{x}_j) \right]^2$$
+
+where $N(\mathbf{h})$ is the set of all data pairs separated by approximately $\mathbf{h}$ and $\lvert N(\mathbf{h}) \rvert$ is its cardinality. The theoretical variogram $\gamma(\mathbf{h})$ is related to the covariance function (under second-order stationarity) by:
+
+$$\gamma(\mathbf{h}) = C(\mathbf{0}) - C(\mathbf{h})$$
+
+where $C(\mathbf{0}) = \textrm{Var}(Z(\mathbf{x}))$ is the *sill* (total variance) and $C(\mathbf{h})$ is the covariance at lag $\mathbf{h}$.
+
+Three parameters characterize the variogram's behavior and constitute the primary classical features extracted by Pipeline A:
+
+| Parameter | Symbol | Interpretation | Geological Meaning |
+|---|---|---|---|
+| **Nugget** | $c_0$ | Discontinuity at the origin: $\gamma(0^+)$ | Measurement error + micro-scale variability below sampling resolution |
+| **Sill** | $c_0 + c_1$ | Asymptotic variance as $\lVert \mathbf{h} \rVert \to \infty$ | Total variability of the regionalized variable |
+| **Range** | $a$ | Distance at which $\gamma$ reaches the sill | Characteristic spatial correlation length — the "reach" of spatial dependence |
+
+**Common variogram models.** The experimental variogram must be fitted to a *valid* (conditionally negative definite) model before use in spatial inference. The three most common isotropic models are:
+
+*Spherical model:*
+$$\gamma(h) = c_0 + c_1 \left[ \frac{3h}{2a} - \frac{1}{2}\left(\frac{h}{a}\right)^3 \right] \text{ for } h \leq a; \quad \gamma(h) = c_0 + c_1 \text{ for } h > a$$
+
+*Exponential model:*
+$$\gamma(h) = c_0 + c_1 \left[ 1 - \exp\left(-\frac{3h}{a}\right) \right]$$
+
+*Gaussian model:*
+$$\gamma(h) = c_0 + c_1 \left[ 1 - \exp\left(-\frac{3h^2}{a^2}\right) \right]$$
+
+The choice of model is not arbitrary—it encodes geological assumptions. The spherical model, with its finite range, implies that spatial correlation ceases beyond a definite distance. The exponential model, which reaches its sill asymptotically, implies gradually fading correlation with no sharp cutoff. The Gaussian model, with its parabolic behavior near the origin, implies extreme spatial smoothness—appropriate for slowly varying properties but inappropriate for geological boundaries.
+
+**Directional variograms and anisotropy.** Geological systems are inherently anisotropic: a meandering channel system has different correlation structure along the channel axis than perpendicular to it. Directional variograms $\gamma(\mathbf{h})$ computed along multiple azimuths reveal this anisotropy. The QCF extracts anisotropy ratios—the ratio of directional ranges—as features that encode depositional geometry. A high anisotropy ratio signals elongated structures (channels, dune ridges); a ratio near unity signals isotropic patterns (tidal flats, lacustrine deposits).
+
+### 2B.4 Beyond the Variogram: Connectivity and Higher-Order Statistics
+
+The variogram, as a *two-point statistic*, captures only pairwise spatial correlation. This is a fundamental limitation—one that motivates the QCF's multi-pathway architecture. Two critical aspects of geological structure escape variogram characterization.
+
+**Connectivity functions.** The *connectivity function* $\tau(h)$ measures the probability that two points separated by distance $h$ belong to the same connected component of a binary field (e.g., the same continuous channel body). Unlike the variogram, which measures *correlation* (how similar are values at two points?), the connectivity function measures *connection* (can you walk from one point to the other through the same facies?). This distinction is critical for reservoir engineering: two reservoir models with identical variograms can have dramatically different connectivity—one with well-connected channel bodies enabling fluid flow, the other with isolated sand lenses that trap hydrocarbons.
+
+Connectivity is related to *percolation theory* (Stauffer & Aharony, 1994): a random field exhibits a percolation transition at a critical facies proportion $p_c$ above which a connected pathway spans the domain. The percolation threshold depends on the spatial correlation structure in ways that the variogram alone cannot predict. The connectivity function, while richer than the variogram, remains a two-point statistic in a generalized sense—it is computed between pairs of points. True multi-point structure (three or more points simultaneously) requires further tools.
+
+**Multiple-Point Statistics (MPS).** Multiple-point geostatistics (Guardiano & Srivastava, 1993; Strebelle, 2002) extends beyond two-point statistics by considering the joint probability of facies configurations at multiple spatial locations simultaneously. The *multiple-point probability density function* $f(z_1, z_2, \ldots, z_n; \mathbf{x}_1, \mathbf{x}_2, \ldots, \mathbf{x}_n)$ captures spatial patterns—such as channel sinuosity, branching geometry, or bar morphology—that are invisible to two-point statistics. The SNESIM algorithm (Strebelle, 2002) and its successors generate realizations that reproduce these multi-point patterns by scanning a *training image* for local spatial templates.
+
+MPS partially addresses the variogram's topological blindness: multi-point patterns can encode connectivity and branching structure. However, MPS has limitations relevant to the QCF. First, MPS requires a *training image* that exemplifies the desired spatial patterns—introducing a circularity concern when the training image comes from the same generator family used for testing. Second, MPS captures patterns up to a finite template size but may miss global topological features (such as system-wide connectivity) that exceed the template window. Third, MPS has no stability theorem—the relationship between training image perturbation and output perturbation is empirical, not proven.
+
+### 2B.5 Fractal Dimensions and Multiscale Characterization
+
+Geological patterns exhibit structure at multiple scales—from pore-scale heterogeneity to basin-scale depositional architecture. *Fractal geometry* (Mandelbrot, 1982) provides tools for characterizing this multiscale structure through power-law scaling relationships.
+
+The *box-counting fractal dimension* $D_B$ of a binary geological image is computed by covering the image with boxes of side length $\epsilon$ and counting the number $N(\epsilon)$ that contain at least one channel pixel:
+
+$$D_B = \lim_{\epsilon \to 0} \frac{\log N(\epsilon)}{\log(1/\epsilon)}$$
+
+For a perfectly one-dimensional channel, $D_B \approx 1$; for a space-filling network, $D_B \approx 2$. Natural channel networks typically have $D_B \in [1.1, 1.8]$, with braided systems showing higher values (more space-filling due to multiple threads) than meandering systems (less space-filling due to a single sinuous thread).
+
+*Lacunarity* (Plotnick et al., 1996) complements the fractal dimension by measuring the *texture* of the spatial pattern at each scale—specifically, the variability in the distribution of gap sizes. Two patterns with the same fractal dimension can have very different lacunarities: a clustered pattern has high lacunarity (large variation in gap sizes) while a regular pattern has low lacunarity. In geological terms, high lacunarity may indicate isolated channel bodies separated by variable-width floodplain, while low lacunarity may indicate a more uniform spatial distribution of channel material.
+
+The variogram power-law slope $\beta_{\textrm{iso}}$ is related to the fractal dimension: for intrinsically stationary fields, $\beta = 2(2 - D_B)$ in two dimensions (Turcotte, 1997). This relationship connects variogram analysis (§2B.3) to multiscale characterization and provides an additional classical feature for the QCF's Pipeline A.
+
+### 2B.6 Kriging: Optimal Spatial Prediction Under Stationarity
+
+*Kriging* is the minimum-variance linear unbiased estimator for spatial prediction under second-order stationarity—the "gold standard" for spatial interpolation in geostatistics (Journel & Huijbregts, 1978). Given observations $Z(\mathbf{x}_1), \ldots, Z(\mathbf{x}_n)$ at known locations, the kriging estimate at an unobserved location $\mathbf{x}_0$ is:
+
+$$\hat{Z}(\mathbf{x}_0) = \sum_{i=1}^{n} \lambda_i Z(\mathbf{x}_i)$$
+
+where the weights $\lambda_i$ are determined by solving the kriging system:
+
+$$\sum_{j=1}^{n} \lambda_j \gamma(\mathbf{x}_i - \mathbf{x}_j) + \mu = \gamma(\mathbf{x}_i - \mathbf{x}_0), \quad i = 1, \ldots, n$$
+
+$$\sum_{i=1}^{n} \lambda_i = 1$$
+
+with Lagrange multiplier $\mu$ enforcing unbiasedness. The kriging variance—the expected squared error—is:
+
+$$\sigma^2_K(\mathbf{x}_0) = \sum_{i=1}^{n} \lambda_i \gamma(\mathbf{x}_i - \mathbf{x}_0) + \mu$$
+
+**Why kriging matters for the QCF.** Kriging is relevant to the retrieval architecture in two ways. First, the kriging variance provides a *model-based* uncertainty estimate for spatial prediction from sparse data—a natural comparison point for the Neural Process query encoder's learned uncertainty (§6.2). The NP's advantage is that it learns to perform inference without assuming stationarity or specifying a variogram model; its disadvantage is that it provides no theoretical optimality guarantee. Second, the kriging framework makes explicit the *information content* of different observation configurations: widely separated wells reduce kriging variance more than clustered wells, providing an information-theoretic rationale for observation placement that the NP should learn to replicate.
+
+### 2B.7 Epistemic Status and Limitations
+
+The classical geostatistical pathway has a distinctive epistemic profile that differs fundamentally from both the topological and learned pathways:
+
+| Property | Classical (Geostatistics) | Topological (PH) | Learned (DINOv2) |
+|---|---|---|---|
+| **Theoretical foundation** | Random field theory (Matheron, 1963) | Algebraic topology | Representation learning |
+| **Invariance guarantee** | None — empirical stability only | Stability theorem (mathematical proof) | None — distribution-dependent |
+| **Stationarity requirement** | Yes (second-order or intrinsic) | No | No |
+| **Interpretability** | High — direct physical meaning | Moderate — topological invariants | Low — opaque features |
+| **Sensitivity to topology** | None — variograms are topologically blind | Full — designed for topology | Partial — captures some topology implicitly |
+| **Operational maturity** | Highest — decades of industry use | Moderate — active research | Low — recent (2023+) |
+
+The classical pathway's most critical limitation for the QCF is its **topological blindness**: the variogram cannot distinguish braided from meandering channel architectures when spatial correlation lengths are matched (§3.4). This is not a failure of implementation but a mathematical property of two-point statistics—they are provably insensitive to connectivity topology.
+
+However, the classical pathway provides information that neither PH nor DINOv2 captures directly. The variogram range quantifies *how far* spatial correlation extends—a continuous measure of depositional scale that PH's discrete topological invariants do not encode. Anisotropy ratios characterize *directional* structure that isotropic PH computations ignore (unless directional filtrations are used). Fractal dimensions quantify *multiscale roughness* in a way that persistence diagrams do not directly capture. These complementary strengths are why the QCF uses all three pathways rather than relying on PH alone.
+
+The classical pathway also lacks any analog to the stability theorem. The empirical observation that "small changes to geological images produce small changes to variograms" is well-supported in practice but has no formal proof. This places classical features at a lower tier in the confidence hierarchy (§12.6): they enter Pipeline A's index as empirically validated but not mathematically guaranteed descriptors—Tier 3 rather than PH's Tier 1.
+
+---
+
+## 2C. Mathematical Foundations of Self-Supervised Visual Representations
+
+### 2C.1 From Hand-Crafted to Learned Features
+
+The QCF's learned pathway represents a fundamentally different approach to geological pattern recognition than either persistent homology or classical geostatistics. Where PH extracts mathematically defined topological invariants and geostatistics computes theoretically grounded spatial statistics, the learned pathway allows a neural network to *discover* relevant features from data—features that are optimized for discriminative power rather than mathematical elegance.
+
+The evolution from hand-crafted to learned features parallels a broader shift in computer vision. Classical descriptors like SIFT (Lowe, 2004), HOG (Dalal & Triggs, 2005), and Local Binary Patterns (Ojala, Pietikäinen, & Mäenpää, 2002) compute fixed mathematical transformations of image patches—gradient histograms, texture patterns, corner responses. These features are interpretable and well-understood but limited: they capture only the patterns their designers anticipated. Convolutional neural networks (LeCun et al., 1998; Krizhevsky, Sutskever, & Hinton, 2012) demonstrated that *learned* features—optimized end-to-end for a downstream task—dramatically outperform hand-crafted alternatives across virtually all visual recognition benchmarks.
+
+For geological image analysis, this distinction is especially significant. Hand-crafted geological features (variograms, fractal dimensions, connectivity functions) capture well-understood spatial properties but may miss the gestalt—the holistic pattern that an experienced geoscientist recognizes intuitively when viewing a depositional image. The learned pathway aims to capture this gestalt computationally.
+
+### 2C.2 The Vision Transformer Architecture
+
+The QCF employs DINOv2-ViT-B/14 (Oquab et al., 2023) as its learned feature extractor. Understanding what this model computes—and what its features represent—requires unpacking the Vision Transformer (ViT) architecture (Dosovitskiy et al., 2020).
+
+**Patch embedding.** A ViT does not process an image as a grid of pixels. Instead, it divides the input image into a regular grid of non-overlapping square patches. For ViT-B/14, each patch is $14 \times 14$ pixels; a $256 \times 256$ geological image yields $18 \times 18 = 324$ patches. Each patch is flattened into a vector and linearly projected to a $D$-dimensional embedding ($D = 768$ for ViT-B):
+
+$$\mathbf{z}_i^{(0)} = \mathbf{W}_p \cdot \textrm{flatten}(\textrm{patch}_i) + \mathbf{e}_{\textrm{pos}}(i), \quad i = 1, \ldots, N$$
+
+where $\mathbf{W}_p \in \mathbb{R}^{D \times (P^2 \cdot C)}$ is the patch projection matrix, $P = 14$ is the patch size, $C$ is the number of input channels, and $\mathbf{e}_{\textrm{pos}}(i)$ is a learned positional embedding encoding the patch's spatial location within the image. A special learnable [CLS] token $\mathbf{z}_{\textrm{cls}}^{(0)}$ is prepended to the sequence.
+
+**Self-attention.** The core operation of the transformer is *multi-head self-attention* (Vaswani et al., 2017), which allows each patch to attend to every other patch—capturing long-range spatial relationships that convolutional architectures access only through deep stacking. For each attention head $h$, the input embeddings are projected into queries, keys, and values:
+
+$$\mathbf{Q}_h = \mathbf{Z} \mathbf{W}_h^Q, \quad \mathbf{K}_h = \mathbf{Z} \mathbf{W}_h^K, \quad \mathbf{V}_h = \mathbf{Z} \mathbf{W}_h^V$$
+
+Attention weights are computed as:
+
+$$\textrm{Attention}_h(\mathbf{Z}) = \textrm{softmax}\left(\frac{\mathbf{Q}_h \mathbf{K}_h^\top}{\sqrt{d_k}}\right) \mathbf{V}_h$$
+
+where $d_k = D / H$ is the per-head dimension and $H = 12$ is the number of attention heads for ViT-B. The outputs of all heads are concatenated and projected:
+
+$$\textrm{MSA}(\mathbf{Z}) = \textrm{Concat}(\textrm{Attention}_1, \ldots, \textrm{Attention}_H) \mathbf{W}^O$$
+
+Each transformer block applies multi-head self-attention followed by a feed-forward network with residual connections and layer normalization:
+
+$$\mathbf{Z}' = \textrm{LN}(\mathbf{Z} + \textrm{MSA}(\mathbf{Z}))$$
+
+$$\mathbf{Z}^{(\ell+1)} = \textrm{LN}(\mathbf{Z}' + \textrm{FFN}(\mathbf{Z}'))$$
+
+ViT-B stacks $L = 12$ such blocks. The [CLS] token's final representation $\mathbf{z}_{\textrm{cls}}^{(L)} \in \mathbb{R}^{768}$ aggregates global information across all patches via self-attention, serving as a holistic image-level feature vector—the output that enters the QCF's fusion layer.
+
+**Why this matters for geological images.** The self-attention mechanism has a specific advantage for geological pattern recognition: it can detect long-range spatial relationships—such as the downstream correlation between point bars in a meandering system, or the network-wide connectivity of a braided system—without requiring deep convolutional stacks. Each attention head can learn to attend to different types of spatial relationships, and the multi-head structure allows the model to simultaneously capture local texture, medium-scale geometry, and global pattern organization.
+
+### 2C.3 Self-Supervised Pretraining: DINO and DINOv2
+
+DINOv2's power comes not from the ViT architecture alone but from its pretraining strategy—*self-supervised learning without labels* on a curated dataset of 142 million images (LVD-142M).
+
+**The self-distillation framework.** DINO (Caron et al., 2021) and its successor DINOv2 (Oquab et al., 2023) employ a teacher-student self-distillation paradigm. Two networks share the same architecture: the *student* receives a locally cropped view of an image, and the *teacher* receives a global view. The training objective forces the student's output distribution to match the teacher's:
+
+$$\mathcal{L}_{\textrm{DINO}} = - \sum_{x \in \lbrace \textrm{global views} \rbrace} \sum_{x' \in \lbrace \textrm{local views} \rbrace} H(P_t(x), P_s(x'))$$
+
+where $H$ is the cross-entropy loss, $P_t$ is the teacher's output probability distribution (computed with a sharpened softmax and centering), and $P_s$ is the student's distribution. The teacher's weights are updated as an exponential moving average of the student's weights—not through gradient descent—creating a slowly evolving target that stabilizes training.
+
+This training paradigm has a remarkable emergent property: the resulting representations are *linearly separable* for semantic categories without any labeled data during training. Oquab et al. (2023) demonstrated that linear probes on frozen DINOv2 features achieve performance competitive with fully supervised methods on ImageNet classification, object detection, and semantic segmentation.
+
+**What DINOv2 learns.** Visualization of DINOv2's attention maps reveals that the model learns to segment objects and discriminate structural patterns purely from self-supervised objectives. Different attention heads attend to different scales and types of structure: some capture fine-grained texture boundaries, others capture large-scale object contours, and others capture spatial relationships between distant image regions. For geological images, this multi-scale attention is potentially powerful: the model can simultaneously attend to channel boundaries (local), meander geometry (medium-scale), and system-wide connectivity patterns (global).
+
+### 2C.4 Domain Adaptation: LoRA Fine-Tuning
+
+DINOv2 is pretrained on natural images—photographs of objects, scenes, and activities—not geological data. While its representations demonstrate remarkable cross-domain transferability (the model captures general visual structure that transcends specific image categories), fine-tuning for geological imagery improves performance on domain-specific discrimination tasks.
+
+**Low-Rank Adaptation (LoRA).** Hu et al. (2022) introduced LoRA as a parameter-efficient fine-tuning method. Rather than updating all $\sim$86 million parameters of ViT-B, LoRA freezes the pretrained weights $\mathbf{W}_0$ and adds a low-rank perturbation:
+
+$$\mathbf{W} = \mathbf{W}_0 + \mathbf{B}\mathbf{A}$$
+
+where $\mathbf{A} \in \mathbb{R}^{r \times d_{\textrm{in}}}$ and $\mathbf{B} \in \mathbb{R}^{d_{\textrm{out}} \times r}$ are trainable matrices with rank $r \ll \min(d_{\textrm{in}}, d_{\textrm{out}})$. For the QCF, LoRA is applied to the query and value projection matrices in each attention layer with $r = 8$, adding only $\sim$300K trainable parameters while preserving the pretrained representation's general visual understanding.
+
+**Why LoRA rather than full fine-tuning.** Full fine-tuning risks *catastrophic forgetting*—the pretrained representations, which capture general visual structure useful for geological pattern recognition, may be overwritten by domain-specific features that overfit to the training distribution. LoRA's low-rank constraint acts as an implicit regularizer: the fine-tuned model can only deviate from the pretrained representation along a low-dimensional subspace, preserving the general visual features while learning domain-specific adaptations.
+
+This is epistemically important for the QCF. The DINOv2 pathway's value lies partly in its *independence* from geological domain knowledge—it captures visual patterns that a human geoscientist might recognize intuitively but that neither variograms nor PH encode. Aggressive fine-tuning risks making the learned pathway less independent from the other two, weakening the convergence argument (§3.3).
+
+### 2C.5 Representation Geometry and Interpretability
+
+Understanding *what* DINOv2 representations encode is essential for the QCF's evidence hierarchy, which requires knowing the epistemic status of each pathway's features.
+
+**The manifold hypothesis.** High-dimensional neural representations typically lie on or near low-dimensional manifolds within the ambient 768-dimensional space (Bengio, Courville, & Vincent, 2013). For geological images, this means that the set of all DINOv2 representations of, say, meandering channel systems traces out a low-dimensional surface in $\mathbb{R}^{768}$—a surface whose geometry encodes the continuous variation in sinuosity, channel width, point bar development, and other parameters that distinguish meandering configurations from one another.
+
+**Linear probing.** A *linear probe* (Alain & Bengio, 2016) trains a linear classifier $f(\mathbf{z}) = \mathbf{W}\mathbf{z} + \mathbf{b}$ on frozen DINOv2 representations to predict target labels (depositional environment, channel architecture, generator identity). High linear probe accuracy indicates that the relevant information is *linearly accessible* in the representation—a strong form of structure that downstream components (the fusion layer, the embedding projection) can easily exploit. Oquab et al. (2023) showed that DINOv2 representations are remarkably linearly separable, suggesting that the representation geometry naturally organizes images by semantic category.
+
+**Attention map analysis.** For geological images specifically, the spatial attention maps $\alpha_{ij}$ (the softmax weights in the self-attention computation) reveal which image regions the model considers informative. Preliminary analysis suggests that DINOv2 attention maps on geological images highlight channel boundaries, confluence points, and structural discontinuities—features that are geologically meaningful and partially overlap with the structural features that PH captures. This overlap is precisely what the SLIDE decomposition (§12.6) is designed to quantify: how much of DINOv2's representation is shared with PH (joint component), unique to DINOv2 (individual component), or partially shared with one other pathway (partial component)?
+
+### 2C.6 The Scene Gist Connection
+
+The DINOv2 [CLS] token provides what cognitive science calls *scene gist*—the rapid, holistic perception of a scene's category and layout that occurs within the first 100–200 milliseconds of visual exposure, before conscious analysis of individual features (Oliva & Torralba, 2006). Experimental evidence shows that human observers can categorize natural scenes (forest, beach, city) from extremely brief exposures (as short as 20ms), suggesting that scene gist is computed from global image statistics—spatial frequency content, texture gradients, and layout geometry—rather than from identified objects.
+
+The analogy to geological image analysis is direct. An experienced geoscientist, shown a depositional image for a fraction of a second, can typically identify the general environment (fluvial, aeolian, estuarine) before consciously analyzing individual features. This gestalt recognition—rapid, holistic, and difficult to articulate—is precisely what the learned pathway aims to capture computationally. The DINOv2 [CLS] token, which aggregates global information via self-attention across all patches, provides an architectural analog to this cognitive process.
+
+### 2C.7 Epistemic Status and Limitations
+
+The learned pathway occupies a distinctive position in the QCF's epistemic framework—high discriminative power but low interpretability and no formal guarantees:
+
+**No stability theorem.** Unlike PH, DINOv2 features have no proven invariance under input perturbation. Empirically, ViT representations are more robust to common corruptions than CNNs (Bhojanapalli et al., 2021), but this robustness is observed, not proven. A small, adversarially crafted perturbation could produce a large change in the 768-dimensional representation—a vulnerability that the adversarial tests of §7.4 are designed to probe.
+
+**Distribution dependence.** DINOv2 is pretrained on 142 million natural images. Its representations encode the statistical structure of this training distribution. Geological images—binary facies maps, seismic sections, core photographs—may lie outside the distribution the model has learned to represent well. LoRA fine-tuning partially addresses this, but the resulting features remain dependent on the fine-tuning data distribution. If the fine-tuning data comes from a single generator, the learned features may encode generator-specific artifacts rather than geological structure—a risk that the LOGO protocol (§7.3) is designed to detect.
+
+**Opacity.** The 768-dimensional representation is not directly interpretable in geological terms. We cannot point to a specific dimension and say "this encodes sinuosity" or "this captures net-to-gross ratio." The directed probing methods of §12.6 (linear probes and T-CAV) provide partial interpretability by identifying directions in DINOv2 space that correlate with known geological or topological concepts, but the representation remains fundamentally opaque compared to variogram parameters or Betti numbers.
+
+**Entanglement.** DINOv2 features may encode multiple geological properties in entangled ways—a single dimension might capture a mixture of texture, scale, connectivity, and generator artifacts. The DeCUR decomposition (§12.7) addresses this by separating DINOv2's representation into PH-aligned and PH-residual components, but full disentanglement of geological content from artifacts remains an open problem.
+
+These limitations are why DINOv2 features enter the confidence hierarchy at Tier 3 or 4 (§12.6)—empirically powerful but lacking the theoretical guarantees of PH (Tier 1) or the cross-pathway corroboration of the joint component (Tier 2). The QCF's architecture treats this epistemic asymmetry as a feature, not a bug: DINOv2's unique contribution—the holistic pattern recognition that neither PH nor geostatistics provides—is most valuable precisely because it is independent of the other pathways' assumptions and methods.
+
+---
+
 ## 3. Application to the Qualia Convergence Framework
 
 ### 3.1 The Research Problem: What Is the Essence of a Geological Image?
@@ -1217,6 +1445,10 @@ Arnold, D., Demyanov, V., Tatum, D., Christie, M., Roesner, K., & Champlong, P. 
 
 Atienza, N., Gonzalez-Diaz, R., & Soriano-Trigueros, M. (2020). On the stability of persistent entropy and new summary functions for topological data analysis. *Pattern Recognition*, 107, 107509.
 
+Bengio, Y., Courville, A., & Vincent, P. (2013). Representation learning: A review and new perspectives. *IEEE Transactions on Pattern Analysis and Machine Intelligence*, 35(8), 1798–1828.
+
+Bhojanapalli, S., Chakrabarti, A., Glasner, D., Li, D., Unterthiner, T., & Veit, A. (2021). Understanding robustness of transformers for image classification. *ICCV 2021*. *arXiv:2108.02972*.
+
 Belghazi, M. I., Barber, A., Balin, O., Dresdner, R., et al. (2018). Mutual information neural estimation. *ICML*.
 
 Bergomi, M. G., Barate, A., & Di Fabio, B. (2016). Towards a topological fingerprint of music. In *Computational Topology in Image Context*, LNCS 9667, 88–100. Springer.
@@ -1224,6 +1456,8 @@ Bergomi, M. G., Barate, A., & Di Fabio, B. (2016). Towards a topological fingerp
 Bergomi, M. G., & Barate, A. (2020). Homological persistence in time series: An application to music classification. *Journal of Mathematics and Music*, 14(2), 204–221.
 
 Bubenik, P. (2015). Statistical topological data analysis using persistence landscapes. *Journal of Machine Learning Research*, 16(3), 77–102.
+
+Caron, M., Touvron, H., Misra, I., Jégou, H., Mairal, J., Bojanowski, P., & Synnaeve, G. (2021). Emerging properties in self-supervised vision transformers. *ICCV 2021*. *arXiv:2104.14294*.
 
 Carlsson, G. (2009). Topology and data. *Bulletin of the American Mathematical Society*, 46(2), 255–308.
 
@@ -1233,6 +1467,8 @@ Chami, I., Ying, Z., Ré, C., & Leskovec, J. (2019). Hyperbolic graph convolutio
 
 Chawshin, K., et al. (2021). U.S. Patent 11,386,143.
 
+Chilès, J.-P., & Delfiner, P. (2012). *Geostatistics: Modeling Spatial Uncertainty* (2nd ed.). Wiley.
+
 Chazal, F., de Silva, V., Glisse, M., & Oudot, S. (2016). *The Structure and Stability of Persistence Modules*. SpringerBriefs in Mathematics.
 
 Cohen-Steiner, D., Edelsbrunner, H., & Harer, J. (2007). Stability of persistence diagrams. *Discrete & Computational Geometry*, 37(1), 103–120.
@@ -1241,7 +1477,11 @@ Conley, C. (1978). *Isolated Invariant Sets and the Morse Index*. CBMS Regional 
 
 Das, S., Bhattacharya, S., & Bhowmick, S. (2024). Topological analysis of dynamical systems: Distinguishing periodic and chaotic regimes using persistent homology. *arXiv:2408.15834*.
 
+Dalal, N., & Triggs, B. (2005). Histograms of oriented gradients for human detection. In *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)*, 886–893.
+
 Dey, T. K., Hou, T., & Mandal, S. (2020). Computing Morse decomposition of vector fields. *Journal of Computational Geometry*, 11(1), 305–333.
+
+Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., ... & Houlsby, N. (2020). An image is worth 16x16 words: Transformers for image recognition at scale. *ICLR 2021*. *arXiv:2010.11929*.
 
 Edelsbrunner, H., & Harer, J. (2010). *Computational Topology: An Introduction*. American Mathematical Society.
 
@@ -1259,15 +1499,21 @@ Gatys, L. A., Ecker, A. S., & Bethge, M. (2016). Image style transfer using conv
 
 Gaynanova, I., & Li, G. (2019). Structural learning and integrative decomposition of multi-view data. *Biometrics*, 75(4), 1121–1132.
 
+Guardiano, F. B., & Srivastava, R. M. (1993). Multivariate geostatistics: Beyond bivariate moments. In *Geostatistics Tróia '92*, Quantitative Geology and Geostatistics (Vol. 5, pp. 133–144). Springer.
+
 Giusti, C., Ghrist, R., & Bassett, D. S. (2016). Two's company, three (or more) is a simplex: Algebraic-topological tools for understanding higher-order structure in neural data. *Journal of Computational Neuroscience*, 41(1), 1–14.
 
 He, Q., Zhong, Z., Alabert, F., & Datta-Gupta, A. (2023). Koopman operator-based model reduction for reservoir simulation and optimization. *SPE Journal*, 28(4), 2024–2040.
+
+Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., ... & Chen, W. (2022). LoRA: Low-rank adaptation of large language models. *ICLR 2022*. *arXiv:2106.09685*.
 
 Hoydic, C. J. (2026). On the nature of geological essence: A critical analysis of the ellipse degradation thought experiment. Unpublished manuscript.
 
 Jaegle, A., Gimeno, F., Brock, A., Zisserman, A., Vinyals, O., & Carreira, J. (2021). Perceiver IO: A general architecture for structured inputs & outputs. *arXiv:2107.14795*.
 
 Jansen, J. D., Brouwer, R., Naevdal, G., & van Kruijsdijk, C. P. J. W. (2009). Closed-loop reservoir management. *SPE Reservoir Evaluation & Engineering*, 12(1), 145–154.
+
+Journel, A. G., & Huijbregts, C. J. (1978). *Mining Geostatistics*. Academic Press.
 
 Jiwei, L., Zhenyu, C., Chunmei, D., Xixin, W., & Junhui, W. (2025). Characteristics and distribution of interlayers in tidal-dominated estuarine reservoir: Insights from the Dongying Depression, China. *Scientific Reports*, 15, 3591.
 
@@ -1289,7 +1535,11 @@ Kornblith, S., Norouzi, M., Lee, H., & Hinton, G. (2019). Similarity of neural n
 
 Kotelevskii, N., Panov, M., Zaytsev, A., & Spokoiny, V. (2025). Uncertainty decomposition in feature space without ensembles. *arXiv:2511.12389*.
 
+LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). Gradient-based learning applied to document recognition. *Proceedings of the IEEE*, 86(11), 2278–2324.
+
 Lakshminarayanan, B., Pritzel, A., & Blundell, C. (2017). Simple and scalable predictive uncertainty estimation using deep ensembles. *Advances in Neural Information Processing Systems* 30.
+
+Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). ImageNet classification with deep convolutional neural networks. *Advances in Neural Information Processing Systems* 25.
 
 Kramar, M., Levanger, R., Tithof, J., Suri, B., Xu, M., Paul, M., ... & Mischaikow, K. (2016). Analysis of Kolmogorov flow and Rayleigh-Benard convection using persistent homology. *Physica D*, 334, 82–98.
 
@@ -1299,7 +1549,13 @@ Leopold, L. B., & Wolman, M. G. (1957). River channel patterns: Braided, meander
 
 Lipinski, M., Mrozek, M., & Batko, B. (2023). Persistent Conley-Morse graphs: Attractor structure under perturbation. *arXiv:2107.02115*.
 
+Lowe, D. G. (2004). Distinctive image features from scale-invariant keypoints. *International Journal of Computer Vision*, 60(2), 91–110.
+
 Liu, J., Wang, J., Liu, B., & Ma, Z. (2021). Persistent homology-based topological analysis on the Gestalt patterns during human brain cognition process. *Journal of Healthcare Engineering*, 2021, 2334332.
+
+Mandelbrot, B. B. (1982). *The Fractal Geometry of Nature*. W. H. Freeman.
+
+Matheron, G. (1963). Principles of geostatistics. *Economic Geology*, 58(8), 1246–1266.
 
 Mayo, D. G. (2018). *Statistical Inference as Severe Testing: How to Get Beyond the Statistics Wars*. Cambridge University Press.
 
@@ -1310,6 +1566,8 @@ Nanson, G. C., & Knighton, A. D. (1996). Anabranching rivers: Their cause, chara
 Nickel, M., & Kiela, D. (2017). Poincaré embeddings for learning hierarchical representations. *Advances in Neural Information Processing Systems* 30.
 
 Nickel, M., & Kiela, D. (2018). Learning continuous hierarchies in the Lorentz model of hyperbolic geometry. *ICML 2018*.
+
+Ojala, T., Pietikäinen, M., & Mäenpää, T. (2002). Multiresolution gray-scale and rotation invariant texture classification with local binary patterns. *IEEE Transactions on Pattern Analysis and Machine Intelligence*, 24(7), 971–987.
 
 Oh, S., Song, H., Yun, S., Kim, S., & Yoon, S. (2019). Hedged instance embedding. *ICLR 2019*. *arXiv:1810.00319*.
 
@@ -1333,6 +1591,8 @@ Phillips, J. D. (2003). Sources of nonlinearity and complexity in geomorphic sys
 
 Phillips, J. D. (2006). Deterministic chaos and historical geomorphology: A review and look forward. *Geomorphology*, 76(1–2), 109–121.
 
+Plotnick, R. E., Gardner, R. H., Hargrove, W. W., Prestegaard, K., & Perlmutter, M. (1996). Lacunarity analysis: A general technique for the analysis of spatial patterns. *Physical Review E*, 53(5), 5461–5468.
+
 Phillips, J. D. (2011). Emergence and pseudo-equilibrium in geomorphology. *Geomorphology*, 132(3–4), 319–326.
 
 Raghu, M., Gilmer, J., Yosinski, J., & Sohl-Dickstein, J. (2017). SVCCA: Singular vector canonical correlation analysis for deep learning dynamics and interpretability. *arXiv:1706.05806*.
@@ -1345,6 +1605,10 @@ Scheidt, C., Li, L., & Caers, J. (2018). *Quantifying Uncertainty in Subsurface 
 
 Shah, P., Mukherjee, S., & Sousbie, T. (2025). Persistent homology detects bifurcation routes to chaos. *arXiv preprint*.
 
+Stauffer, D., & Aharony, A. (1994). *Introduction to Percolation Theory* (2nd ed.). Taylor & Francis.
+
+Strebelle, S. (2002). Conditional simulation of complex geological structures using multiple-point statistics. *Mathematical Geology*, 34(1), 1–21.
+
 Stolum, H.-H. (1996). River meandering as a self-organization process. *Science*, 271(5256), 1710–1713.
 
 Takens, F. (1981). Detecting strange attractors in turbulence. In *Dynamical Systems and Turbulence*, Lecture Notes in Mathematics, Vol. 898, 366–381. Springer.
@@ -1353,7 +1617,11 @@ Tauzin, G., Lupo, U., Tunstall, L., et al. (2021). giotto-tda: A topological dat
 
 Thompson, A. B., Mayall, M., & Sherborne, A. (2023). Persistent homology tracks dynamic topological changes in dissolving porous media. *Water Resources Research*, 59(5), e2022WR033750.
 
+Turcotte, D. L. (1997). *Fractals and Chaos in Geology and Geophysics* (2nd ed.). Cambridge University Press.
+
 Tye, M. (2021). Qualia. *Stanford Encyclopedia of Philosophy*. https://plato.stanford.edu/entries/qualia/
+
+Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. *Advances in Neural Information Processing Systems* 30.
 
 Vaughan, A., Tebbutt, W., Hosking, J. S., & Turner, R. E. (2022). Convolutional conditional neural processes for local climate downscaling. *Geoscientific Model Development*, 15(1), 251–268.
 
