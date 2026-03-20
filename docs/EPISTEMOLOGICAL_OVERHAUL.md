@@ -2,7 +2,7 @@
 
 **Author**: Corey James Hoydic
 **Date**: February 2026
-**Status**: ARCHIVED — Core ideas implemented in `DISSERTATION_CHAPTER_PH.md` §5 (evidence hierarchy) and §10 (confidence hierarchy, response essence, uncertainty quantification). This document is retained for historical reference only. The dissertation chapter is now the authoritative source.
+**Status**: ARCHIVED — Core ideas implemented in `DISSERTATION_OUTLINE.md` §5 (evidence hierarchy) and §10 (confidence hierarchy, response essence, uncertainty quantification). This document is retained for historical reference only. The dissertation chapter is now the authoritative source.
 
 ---
 
@@ -252,7 +252,7 @@ This transforms Pipeline A from storing analogs as point estimates to storing an
 
 ## 5. Impact on the Persistent Homology Chapter
 
-The dissertation chapter (`DISSERTATION_CHAPTER_PH.md`) has been substantially updated to reflect the restructured framework:
+The dissertation chapter (`DISSERTATION_OUTLINE.md`) has been substantially updated to reflect the restructured framework:
 
 1. **Section 5 (Evidence Hierarchy)**: Restructured evidence hierarchy is fully developed, with mathematical invariance as Level 1 and LOGO demoted to Level 6
 2. **Section 9 (Open Questions)**: Expanded to cover philosophical robustness of invariance, multi-parameter persistence, topological dictionary learning, and information-theoretic quantification
