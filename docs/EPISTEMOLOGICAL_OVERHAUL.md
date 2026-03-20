@@ -2,7 +2,7 @@
 
 **Author**: Corey James Hoydic
 **Date**: February 2026
-**Status**: ARCHIVED — Core ideas implemented in `DISSERTATION_OUTLINE.md` §5 (evidence hierarchy) and §10 (confidence hierarchy, response essence, uncertainty quantification). This document is retained for historical reference only. The dissertation chapter is now the authoritative source.
+**Status**: ARCHIVED — Core ideas implemented in `DISSERTATION_OUTLINE.md` §8 (evidence hierarchy) and §14 (confidence hierarchy, response essence, uncertainty quantification). This document is retained for historical reference only. The dissertation outline is now the authoritative source. *Note: Section numbers in the body below refer to an earlier numbering scheme; see `DISSERTATION_OUTLINE.md` for current section numbers.*
 
 ---
 
