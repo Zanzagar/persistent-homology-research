@@ -1199,36 +1199,66 @@ Witnesses 9–10 address edge cases that the other witnesses miss. Mixture handl
 
 ### 10.3 The LOGO Protocol
 
-The Leave-One-Generator-Out (LOGO) protocol is the third witness and the most direct test of generator invariance—the necessary (though not sufficient) condition for an essence claim.
+The Leave-One-Generator-Out (LOGO) protocol is the third witness and the direct test of *interventional invariance*—a necessary (though not sufficient) condition for an essence claim grounded in causal representation learning (CRL). Under the Unifying CRL framework (ICLR 2025, arXiv:2409.02772), distinct generators are reinterpreted as *interventions* on a shared data-generating process, and LOGO tests which features remain invariant across that intervention space. The reframing changes what a LOGO pass *means*: it is no longer merely empirical cross-validation, but a test of whether learned features correspond to factors that are provably identifiable under the observed intervention structure, with identifiability strength determined by the *kind* of invariance the pool supports.
 
 **Protocol.** The test requires a pool of generators $\lbrace G_1, G_2, \ldots, G_N \rbrace$ drawn from fundamentally different generative paradigms. For the current research program, the generator pool comprises:
 
-- **$G_1$**: The principle-based generator (Section 2), producing fluvial, aeolian, and estuarine patterns from empirical formulas
+- **$G_1$**: The principle-based generator (§2), producing fluvial, aeolian, and estuarine patterns from empirical formulas
 - **$G_2$**: A GAN-based generator (if available), producing patterns via adversarial training on real geological images
 - **$G_3$**: An MPS-based generator (SNESIM with varied training images), producing patterns via multiple-point statistical simulation
 - **$G_4$**: A process-based generator (Flumy), producing patterns via physical process simulation
 
-The use of fundamentally different generator types—principle-based, adversarial, statistical, and process-based—strengthens the invariance claim: if representations transfer across paradigms that share no implementation assumptions, the captured structure is more likely to reflect geological reality than generator artifacts.
+In CRL vocabulary, these four generators form the *environment partition*. Each environment corresponds to a particular intervention pattern on the shared data-generating process, and the invariance of candidate features across the partition is what the protocol tests. The use of fundamentally different generator types strengthens the invariance claim precisely because the environment partition is *informative*: the generators differ in mechanism, not merely in random seed.
 
-For each held-out generator $G_h$, the model is trained on all remaining generators $\lbrace G_1, \ldots, G_N \rbrace \setminus \lbrace G_h \rbrace$ and evaluated on $G_h$. Three metrics are computed on the held-out generator: cluster purity (adjusted Rand index), retrieval precision (P@$K$), and transfer prediction ($R^2$ on held-out geological properties). The degradation for each metric is:
+For each held-out generator $G_h$, the model is trained on all remaining generators $\lbrace G_1, \ldots, G_N \rbrace \setminus \lbrace G_h \rbrace$ and evaluated on $G_h$. Three standard metrics are computed on the held-out generator: cluster purity (adjusted Rand index), retrieval precision (P@$K$), and transfer prediction ($R^2$ on held-out geological properties). A fourth metric applies specifically to the CG-VAE component of the learned pathway (§5.8, §6.5): Mean Correlation Coefficient (MCC) between CG-VAE's learned factors $\hat{z}$ and the held-out generator's ground-truth parameters. The degradation for each metric is:
 
 $$\Delta_m = \frac{M_{\textrm{train}} - M_{\textrm{test}}}{M_{\textrm{train}}}$$
 
 where $M_{\textrm{train}}$ is the metric evaluated on training generators and $M_{\textrm{test}}$ is the metric evaluated on the held-out generator.
 
-**Interpretation thresholds (pre-committed).** The following thresholds are fixed before experimentation:
+**Invariance-to-identifiability taxonomy.** The Unifying CRL framework maps the *kind* of observed invariance to the *strength* of identifiability the observation supports:
 
-| Degradation | Interpretation | Action |
+| Observed invariance | Identifiability strength | Conditions |
 |---|---|---|
-| $\Delta < 0.2$ for all $G_h$ | Generator-invariant | Witness 3 passed |
-| $\Delta < 0.3$ for most $G_h$ | Mostly invariant | Investigate specific generator dependencies |
-| $\Delta > 0.3$ for any $G_h$ | Generator-specific | Witness 3 failed; essence claim not supported |
+| Distribution invariance (marginals match across environments) | Weak: features may be entangled with environment-specific transformations | Held across the pool |
+| Mechanism invariance (generating function $f$ identical across environments) | Moderate: block-wise identifiability up to partition-level ambiguity | Mechanism shared; distributional differences via intervention on latents |
+| Interventional sufficiency ($2 \lvert z_a \rvert + 1$ informative changes per factor subset $z_a$) | Strong: element-wise identifiability up to invertible transformation | Kong et al. (2025) Theorem 2; A1–A4 satisfied |
 
-**Why LOGO is more stringent than standard domain adaptation.** Standard domain adaptation (Ganin & Lempitsky, 2015) assumes partial overlap between source and target domains and employs explicit adaptation techniques (adversarial training, gradient reversal layers) to bridge the gap. LOGO assumes *complete exclusion* of the target generator, with no adaptation mechanism—pure generalization. This is a test of fundamental invariance, not of transfer learning capacity. An architecture that passes LOGO without any adaptation mechanism provides stronger evidence for generator-independent essence than one that requires domain adaptation to bridge generator gaps.
+LOGO's protocol tests the first column; the identifiability strength it supports depends on which row's conditions the pool satisfies.
 
-**Epistemic limitations.** LOGO is a necessary but not sufficient condition for essence capture, and the limitations developed in the evidence hierarchy (Section 8) apply in full. Four structural limitations must be explicitly acknowledged. First, *generator-family boundedness*: LOGO tests invariance within the generator pool, not invariance to geology in general. If all generators share physical assumptions (Leopold-Wolman relationships, process-based sediment transport equations), then passing LOGO may reflect invariance to that shared assumption space rather than to the underlying geological process (Wimsatt, 1981). Second, *impossibility results*: Ahuja et al. (2023) proved that invariance alone is insufficient to identify latent causal variables—passing LOGO does not prove that invariant features correspond to geological causes rather than to spurious correlations shared across generators. Third, *environment diversity*: the epistemic strength of LOGO depends on the genuine independence of the generators in the pool, a property that is itself difficult to verify. Fourth, *degrees-of-freedom risk*: with sufficient control over the generator space, LOGO can be made to trivially succeed—not because essence has been captured but because the generator pool has been (perhaps inadvertently) designed to agree on non-essential features.
+**Per-generator assumption audit.** Not every pool of distinct generators is informative in the CRL sense—some are *confounded* (share latent assumptions that induce shared artifacts). The generator pool must be audited:
 
-These limitations do not invalidate LOGO but constrain its epistemic reach. LOGO provides Level 6 evidence in the evidence hierarchy (Section 8)—evidence that must be corroborated by mathematical invariance (Level 1), severe testing (Level 2), and empirical validation (Levels 5, 7) before an essence claim is warranted.
+| Generator | Invariance type contributed | CRL status | Rationale |
+|---|---|---|---|
+| $G_1$ (principle-based) | Mechanism invariance (empirical-formula mechanism) | Informative | Leopold-Wolman / Parker / Werner mechanisms are explicit and documented |
+| $G_2$ (GAN) | Distribution invariance only | Partially confounded | Learned mechanism may encode unknown inductive biases |
+| $G_3$ (MPS/SNESIM) | Distribution invariance (via training image) | Informative if training images differ from $G_1$'s implied distribution | Training-image choice determines informativeness |
+| $G_4$ (Flumy process-based) | Mechanism invariance (physical process) | Informative, distinct mechanism from $G_1$ | Physical process mechanism, not empirical formulas |
+
+The partition $\lbrace G_1, G_2, G_3, G_4 \rbrace$ is informative overall because $G_1$ and $G_4$ supply mechanism variation while $G_2$ and $G_3$ supply distributional variation. This is sufficient for Kong et al. (2025) Theorem 2 at the subspace-identifiability level, conditional on per-generator A4 (sparse mixing) verification.
+
+**Interpretation thresholds (pre-committed).**
+
+| Metric & threshold | Interpretation | Action |
+|---|---|---|
+| $\Delta < 0.2$ on all standard metrics for all $G_h$ | Generator-invariant | Witness 3 passed |
+| $\Delta < 0.3$ on standard metrics for most $G_h$ | Mostly invariant | Investigate specific generator dependencies |
+| $\Delta > 0.3$ on any standard metric for any $G_h$ | Generator-specific | Witness 3 failed; essence claim unsupported |
+| MCC$_{\textrm{test}} \geq 0.85$ on held-out $G_h$ | Identifiability preserved under intervention | Level 1b maintained out-of-distribution |
+| MCC$_{\textrm{test}} < 0.75$ on held-out $G_h$ | Identifiability fails OOD | Demotes CG-VAE factors for this generator's parameter subspace from Tier 1 |
+
+The MCC thresholds follow the Kong et al. (2025) convention; they may be refined per experimental protocol but must be pre-committed before held-out evaluation.
+
+**Why LOGO is more stringent than standard domain adaptation.** Standard domain adaptation (Ganin & Lempitsky, 2015) assumes partial overlap between source and target domains and employs explicit adaptation techniques (adversarial training, gradient reversal layers) to bridge the gap. LOGO assumes *complete exclusion* of the target generator, with no adaptation mechanism—pure generalization. In CRL terms, standard domain adaptation learns features that *transfer* across environments; LOGO demands features that are *invariant* across the interventional partition. An architecture that passes LOGO without any adaptation mechanism provides stronger evidence for generator-independent essence than one requiring adaptation to bridge generator gaps.
+
+**Epistemic limitations, reframed within CRL's positive theorems.** The caveats that previously qualified LOGO as "necessary but not sufficient" are clarified, rather than undermined, by the Unifying CRL framework. Four structural limitations remain:
+
+1. *Generator-family boundedness.* LOGO tests invariance within the pool, not invariance to geology in general. If all generators share physical assumptions (Leopold-Wolman relationships, process-based sediment transport equations), the pool collapses to a single intervention class and Kong et al.'s Theorem 2 cannot be invoked (Wimsatt, 1981). The audit above separates informative from confounded pools.
+2. *Ahuja et al. (2023) impossibility, reinterpreted.* Ahuja et al. proved that invariance alone is insufficient to identify latent causal variables—a defeater for naive LOGO interpretation. Within the Unifying CRL framework, this result is not a defeater but a clarification: invariance recovers identifiability only when the partition is *interventional* (changes mechanism, not just distribution) and the counting condition is met ($2 \lvert z_a \rvert + 1$ informative changes for subspace $z_a$). LOGO supports Level 1b identifiability claims only under these conditions; outside them, it provides empirical Level 6 evidence without Level 1b support. This graded behavior is strictly stronger than the previous "necessary but not sufficient" framing.
+3. *Environment diversity.* LOGO's epistemic strength depends on the genuine independence of generators in the pool—the requirement, in CRL vocabulary, that the environment partition admit nontrivial interventions rather than mere relabelings of the same process.
+4. *Degrees-of-freedom risk.* With sufficient control over the generator space, LOGO can be made to trivially succeed—not because essence has been captured but because the pool has been (inadvertently) designed to agree on non-essential features. In CRL terms: over-aligning the pool removes the intervention structure LOGO exploits. The audit table is the first line of defense against this pathology.
+
+**Evidence-hierarchy placement.** LOGO provides Level 2–6 evidence depending on which identifiability conditions the generator pool satisfies. When the environment partition is informative and the counting condition holds (taxonomy rows 2–3), LOGO supports Level 1b identifiability claims through the auxiliary-variable theorems (§5.8, §8.1). When only distribution invariance holds (row 1), LOGO provides Level 6 cross-generator validation without Level 1b support. This graded contribution is what §8.4's descriptor admissibility standards operationalize.
 
 ### 10.4 Adversarial Tests
 
