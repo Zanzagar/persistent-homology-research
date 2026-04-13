@@ -958,11 +958,23 @@ The stability theorem thus makes a strong prediction: because persistent homolog
 
 What evidence warrants calling a representation "essence"? No single test is sufficient. We propose a hierarchy organized by epistemic strength—from mathematical proof at the top to empirical agreement at the bottom—where the convergence of multiple levels provides warranted confidence:
 
-**Level 1 — Mathematical Invariance Theorems (Strongest).** The stability theorem provides a *formal proof* that persistent homology features are invariant under bounded perturbations. This is a mathematical guarantee—it does not depend on which generators are tested, which dataset is used, or how many experiments are run. It cannot be "overengineered" because it is a theorem, not a test. For the topological pathway, this is the primary evidence for invariance.
+**Level 1 — Mathematical Invariance Theorems (Strongest).** Level 1 comprises two *complementary* classes of mathematical guarantee, each protecting against a distinct failure mode. The framework admits both at the same epistemic tier: each is a formal proof, not an empirical claim, and each provides warranted confidence that no quantity of downstream testing can supply. Section 8.2 develops the complementary-evidence structure formally.
 
-*Limitation*: The stability theorem guarantees that PH features are *invariant*, but does not guarantee they are *relevant*. You could have perfectly stable features that are irrelevant to geological classification. The $H_1$ hypothesis (Section 6.6) addresses relevance; stability addresses invariance. Together, they provide both.
+**Level 1a — Stability (sensitivity to perturbation).** The stability theorem (Cohen-Steiner, Edelsbrunner, & Harer, 2007) provides a formal proof that persistent homology features are invariant under bounded perturbations of the input function:
 
-This limitation deserves a sharper formulation: *the $H_1$ experiment is the linchpin of the entire evidence hierarchy.* If PH features prove unable to discriminate braided from meandering architectures on variogram-matched pairs—if topological invariants capture nothing geologically meaningful—then Level 1's mathematical guarantee becomes actively misleading rather than merely incomplete. The stability theorem would certify the robustness of features that encode no geological content, and the hierarchy, designed to privilege mathematical invariance over empirical testing, would privilege precisely the wrong signals. The research program's pre-committed decision thresholds (Section 6.6; ADR-S04) reflect this centrality: below 60% classification accuracy, the topological pathway is demoted to an ablation study regardless of how elegant its mathematical foundations may be.
+$$d_B\bigl(\textrm{Dgm}(f), \textrm{Dgm}(g)\bigr) \leq \lVert f - g \rVert_\infty.$$
+
+This is a mathematical guarantee—it does not depend on which generators are tested, which dataset is used, or how many experiments are run. It cannot be "overengineered" because it is a theorem, not a test. Stability protects against perturbation noise: bounded input changes produce bounded diagram changes. For the topological pathway, stability is the primary invariance guarantee.
+
+*Limitation (Level 1a).* The stability theorem guarantees that PH features are *invariant under perturbation*, but does not guarantee they are *relevant to geology* or that they *correspond to true generative factors*. One could have perfectly stable features that are geologically irrelevant; one could also have perfectly stable features that encode generator-specific artifacts stably rather than geological structure stably. The $H_1$ hypothesis (§6.6) addresses relevance through empirical testing; Level 1b addresses correspondence through a second theorem class.
+
+This limitation deserves a sharper formulation: *the $H_1$ experiment is the linchpin of the Level 1a guarantee.* If PH features prove unable to discriminate braided from meandering architectures on variogram-matched pairs—if topological invariants capture nothing geologically meaningful—then Level 1a's mathematical guarantee becomes actively misleading rather than merely incomplete. The stability theorem would certify the robustness of features that encode no geological content, and the hierarchy, designed to privilege mathematical invariance over empirical testing, would privilege precisely the wrong signals. The research program's pre-committed decision thresholds (§6.6; ADR-S04) reflect this centrality: below 60% classification accuracy, the topological pathway is demoted to an ablation study regardless of how elegant its mathematical foundations may be.
+
+**Level 1b — Identifiability (correspondence with generative factors).** Identifiability theorems (Khemakhem et al., 2020; Kong et al., 2025) provide a formal proof that learned latent factors recover true generative parameters up to well-defined invertible equivalence classes, under auxiliary-variable supervision. Khemakhem et al.'s iVAE result (§5.8) establishes affine-equivalence identifiability when $2n + 1$ distinct auxiliary values produce linearly independent natural-parameter vectors of an exponential-family conditional prior. Kong et al.'s Theorem 2 strengthens this to component-wise identifiability—up to element-wise invertible transformation—under sparse-mixing structure A4 and a second-order derivative condition on the mixing Jacobian. Section 5.8 contains the theorem statements and their relationship to the CG-VAE architecture introduced there.
+
+Level 1b is also a mathematical guarantee—it does not depend on empirical test passes—but it protects against a *different* failure mode than stability. Where Level 1a bounds sensitivity to input perturbation, Level 1b bounds correspondence: the guarantee that learned factors recover true generative structure rather than generator-artifact mixtures that happen to fit the observed data distribution.
+
+*Limitation (Level 1b).* Identifiability guarantees require auxiliary-variable supervision and the assumption set A1–A5 (iVAE variant: exponential-family prior and $2n + 1$ auxiliary values over the full latent vector). The QCF's principle-based generator (§2) satisfies the supervision requirement by construction through paired $(I, \theta)$ data, but A4 (sparse mixing) must be verified empirically per generator; A5 provides an automatic fallback to iVAE's result if A4 fails on a specific generator. Identifiability guarantees, like stability guarantees, are conditional on their assumption sets holding. The empirical analog of the $H_1$ linchpin for Level 1b is the Mean Correlation Coefficient (MCC) threshold documented in §10.3 and §14.6—a pre-committed check that Level 1b's correspondence claim is not vacuous in practice.
 
 **Level 2 — Severe Adversarial Testing.** Following Mayo's severe testing framework (2018): a claim passes a severe test if the test was *highly capable of detecting failure* had the claim been false. The key shift: design tests to *break* the invariance claim, not merely challenge it. Specifically: construct generators designed to produce images where topological features are misleading, test whether $H_1$ features can be manipulated independently of geological meaning, and inject noise at filtration-critical scales. If the claim survives tests designed to destroy it, that is strong evidence.
 
@@ -976,13 +988,41 @@ This limitation deserves a sharper formulation: *the $H_1$ experiment is the lin
 
 **Level 7 — Expert Agreement.** Human expert judgment (Cohen's $\kappa$) provides truly generator-independent assessment, as experts judge geological similarity from experience, not from any computational pipeline.
 
-### 8.2 The Revised Essence Claim
+### 8.2 Stability and Identifiability as Complementary Level 1 Evidence
+
+The two Level 1 theorem classes introduced in §8.1 are *complementary*, not redundant. Each provides mathematical certainty about a specific invariance; each leaves the other's domain unprotected. A feature that satisfies both is *doubly* Level 1—robust against perturbation and correctly identified against true generative factors—and §14.6 elevates such features to the top of the confidence hierarchy. Understanding the complementarity precisely requires naming what each theorem protects against, and what each does not.
+
+**What stability protects against, and what it does not.** The stability theorem bounds
+
+$$d_B\bigl(\textrm{Dgm}(f + \delta f), \, \textrm{Dgm}(f)\bigr) \leq \lVert \delta f \rVert_\infty$$
+
+for any perturbation $\delta f$ of the input function. This is a sensitivity guarantee: small input changes produce correspondingly small persistence-diagram changes. Stability does *not* say anything about whether the features of $\textrm{Dgm}(f)$ correspond to true generative factors of the geological system that produced $f$. A persistence diagram could be maximally stable and yet encode only generator-specific artifacts—properties that survive perturbation but carry no geological meaning. Level 1a answers "does the feature respond smoothly to input noise?" but not "does the feature recover what produced the input?"
+
+**What identifiability protects against, and what it does not.** The identifiability theorems bound
+
+$$\hat{z} = h(z)$$
+
+for known, structured $h$ (affine in iVAE; element-wise invertible in Kong et al.'s Theorem 2). This is a correspondence guarantee: learned factors are in known relationship with true generative factors. Identifiability does *not* bound response to input perturbation. A learned factor $\hat{z}_k$ could satisfy Theorem 2 perfectly—identifying the true $z_k$ up to invertible transformation—and still be arbitrarily sensitive to small image noise that happens to fall outside the training distribution. Level 1b answers "does the feature recover the generative factor it claims to?" but not "is the feature robust to perturbation?"
+
+**Why both matter in retrieval.** Pipeline A (§9.1) indexes geological analogs by descriptor vectors; Pipeline B (§9.2) maps sparse observations into the same descriptor space. Each pipeline can fail in ways that a Level 1 theorem protects against, but no single theorem protects against both failure modes simultaneously:
+
+| Failure mode | Countered by | Mechanism |
+|---|---|---|
+| Sparse observation is a bounded perturbation of the full analog it should retrieve, but the perturbed descriptor lies far from the full-analog descriptor in the index metric | Level 1a (stability) | Bottleneck distance bounded by sup-norm of perturbation |
+| Descriptor indexes generator-specific texture or artifact that happens to correlate with environment label in the training data | Level 1b (identifiability) | Kong et al. Theorem 2 bounds learned factor away from non-generative artifact via auxiliary supervision |
+| Both simultaneously: noisy sparse observation whose descriptor indexes a generator artifact | Level 1a AND Level 1b jointly on the same feature | Joint feature passes both tests — robust *and* correctly identified |
+
+The QCF's retrieval claim rests on the convergence of these two guarantees. PH features provide Level 1a naturally, from the topological pathway's mathematical structure. CG-VAE features provide Level 1b naturally, from the auxiliary-supervised learned pathway's mathematical structure. The SLIDE decomposition (§14.6) isolates the joint component—features simultaneously aligned with both pathways—and this joint component earns the highest confidence in the retrieval metric because it carries both guarantees.
+
+**A shared limitation, honestly stated.** Both theorem classes deliver guarantees conditional on their assumption sets. Level 1a requires that the perturbation model be bounded in the sup norm—a condition violated by adversarial modifications that exceed the bound or by modeling choices that change the filtration type (cubical vs. Vietoris-Rips, for instance). Level 1b requires A1–A5 of Kong et al. or exponential-family plus $2n + 1$ auxiliary values of iVAE—conditions the principle-based generator is designed to satisfy, but which must be verified per generator and for which A5 provides a documented fallback. Neither guarantee is unconditional; both are stronger than "our empirical tests passed." The framework earns its epistemic confidence not by making unconditional claims but by making *conditional claims whose conditions are themselves verifiable*, then submitting those conditions to severe testing (Level 2) and cross-validation (Levels 4–7).
+
+### 8.3 The Revised Essence Claim
 
 > We claim that a representation captures "essence" when evidence *converges across multiple levels* of this hierarchy. No single level is sufficient. The convergence of mathematical proof (Level 1), survival of severe testing (Level 2), information-theoretic confirmation (Level 3), and empirical validation (Levels 5–7) provides the warranted basis for the essence designation.
 
 This multi-level structure is both more epistemically honest and more powerful than any single empirical test. It acknowledges the structural limitations of empirical invariance testing while building a stronger, multi-layered argument for the essence designation. Crucially, the topological pathway has a unique advantage: it is the *only* pathway with a Level 1 mathematical guarantee, making it the natural backbone of the framework's essence argument.
 
-### 8.3 Implications for Descriptor Admissibility and Query Validation
+### 8.4 Implications for Descriptor Admissibility and Query Validation
 
 The evidence hierarchy is not merely a philosophical organizing device—it has direct operational consequences for both pipelines of the retrieval architecture. Specifically, the hierarchy governs three critical system-level decisions: which descriptors are admitted into Pipeline A's geologic index, how Pipeline B's query encodings are validated, and what justifies the similarity metric coupling the two pipelines.
 
