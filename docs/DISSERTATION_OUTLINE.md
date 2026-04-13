@@ -1290,7 +1290,30 @@ The fourth adversarial test—"equalization"—attacks the representation's reli
 
 If the system still separates depositional classes after histogram equalization, the representation relies on spatial structure (higher-order statistics and topology) rather than intensity distribution. For binary facies images—the primary input to the topological pathway—this test is less discriminating than for continuous-valued data, since binary images already have trivial two-valued histograms. However, the test becomes important when the pipeline processes grayscale SEDT fields or continuous seismic amplitude data, where intensity histograms carry meaningful geological information that could serve as a confounding shortcut for classification.
 
-**Composite adversarial assessment.** The four tests are designed to be applied as a battery, not individually. Passing all four provides strong evidence that the representation captures genuine structural information at multiple levels of abstraction: beyond two-point statistics (Test 1), beyond surface texture (Test 2), sensitive to connectivity (Test 3), and beyond marginal distributions (Test 4). Failure on any single test identifies a specific vulnerability—a statistical shortcut the representation exploits—and prescribes a targeted diagnostic: which pathway, which feature, and which fusion weight to investigate.
+#### 10.4.5 Factor-Conditioned Counterfactual Severity (*Hetu-vyabhicāra*)
+
+The fifth adversarial test—"cause-specific deviation"—attacks the representation's *factor specificity*: the requirement that a pathway respond to the generative factor it claims to capture and remain largely unresponsive to unrelated factors. Where Tests 10.4.1–10.4.4 attack statistical shortcuts, this test attacks the correspondence claim of the supervised learned pathway. If CG-VAE claims that factor $\hat{z}_k$ identifies true generative parameter $\theta_k$ (per Kong et al. 2025 Theorem 2, §5.8), then counterfactual images produced by varying $\theta_k$ alone should elicit a response concentrated in $\hat{z}_k$ and substantially smaller responses in $\hat{z}_{j \neq k}$. The test is grounded in Chi et al. 2026 flow-matching image synthesis (arXiv:2602.05214)—demoted by the integration plan from standalone feature extractor to controllable counterfactual generator for severe testing of the CG-VAE identifiability claim.
+
+**Protocol.** A flow-matching generative model is trained with $\theta$ as auxiliary supervision (Chi et al. 2026 Path B+ supervised variant), conditioned on the principle-based generator's paired $(I, \theta)$ data. For each factor $\theta_k$, the model synthesizes a counterfactual pair $(I_\theta, I_{\theta + \Delta e_k})$ in which only component $k$ is perturbed by a pre-committed $\Delta$. The response of each pathway is $R_k^{(p)} = \lVert f_p(I_{\theta + \Delta e_k}) - f_p(I_\theta) \rVert$, where $f_p$ is the descriptor map of pathway $p$ and $\lVert \cdot \rVert$ is the pathway-appropriate norm (Wasserstein-2 for PH persistence diagrams; $\ell_2$ for classical, DINOv2, and CG-VAE vectors). The *specificity ratio* is
+
+$$S_k^{(p)} = \frac{R_k^{(p)}}{\max_{j \neq k} R_j^{(p)}}.$$
+
+A high $S_k^{(p)}$ indicates that pathway $p$ responds to factor $k$ far more strongly than to any other factor—the desired behavior for a topologically structured or identified representation. A low ratio is diagnostic of either feature entanglement (DINOv2 residuals) or failed identifiability (CG-VAE factor misalignment).
+
+**Pre-committed thresholds.**
+
+| Pathway | Threshold | Rationale |
+|---|---|---|
+| PH ($H_1$) | $S_k^{(\textrm{PH})} \geq 3$ for connectivity factors | PH should respond sharply to loop-structure changes, mildly to texture factors |
+| Classical variogram | $S_k^{(\textrm{var})} \geq 5$ for scale factors | Variograms isolate correlation scale cleanly |
+| CG-VAE (identified) | $S_k^{(\textrm{CG-VAE})} \geq 2$ for factors in $z_a$ per A4 | Matches Kong et al. (2025) Theorem 2 expectations |
+| DINOv2 (unsupervised) | *Control; no a priori threshold* | Entanglement expected; provides null baseline for the specificity metric |
+
+The DINOv2 control is the critical comparator. If DINOv2 exhibits specificity comparable to CG-VAE, the identifiability theorem adds nothing beyond what unsupervised pretraining already achieves and the Level 1b claim is empirically weakened. If DINOv2 is entangled (low specificity) while CG-VAE is specific, the theorem's empirical consequences are confirmed.
+
+**Interpretation.** Passing all pathway thresholds provides Level 2 severe evidence that the architecture's factor-level behavior matches its theoretical commitments. Failure on CG-VAE for factors that A4 includes in $z_a$ falsifies the identifiability claim for that subspace at Level 1b and triggers the iVAE fallback (§5.8); failure on PH or classical pathways for expected-specific factors triggers diagnostic investigation of the pathway's feature extractor (vectorization for PH, stationarity for variograms). The VQ-GAN dependency of Chi et al.'s flow-matching architecture (open question 6.2 in the integration plan) is resolved experimentally in §12.6: a raw-pixel diffusion variant serves as a fallback if a geological VQ-GAN is not trained.
+
+**Composite adversarial assessment.** The five tests are designed to be applied as a battery, not individually. Passing all five provides strong evidence that the representation captures genuine structural information at multiple levels of abstraction: beyond two-point statistics (Test 1), beyond surface texture (Test 2), sensitive to connectivity (Test 3), beyond marginal distributions (Test 4), and factor-specific at the per-parameter level (Test 5). Tests 1–4 attack statistical shortcuts; Test 5 attacks the correspondence claim of the supervised learned pathway specifically, failing gracefully into the iVAE fallback (§5.8) when the identifiability claim for specific factor subspaces cannot be sustained. Failure on any single test identifies a specific vulnerability—a statistical shortcut the representation exploits or an identifiability claim that does not hold—and prescribes a targeted diagnostic: which pathway, which feature, which fusion weight, or which factor subspace to investigate.
 
 ### 10.5 The Claim Survival Matrix
 
