@@ -229,3 +229,109 @@ Despite being listed as containing music/auditory connections, this document foc
 6. **References**: Carlsson 2009, Edelsbrunner & Harer 2010, Kemmea & Agyingi 2025, Cohen-Steiner et al. 2007, + music/TDA literature.
 
 ---
+
+## Identifiability Investigation — Additional Papers (April 2026)
+
+The following papers were surveyed during the April 2026 identifiability integration (see `docs/IDENTIFIABILITY_INTEGRATION_PLAN.md` for the full plan). They are summarized here for future reference. The integration plan (not these notes) is the authoritative source for decisions.
+
+---
+
+### Document 10: Chi et al. 2026 (arXiv:2602.05214)
+
+**Paper Overview.** Disentangled Representation Learning via Flow Matching. arXiv:2602.05214, February 2026. Authors: Chi, J., Liu, T., Yin, M., Li, X., Jing, Y., & Tao, D.
+
+**Core Approach.** Flow-matching image synthesis with factor-conditioned velocity and an orthogonality regularizer on the factor directions. Evaluation via DCI, FactorVAE, MIG metrics.
+
+**Verdict (per plan §2.1 and §3.4).** Tier 3–4 evidence. No identifiability theorem — orthogonality regularizer is an inductive bias that does not escape the Locatello et al. (2019) impossibility. Authors fix N=10 factors "following Locatello et al.," acknowledging this. Evaluation metrics (DCI, FactorVAE, MIG) are circular with the generator's known factors.
+
+**QCF Integration Role.** DEMOTED to adversarial counterfactual tool (Path B+). Not used as a standalone feature extractor. Trained with θ supervision, it serves as a controllable counterfactual image generator for the §10.4.5 severity test.
+
+**Cited In.** Dissertation §5.8 (framing why supervision is needed), §10.4.5 (adversarial tool), bibliography §7.3.
+
+---
+
+### Document 11: Li et al. 2025 (arXiv:2503.00639) — *integration plan misattributed as "Kong et al."*
+
+**Paper Overview.** Synergy Between Sufficient Changes and Sparse Mixing Procedure for Disentangled Representation Learning. arXiv:2503.00639, preprint as of April 2026. Authors: Li, Z., Fan, S., Zheng, Y., Ng, I., Xie, S., Chen, G., Dong, X., Cai, R., & Zhang, K.
+
+**Note on Authorship.** The integration plan consistently cites this paper as "Kong, L., et al. (2025)." This is a factual error — the arXiv page lists no "Kong" anywhere. The correct first author is Zijian Li. All 27 in-text references to "Kong et al." in the dissertation were corrected to "Li et al." during bibliography integration.
+
+**Key Theorems.**
+- **Theorem 1 (subspace identifiability).** For any subset $z_a \subseteq z$ whose parents in the sparse mixing graph lie in the observed support, $z_a$ is identifiable up to an invertible function of $z_a$ alone, using only $2 \lvert z_a \rvert + 1$ auxiliary values (vs iVAE's $2n+1$ for the full latent vector).
+- **Theorem 2 (component-wise identifiability).** Under an additional second-order derivative condition on the mixing Jacobian, individual components $z_i$ are identifiable up to element-wise invertible transformation.
+- **Corollary 1.** Reduces to iVAE result in the fully-connected mixing case — automatic fallback if A4 fails.
+
+**Assumptions A1–A5.**
+- A1: Smooth positive density of $\theta$ given generator identity
+- A2: Conditional independence of $\theta$ components given generator
+- A3: Sufficient changes across domains
+- A4: Sparse mixing structure
+- A5: Fully-connected fallback
+
+**QCF Integration Role (per plan §3.1).** PRIMARY — integrated as CG-VAE. Upgrades learned pathway to Level 1b for factors aligned with sparse mixing structure.
+
+**Integration Fit.** Paired $(I, \theta)$ satisfies A2 by construction. Empirical formulas (Leopold-Wolman, Parker, Werner) encode sparse mixing (A4). $2 \lvert z_a \rvert + 1$ domain count is practical for the 15–30 parameter space. Corollary 1 iVAE fallback is automatic if A4 verification fails.
+
+**Peer-review Status.** Preprint only as of April 2026. Fallback to Khemakhem et al. 2020 iVAE result is automatic via Corollary 1 if proofs don't survive peer review.
+
+**Cited In.** Dissertation §5.8, §6.5, §6.11, §8.1, §8.2, §9.1, §10.3, §10.4.5, §14.6, §14.7, §15; bibliography §7.1.
+
+---
+
+### Document 12: Brady et al. 2025 (arXiv:2411.07784)
+
+**Paper Overview.** Interaction Asymmetry: A General Principle for Learning Composable Abstractions. ICLR 2025, arXiv:2411.07784. Authors: Brady, J., von Kügelgen, J., Lachapelle, S., Buchholz, S., Kipf, T., & Brendel, W.
+
+**Key Result.** $(n+1)$-th-order derivative block-diagonality condition enables identification of object slots up to slot permutation and slot-wise diffeomorphism. Single-view training. Object-centric framework.
+
+**QCF Integration Role (per plan §3.3).** CITE-ONLY. Theoretically elegant (cleanest disentanglement theorem) but four reasons it does not fit QCF:
+1. No natural slot structure for geology (channels, floodplains, point bars aren't "slots" in the theorem's sense)
+2. Single-view training wastes the multi-generator data the QCF already has
+3. Regularity conditions on $Z_{\textrm{supp}}$ may be violated by the constrained manifold $M$ of physically feasible geology
+4. Object-centric experimental validation only (Sprites, CLEVR6); authors acknowledge "preliminary"
+
+**Cited In.** Bibliography §7.4 as frontier identifiability reference. Not actively integrated into the dissertation narrative.
+
+---
+
+### Document 13: Yao et al. 2025 — Unifying CRL (arXiv:2409.02772)
+
+**Paper Overview.** Unifying Causal Representation Learning with the Invariance Principle. ICLR 2025, arXiv:2409.02772. Authors: Yao, D., Rancati, D., Cadei, R., Fumero, M., & Locatello, F.
+
+**Core Framework.** Invariance-to-identifiability mapping — the *kind* of observed invariance across environments determines the *strength* of identifiability recoverable. Generalizes iVAE; supports mix-and-match across environment partitions.
+
+**Taxonomy (used in §10.3 LOGO reframing).**
+- Distribution invariance (marginals match) → Weak identifiability
+- Mechanism invariance (generating function $f$ identical) → Moderate (block-wise identifiability)
+- Interventional sufficiency ($2 \lvert z_a \rvert + 1$ informative changes per $z_a$) → Strong (element-wise per Li et al. 2025 Theorem 2; A1–A4)
+
+**QCF Integration Role (per plan §3.1).** FRAMEWORK — used to reframe §10.3 LOGO as interventional CRL. Each generator is an intervention on a shared data-generating process. Informative vs confounded environment partitions. Ahuja 2023 impossibility reinterpreted within positive theorems: invariance recovers identifiability only when the partition is interventional and the counting condition holds.
+
+**Cited In.** Dissertation §10.3 (LOGO reframing); bibliography §7.2.
+
+---
+
+### Document 14: Rongier & Peeters 2025 — Geological GAN (arXiv:2510.17478)
+
+**Paper Overview.** Towards Geological Inference with Process-Based and Deep Generative Modeling, Part 2: Inversion of Fluvial Deposits and Latent-Space Disentanglement. arXiv:2510.17478, October 2025. Authors: Rongier, G. & Peeters, L.
+
+**Core Approach.** GAN trained on process-based fluvial deposit simulations. Latent space engineered to expose semantically meaningful directions (channel sinuosity, width, bifurcation frequency) for interactive geological editing.
+
+**QCF Integration Role (per plan §3.1).** COMPETITOR. Adjacent work on GAN latent-space disentanglement for fluvial deposits without PH and without identifiability theorems.
+
+**Three Distinctions from QCF (developed in §6.11).**
+1. No persistent homology (pure GAN latent space)
+2. No identifiability theorem — uses empirical probing and orthogonality regularizers (Locatello 2019 impossibility applies)
+3. Single-environment scope (fluvial only); no cross-environment or cross-generator LOGO validation
+
+**Cited In.** Dissertation §6.11 Related Work as competitor; bibliography §7.5.
+
+---
+
+### Summary of the Identifiability Investigation
+
+Two types of Level 1 mathematical guarantee exist, protecting against different failure modes:
+- **Stability theorem** (Cohen-Steiner et al. 2007): $d_B(\textrm{Dgm}(f), \textrm{Dgm}(g)) \leq \lVert f - g \rVert_\infty$ — protects PH from perturbation noise.
+- **Identifiability theorems** (Khemakhem et al. 2020; Li et al. 2025): under auxiliary variables or interventions, learned latents correspond to true generative factors up to well-defined equivalence classes — protects learned features from recovering generator-artifact mixtures.
+
+Both are formal proofs. Both belong at Level 1 of the §8 evidence hierarchy. The QCF previously had the first but not the second; the integration adds the second. See `docs/IDENTIFIABILITY_INTEGRATION_PLAN.md` for full decisions and rationale.
