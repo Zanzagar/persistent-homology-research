@@ -22,7 +22,7 @@ if [ -t 0 ] 2>/dev/null; then
     : # stdin is terminal, manual run — proceed
 else
     INPUT=$(cat)
-    USER_MSG=$(echo "$INPUT" | jq -r '.user_prompt // .message // ""' 2>/dev/null)
+    USER_MSG=$(echo "$INPUT" | jq -r '.prompt // .user_prompt // .message // ""' 2>/dev/null)
     if [ -n "$USER_MSG" ]; then
         if ! echo "$USER_MSG" | grep -qiE '(^/compact|compact.*context|context.*heavy)'; then
             exit 0  # Not a compaction-related message, skip
@@ -50,7 +50,8 @@ if [ -d "$PROJECT_DIR/.git" ]; then
 fi
 
 # --- Active Task Master task ---
-ACTIVE_TASK=$(task-master list --status in-progress --json 2>/dev/null \
+# timeout guard: task-master resolves to a Windows npm install via WSL interop and can hang
+ACTIVE_TASK=$(timeout 5 task-master list --status in-progress --json 2>/dev/null \
     | jq -r '.tasks[] | "- \(.title) (ID: \(.id))"' 2>/dev/null \
     | head -5)
 [ -z "$ACTIVE_TASK" ] && ACTIVE_TASK="none"

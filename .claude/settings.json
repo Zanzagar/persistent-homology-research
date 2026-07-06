@@ -120,11 +120,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-compact.sh"
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-compact.sh",
+            "timeout": 10
           },
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/suggest-compact.sh"
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/suggest-compact.sh",
+            "timeout": 10
           }
         ]
       }

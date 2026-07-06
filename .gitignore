@@ -10,3 +10,6 @@
 .env*
 *.key
 *.pem
+
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
