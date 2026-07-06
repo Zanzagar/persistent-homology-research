@@ -1,0 +1,12 @@
+# WSL/NTFS alternate data stream artifacts (Zone.Identifier, DLP, Dropbox attrs)
+*:Zone.Identifier
+*:sec.endpointdlp
+*:com.dropbox.attrs
+
+# Claude Code session temp files
+.claude/sessions/compact-state-*.tmp
+
+# Credentials
+.env*
+*.key
+*.pem
