@@ -335,3 +335,26 @@ Two types of Level 1 mathematical guarantee exist, protecting against different 
 - **Identifiability theorems** (Khemakhem et al. 2020; Li et al. 2025): under auxiliary variables or interventions, learned latents correspond to true generative factors up to well-defined equivalence classes — protects learned features from recovering generator-artifact mixtures.
 
 Both are formal proofs. Both belong at Level 1 of the §8 evidence hierarchy. The QCF previously had the first but not the second; the integration adds the second. See `docs/IDENTIFIABILITY_INTEGRATION_PLAN.md` for full decisions and rationale.
+
+---
+
+## Current Investigation — Inverse Analysis / Loop Localization (June 2026)
+
+**Status: OPEN THREAD.** Paper downloaded 2026-06-10 (`docs/research-papers/s41468-023-00119-8.pdf`); not yet cited in the dissertation outline and no integration decisions have been made. This note records the thread so it is visible to reviewers and future sessions.
+
+### Document 15: Obayashi 2023 — Stable Volumes
+
+**Paper Overview.** Stable volumes for persistent homology. *Journal of Applied and Computational Topology*, 7:671–706 (2023). DOI 10.1007/s41468-023-00119-8. Author: Ippei Obayashi (Okayama University).
+
+**Problem Addressed.** "Inverse analysis on PH": identifying the concrete geometric structure in the input data that corresponds to each birth–death pair in a persistence diagram. Representative cycles for a homology generator are not unique, and prior optimization-based approaches — optimal cycles (Escolar & Hiraoka 2016), volume-optimal cycles (Obayashi 2018), persistent 1-cycles (Dey et al. 2019) — are sensitive to noise: a small perturbation of the input can change which cycle the optimizer returns, and the optimizer sometimes fails to recover the minimal building blocks at all.
+
+**Core Contribution.** *Stable volumes* and *stable sub-volumes*: noise-robust variants of volume-optimal cycles. For a special case, the paper proves a stable volume is the robust part of an optimal volume under noise. Implemented in HomCloud (Obayashi's PH analysis package).
+
+**Candidate QCF Relevance (preliminary — no decisions recorded).**
+1. **Geological interpretability of $H_1$ features.** The $H_1$ hypothesis (dissertation §12, ADR-S04) predicts braided systems exhibit many persistent $H_1$ loops. Stable volumes would localize *which* floodplain islands / channel enclosures each birth–death pair corresponds to, turning an abstract diagram point into a highlightable image region — robustly to noise, which matters because SEDT filtrations of binary facies images are exactly the noisy setting where naive optimal cycles are unreliable.
+2. **Sākṣī expert validation.** Localized loops could be shown directly to expert witnesses ("this loop is this island"), potentially strengthening the expert-agreement witnesses (dissertation §10) with feature-level rather than retrieval-level judgments.
+3. **Tooling implication.** Stable volumes are implemented in HomCloud, while the implementation spec (Phase 2) currently specifies Giotto-TDA. Adopting inverse analysis may require adding HomCloud alongside or instead of Giotto-TDA for the localization step.
+
+**Open Questions for Integration.**
+- Does stable-volume localization work well on cubical complexes with SEDT filtrations (the QCF setting), as opposed to point-cloud Vietoris–Rips settings?
+- Where does localized-loop evidence sit in the §8 evidence hierarchy — it aids interpretation and expert validation but adds no new invariance guarantee beyond the stability theorem already at Level 1a.
