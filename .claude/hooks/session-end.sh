@@ -43,7 +43,7 @@ fi
 
 # --- Task Master capture ---
 # Use JSON output + jq for clean markdown (avoid ANSI box formatting)
-TASK_PROGRESS=$(task-master list --status in-progress --json 2>/dev/null \
+TASK_PROGRESS=$(timeout 5 task-master list --status in-progress --json 2>/dev/null \
     | jq -r '.tasks[] | "- \(.title) (ID: \(.id))"' 2>/dev/null \
     | head -10)
 [ -z "$TASK_PROGRESS" ] && TASK_PROGRESS="No tasks in progress"

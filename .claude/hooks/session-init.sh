@@ -140,11 +140,12 @@ if [ -d "$PROJECT_DIR/.git" ]; then
 fi
 
 # Get current Taskmaster task if available
+# timeout guards: task-master resolves to a Windows npm install via WSL interop and can hang
 if [ "$HAS_TASKMASTER" = true ] && command -v task-master &> /dev/null; then
-    CURRENT_TASK=$(cd "$PROJECT_DIR" && task-master next 2>/dev/null | head -3 || echo "")
-    TASK_COUNT=$(cd "$PROJECT_DIR" && task-master list 2>/dev/null | grep -c "^[0-9]" || echo "0")
-    IN_PROGRESS_COUNT=$(cd "$PROJECT_DIR" && task-master list --status in-progress 2>/dev/null | grep -c "^[0-9]" || echo "0")
-    DONE_COUNT=$(cd "$PROJECT_DIR" && task-master list --status done 2>/dev/null | grep -c "^[0-9]" || echo "0")
+    CURRENT_TASK=$(cd "$PROJECT_DIR" && timeout 5 task-master next 2>/dev/null | head -3 || echo "")
+    TASK_COUNT=$(cd "$PROJECT_DIR" && timeout 5 task-master list 2>/dev/null | grep -c "^[0-9]" || echo "0")
+    IN_PROGRESS_COUNT=$(cd "$PROJECT_DIR" && timeout 5 task-master list --status in-progress 2>/dev/null | grep -c "^[0-9]" || echo "0")
+    DONE_COUNT=$(cd "$PROJECT_DIR" && timeout 5 task-master list --status done 2>/dev/null | grep -c "^[0-9]" || echo "0")
 fi
 
 # Session continuity - find most recent session summary

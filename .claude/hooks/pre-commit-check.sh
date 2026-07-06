@@ -116,7 +116,7 @@ done
 # --- Advisory: Task Master in-progress check (R1.3) ---
 if [[ -z "$SKIP_TASK_CHECK" ]]; then
     if command -v task-master &> /dev/null; then
-        IN_PROGRESS=$(task-master list --status in-progress 2>/dev/null | grep -c "in-progress" || true)
+        IN_PROGRESS=$(timeout 5 task-master list --status in-progress 2>/dev/null | grep -c "in-progress" || true)
         if [[ "$IN_PROGRESS" -eq 0 ]]; then
             echo "Advisory: No Task Master task is in-progress. Consider tracking work with task-master."
         fi
