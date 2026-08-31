@@ -11,7 +11,6 @@ Academic research on applying persistent homology (TDA) to the qualia convergenc
 
 ```
 docs/              # Source documents and output papers
-.claude/rules/     # Auto-loaded behavior rules
 ```
 
 ## Project-Specific Patterns
@@ -32,65 +31,17 @@ docs/              # Source documents and output papers
 - Source docs include deprecated versions — only use the three current documents listed in `docs/00_DOCUMENT_INDEX.md`
 - `.docx` files in `docs/` contain the persistent homology writeups (general research + personal research)
 
-## Taskmaster Workflows
-
-### Workflow Rules (MANDATORY)
-
-1. **PRD first**: ALWAYS create a PRD before generating tasks. Never use `add-task` to build a task list from scratch — write a PRD in `.taskmaster/docs/`, then parse it.
-2. **New tag per phase**: Each workflow phase gets its own tag (e.g., `writeup-ph`, `literature-review`). Never pollute the `master` tag with phase-specific work.
-3. **Switch tags**: Always `task-master tags use <name>` before running set-status, show, or list — operations target the active tag.
-4. **Expand after parse**: Always run `task-master expand --id=<id>` on complex tasks after parse-prd to generate actionable subtasks.
-5. **Float task count**: Use `--num-tasks 0` with parse-prd to let the AI determine the right number of tasks. Don't hardcode counts.
-
-### Commands
-
-```bash
-# List tasks (current tag)
-task-master list                        # Default view
-task-master list all                    # Include subtasks
-task-master list --ready                # Only actionable tasks (deps satisfied)
-task-master list --ready --blocking     # Highest-impact tasks to work on next
-
-# Show / navigate
-task-master show <id>                   # Task details
-task-master next                        # Next recommended task
-
-# Status updates (positional syntax)
-task-master set-status <id> <status>    # e.g., set-status 3 done
-
-# Task decomposition
-task-master expand --id=<id>            # Break task into subtasks
-
-# PRD -> tasks
-task-master parse-prd --input=<file> --num-tasks=0
-
-# Tag management
-task-master tags use <tag-name>         # Switch active tag
-```
-
 ## Research Workflow
 
 ### Daily Loop
-1. Check task-master for next research task
-2. Read source documents relevant to the task
-3. Conduct external research if needed (WebSearch, WebFetch)
-4. Write/revise output documents
-5. Small, focused commits; update task status
+1. Read source documents relevant to the current research task
+2. Conduct external research if needed (WebSearch, WebFetch)
+3. Write/revise output documents
+4. Small, focused commits
 
 ## Current Focus
 
 - [ ] ~5-page persistent homology writeup for professor meeting
-
-## Relevant Slash Commands
-
-| Command | Description |
-|---------|-------------|
-| `/research <topic>` | Structured research workflow |
-| `/brainstorm <topic>` | Structured brainstorming |
-| `/commit [message]` | Create conventional commit |
-| `/tasks` | List Taskmaster tasks |
-| `/task-status` | Update Taskmaster task status |
-| `/checkpoint [label]` | Manual session state save |
 
 ## Source Documents
 
