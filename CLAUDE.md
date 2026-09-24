@@ -1,5 +1,7 @@
 # Project: Persistent Homology Research
 
+@AGENTS.md
+
 Academic research on applying persistent homology (TDA) to the qualia convergence framework.
 
 ## Tech Stack
