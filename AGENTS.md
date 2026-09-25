@@ -44,5 +44,7 @@ branch merged the same evening).
   after every commit, `main` included. Take a `<track>/<subject>` branch when the work might be abandoned
   or a diff that matters wants its Codex review first, and merge it yourself; no human step. Never make
   published history unrecoverable: no force-push, no deleting `main`, no rewriting pushed commits; a goof
-  is fixed with `git revert`. The checked-in `.claude/settings.json` carries the deny/ask rules.
+  is fixed with `git revert`. The one exception to merging your own PR (rule 14, "Changes to the gate
+  itself"): a change to the grilling gate's own files lands in a PR by itself and merges only on the
+  owner's explicit go. The checked-in `.claude/settings.json` carries the deny/ask rules.
 - **Grilling gate:** rule 14 (`Decided:` / class trailers) is NOT adopted here. Adoption matrix §1a: "not adopted — §4 advises against always-on grilling in research repos; the owner's call whether a Decided: pointer to a methodological ADR is the same thing." To adopt: `~/projects/claude-harness/adopt.sh ~/projects/persistent-homology-research`, then the owner runs `git config core.hooksPath .githooks`; adopt.sh replaces this line with its pointer. <!-- grill-gate:pointer -->
